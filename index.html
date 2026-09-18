@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d3b3a" />
+  <meta name="description" content="תחזית מזג אוויר חיה לטיול הג'יפים במונטנגרו, 23–30 בספטמבר 2026" />
+  <title>מונטנגרו 🇲🇪 | מזג האוויר למסע</title>
+  <style>
+    :root{
+      --bg:#f3f5f2;
+      --card:#ffffff;
+      --ink:#132524;
+      --muted:#667876;
+      --line:#dce4df;
+      --brand:#0d3b3a;
+      --brand2:#176b65;
+      --soft:#e7f1ed;
+      --warn:#fff4d6;
+      --danger:#fde6e2;
+      --shadow:0 10px 35px rgba(17,45,43,.08);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 85% -10%, rgba(36,130,120,.13), transparent 33rem),
+        linear-gradient(180deg,#eef4ef 0,#f7f7f4 24rem,var(--bg) 100%);
+      color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    button{font:inherit}
+    .wrap{width:min(920px,100%);margin:auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom))}
+    header{
+      padding:18px 4px 8px;
+      display:flex;gap:14px;align-items:flex-start;justify-content:space-between;
+    }
+    .eyebrow{font-size:13px;font-weight:750;color:var(--brand2);letter-spacing:.02em;margin-bottom:5px}
+    h1{font-size:clamp(28px,8vw,46px);line-height:1.03;margin:0;letter-spacing:-.035em}
+    .sub{margin:9px 0 0;color:var(--muted);font-size:15px;line-height:1.5}
+    .actions{display:flex;gap:8px;flex:0 0 auto}
+    .icon-btn{
+      border:1px solid var(--line);background:rgba(255,255,255,.82);backdrop-filter:blur(12px);
+      height:44px;min-width:44px;padding:0 12px;border-radius:14px;color:var(--brand);
+      display:grid;place-items:center;box-shadow:0 5px 16px rgba(17,45,43,.04);cursor:pointer
+    }
+    .icon-btn:active{transform:scale(.97)}
+    .hero{
+      margin:14px 0 16px;background:linear-gradient(145deg,var(--brand),#155a55);
+      color:white;border-radius:28px;padding:22px;box-shadow:0 16px 38px rgba(13,59,58,.19);
+      position:relative;overflow:hidden;
+    }
+    .hero:after{content:"";position:absolute;left:-65px;bottom:-100px;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.07)}
+    .hero-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;position:relative;z-index:1}
+    .countdown{font-size:30px;font-weight:800;letter-spacing:-.03em}
+    .countdown small{font-size:15px;font-weight:650;opacity:.75}
+    .live{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;opacity:.9;white-space:nowrap}
+    .dot{width:8px;height:8px;background:#8ff0c8;border-radius:50%;box-shadow:0 0 0 5px rgba(143,240,200,.12)}
+    .hero-note{font-size:14px;line-height:1.55;opacity:.84;margin-top:8px;max-width:650px;position:relative;z-index:1}
+    .updated{margin-top:14px;font-size:12px;opacity:.7;position:relative;z-index:1}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+    .summary-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px 12px;box-shadow:var(--shadow);min-width:0}
+    .summary-label{font-size:11px;color:var(--muted);font-weight:750;margin-bottom:5px}
+    .summary-value{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:24px 3px 10px}
+    .section-head h2{margin:0;font-size:21px;letter-spacing:-.02em}
+    .section-head span{font-size:12px;color:var(--muted)}
+    .days{display:grid;gap:12px}
+    .day{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:16px;position:relative;overflow:hidden;
+    }
+    .day.today{border:2px solid var(--brand2);padding:15px}
+    .day.today:before{content:"היום";position:absolute;left:13px;top:11px;background:var(--brand);color:#fff;font-size:11px;font-weight:800;padding:5px 9px;border-radius:99px}
+    .day.past{opacity:.58}
+    .day-head{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center}
+    .datebox{border-radius:16px;background:var(--soft);text-align:center;padding:9px 5px;color:var(--brand)}
+    .datebox .dow{font-size:11px;font-weight:800}
+    .datebox .num{font-size:22px;font-weight:850;line-height:1.05;margin-top:2px}
+    .route{min-width:0}
+    .route h3{font-size:17px;line-height:1.25;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .route p{font-size:12px;color:var(--muted);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .wx{font-size:38px;line-height:1}
+    .weather-row{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:8px;margin-top:14px}
+    .metric{background:#f7f9f7;border-radius:14px;padding:10px 11px;min-width:0}
+    .metric .label{font-size:10px;font-weight:750;color:var(--muted);margin-bottom:4px}
+    .metric .value{font-size:15px;font-weight:820;white-space:nowrap}
+    .desc{margin-top:11px;display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);line-height:1.45}
+    .advice{margin-top:10px;padding:9px 11px;border-radius:13px;background:var(--soft);color:var(--brand);font-size:12px;font-weight:700;line-height:1.45}
+    .loading{animation:pulse 1.3s ease-in-out infinite;color:#91a09e!important}
+    @keyframes pulse{50%{opacity:.38}}
+    .error{
+      background:var(--danger);border:1px solid #f1c8c0;color:#78372e;border-radius:16px;padding:12px 14px;
+      margin:12px 0;font-size:13px;line-height:1.45;display:none;
+    }
+    .foot{
+      margin:24px 2px 0;padding:16px 2px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.65
+    }
+    .foot a{color:var(--brand2);text-decoration:none;font-weight:700}
+    .pill{display:inline-block;padding:4px 8px;border-radius:99px;background:var(--soft);color:var(--brand);font-weight:750;margin-inline-start:4px}
+    @media(min-width:680px){
+      .days{grid-template-columns:1fr 1fr}
+      .day-head{grid-template-columns:60px 1fr auto}
+      .hero{padding:26px}
+      .summary-card{padding:15px}
+    }
+    @media(max-width:390px){
+      .actions .label{display:none}
+      .icon-btn{padding:0 10px}
+      .weather-row{grid-template-columns:1.4fr 1fr}
+      .weather-row .metric:last-child{grid-column:span 2}
+      .summary{grid-template-columns:1fr 1fr}
+      .summary .summary-card:last-child{grid-column:span 2}
+    }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">טיול ג׳יפים • 23–30.9.2026</div>
+      <h1>מונטנגרו 🇲🇪</h1>
+      <p class="sub">מזג האוויר לאורך המסלול — מתעדכן אוטומטית בכל פתיחה.</p>
+    </div>
+    <div class="actions">
+      <button class="icon-btn" id="shareBtn" title="שיתוף" aria-label="שיתוף">↗︎ <span class="label">&nbsp;שתף</span></button>
+      <button class="icon-btn" id="refreshBtn" title="רענון" aria-label="רענון">↻</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-top">
+      <div>
+        <div id="countdown" class="countdown">טוען…</div>
+        <div class="hero-note" id="heroNote">התחזית נמשכת ישירות מ־Open‑Meteo. באזורים ההרריים יכול להיות פער גדול מהחוף — לכן כל יום מוצג לפי התחנה הרלוונטית למסלול.</div>
+      </div>
+      <div class="live"><span class="dot"></span> LIVE</div>
+    </div>
+    <div class="updated" id="updated">מתחבר לנתוני מזג האוויר…</div>
+  </section>
+
+  <div id="error" class="error"></div>
+
+  <section class="summary" aria-label="סיכום התחזית">
+    <div class="summary-card">
+      <div class="summary-label">🥶 היום הקר ביותר</div>
+      <div class="summary-value loading" id="coldest">טוען…</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">🌧️ הכי הרבה סיכוי לגשם</div>
+      <div class="summary-value loading" id="wettest">טוען…</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">☀️ היום החם ביותר</div>
+      <div class="summary-value loading" id="warmest">טוען…</div>
+    </div>
+  </section>
+
+  <div class="section-head">
+    <h2>המסלול והתחזית</h2>
+    <span>טמפרטורות ב־°C</span>
+  </div>
+  <section id="days" class="days"></section>
+
+  <footer class="foot">
+    התחזית מבוססת על <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open‑Meteo</a>
+    ומתרעננת בכל טעינה ובכל 30 דקות כשהעמוד פתוח.
+    מסלול הימים מבוסס על תכנית טיול הג׳יפים של Tripology לתאריכים 23–30.9.2026.
+    <span class="pill">תחזית ≠ הבטחה</span>
+  </footer>
+</main>
+
+<script>
+const TRIP_START = new Date("2026-09-23T00:00:00+02:00");
+const TRIP_END   = new Date("2026-09-30T23:59:59+02:00");
+
+const locations = {
+  zabljak: { name:"ז׳בליאק", lat:43.1555, lon:19.1226 },
+  pljevlja:{ name:"פלייבליה", lat:43.3567, lon:19.3584 },
+  kolasin: { name:"קולאשין", lat:42.8231, lon:19.5225 },
+  kotor:   { name:"קוטור", lat:42.4247, lon:18.7712 },
+  budva:   { name:"בודווה", lat:42.2911, lon:18.8403 }
+};
+
+const itinerary = [
+  {date:"2026-09-23", dow:"ד׳", num:"23", title:"טיבת → ז׳בליאק", subtitle:"נחיתה, קבלת הג׳יפים ונסיעה צפונה", loc:"zabljak"},
+  {date:"2026-09-24", dow:"ה׳", num:"24", title:"דורמיטור והאגם השחור", subtitle:"מסלול הליכה, רכס דורמיטור וקניון קומרניצה", loc:"zabljak"},
+  {date:"2026-09-25", dow:"ו׳", num:"25", title:"ארץ הגבול הסרבי → פלייבליה", subtitle:"תצפית על קניון טארה, כפרים ומפל", loc:"pljevlja"},
+  {date:"2026-09-26", dow:"ש׳", num:"26", title:"קניון טארה → קולאשין", subtitle:"רפטינג, גשר טארה ואומגה", loc:"kolasin"},
+  {date:"2026-09-27", dow:"א׳", num:"27", title:"ביוגרד ורכס סיניאווינה", subtitle:"אגם ביוגרד, שטח וכפרי קיץ", loc:"kolasin"},
+  {date:"2026-09-28", dow:"ב׳", num:"28", title:"בילאשיצה ורכס קומובי", subtitle:"הרים גבוהים, יערות ותצפיות", loc:"kolasin"},
+  {date:"2026-09-29", dow:"ג׳", num:"29", title:"קוטור → בודווה", subtitle:"מפרץ קוטור, שיט והעיר העתיקה", loc:"kotor"},
+  {date:"2026-09-30", dow:"ד׳", num:"30", title:"בודווה → טיבת → הביתה", subtitle:"בוקר בחוף ונסיעה לשדה התעופה", loc:"budva"}
+];
+
+const wmo = {
+  0:["☀️","בהיר"],
+  1:["🌤️","בהיר בעיקר"], 2:["⛅️","מעונן חלקית"], 3:["☁️","מעונן"],
+  45:["🌫️","ערפל"], 48:["🌫️","ערפל קפוא"],
+  51:["🌦️","טפטוף קל"],53:["🌦️","טפטוף"],55:["🌧️","טפטוף כבד"],
+  56:["🌧️","טפטוף קפוא"],57:["🌧️","טפטוף קפוא כבד"],
+  61:["🌦️","גשם קל"],63:["🌧️","גשם"],65:["🌧️","גשם כבד"],
+  66:["🌧️","גשם קפוא"],67:["🌧️","גשם קפוא כבד"],
+  71:["🌨️","שלג קל"],73:["🌨️","שלג"],75:["❄️","שלג כבד"],77:["❄️","גרגרי שלג"],
+  80:["🌦️","ממטרים קלים"],81:["🌧️","ממטרים"],82:["⛈️","ממטרים חזקים"],
+  85:["🌨️","ממטרי שלג"],86:["❄️","ממטרי שלג כבדים"],
+  95:["⛈️","סופת רעמים"],96:["⛈️","סופה וברד"],99:["⛈️","סופה וברד כבד"]
+};
+
+const fmt = n => Number.isFinite(n) ? Math.round(n) : "–";
+
+function weatherText(code){ return wmo[code] || ["🌡️","תחזית"]; }
+
+function adviceFor(day){
+  if(!day) return "התחזית לתאריך הזה עדיין לא זמינה — היא תופיע כאן אוטומטית כשהתאריך ייכנס לטווח התחזית.";
+  const parts=[];
+  if(day.min <= 5) parts.push("🧥 שכבה חמה לבוקר ולערב");
+  else if(day.min <= 10) parts.push("🧥 פליז / סווטשירט");
+  if(day.max >= 23) parts.push("👕 קצר לשעות החמות");
+  else if(day.max <= 15) parts.push("👖 לבוש ארוך");
+  if(day.rain >= 50 || day.precip >= 3) parts.push("🌧️ מעיל גשם");
+  else if(day.rain >= 25) parts.push("☂️ כדאי משהו נגד גשם בתיק");
+  if(day.gust >= 45) parts.push("💨 צפויות משבי רוח חזקים");
+  return parts.length ? parts.join(" • ") : "🎒 שכבות קלות יספיקו לפי התחזית הנוכחית";
+}
+
+function renderSkeleton(){
+  const root=document.getElementById("days");
+  root.innerHTML=itinerary.map(d=>`
+    <article class="day" data-date="${d.date}">
+      <div class="day-head">
+        <div class="datebox"><div class="dow">${d.dow}</div><div class="num">${d.num}</div></div>
+        <div class="route"><h3>${d.title}</h3><p>${d.subtitle} • תחנה: ${locations[d.loc].name}</p></div>
+        <div class="wx">…</div>
+      </div>
+      <div class="weather-row">
+        <div class="metric"><div class="label">יום / לילה</div><div class="value loading">טוען…</div></div>
+        <div class="metric"><div class="label">גשם</div><div class="value loading">טוען…</div></div>
+        <div class="metric"><div class="label">רוח</div><div class="value loading">טוען…</div></div>
+      </div>
+      <div class="desc loading">מוריד תחזית עדכנית…</div>
+    </article>`).join("");
+  markToday();
+}
+
+function markToday(){
+  const now=new Date();
+  const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Podgorica",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+  document.querySelectorAll(".day").forEach(el=>{
+    if(el.dataset.date===today) el.classList.add("today");
+    if(el.dataset.date<today) el.classList.add("past");
+  });
+}
+
+function countdown(){
+  const now=new Date();
+  const el=document.getElementById("countdown");
+  if(now < TRIP_START){
+    const diff=TRIP_START-now;
+    const days=Math.ceil(diff/86400000);
+    el.innerHTML=`עוד ${days} ${days===1?"יום":"ימים"} <small>ליציאה</small>`;
+  } else if(now <= TRIP_END){
+    const tripDay=Math.min(8,Math.max(1,Math.floor((now-TRIP_START)/86400000)+1));
+    el.innerHTML=`אנחנו בטיול 🇲🇪 <small>יום ${tripDay} מתוך 8</small>`;
+  } else {
+    el.innerHTML=`המסע הסתיים 🇲🇪 <small>23–30.9.2026</small>`;
+  }
+}
+
+function normalizeDaily(json){
+  const d=json.daily || {};
+  const out={};
+  (d.time||[]).forEach((date,i)=>{
+    out[date]={
+      max:d.temperature_2m_max?.[i],
+      min:d.temperature_2m_min?.[i],
+      feelsMax:d.apparent_temperature_max?.[i],
+      feelsMin:d.apparent_temperature_min?.[i],
+      rain:d.precipitation_probability_max?.[i],
+      precip:d.precipitation_sum?.[i],
+      code:d.weather_code?.[i],
+      gust:d.wind_gusts_10m_max?.[i]
+    };
+  });
+  return out;
+}
+
+async function fetchLocation(key){
+  const l=locations[key];
+  const params=new URLSearchParams({
+    latitude:l.lat,
+    longitude:l.lon,
+    daily:"weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,precipitation_sum,wind_gusts_10m_max",
+    timezone:"Europe/Podgorica",
+    forecast_days:"16",
+    temperature_unit:"celsius",
+    wind_speed_unit:"kmh",
+    precipitation_unit:"mm"
+  });
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+  if(!r.ok) throw new Error(`Weather API ${r.status}`);
+  return normalizeDaily(await r.json());
+}
+
+async function loadWeather(force=false){
+  const errorBox=document.getElementById("error");
+  errorBox.style.display="none";
+  const unique=[...new Set(itinerary.map(x=>x.loc))];
+  let byLoc={};
+
+  try{
+    const values=await Promise.all(unique.map(fetchLocation));
+    unique.forEach((k,i)=>byLoc[k]=values[i]);
+    localStorage.setItem("montenegro-weather-cache",JSON.stringify({at:Date.now(),byLoc}));
+  }catch(err){
+    const cached=localStorage.getItem("montenegro-weather-cache");
+    if(cached){
+      const c=JSON.parse(cached);
+      byLoc=c.byLoc;
+      errorBox.textContent="אין כרגע חיבור לעדכון חי. מוצגים הנתונים האחרונים שנשמרו במכשיר.";
+      errorBox.style.display="block";
+    }else{
+      errorBox.textContent="לא הצלחתי להביא כרגע את התחזית. נסו לרענן בעוד רגע.";
+      errorBox.style.display="block";
+      return;
+    }
+  }
+
+  const all=[];
+  itinerary.forEach(d=>{
+    const wx=byLoc[d.loc]?.[d.date] || null;
+    if(wx) all.push({...wx,...d});
+    const card=document.querySelector(`.day[data-date="${d.date}"]`);
+    const icon=card.querySelector(".wx");
+    const vals=card.querySelectorAll(".metric .value");
+    const desc=card.querySelector(".desc");
+
+    if(!wx){
+      icon.textContent="🕒";
+      vals[0].textContent="עדיין לא זמין";
+      vals[1].textContent="–";
+      vals[2].textContent="–";
+      desc.classList.remove("loading");
+      desc.textContent=adviceFor(null);
+      vals.forEach(v=>v.classList.remove("loading"));
+      return;
+    }
+
+    const [emoji, label]=weatherText(wx.code);
+    icon.textContent=emoji;
+    vals[0].textContent=`${fmt(wx.max)}° / ${fmt(wx.min)}°`;
+    vals[1].textContent=`${fmt(wx.rain)}%`;
+    vals[2].textContent=`עד ${fmt(wx.gust)} קמ״ש`;
+    vals.forEach(v=>v.classList.remove("loading"));
+    desc.classList.remove("loading");
+    desc.innerHTML=`<span>${emoji}</span><span><strong>${label}</strong> • משקעים צפויים ${Number.isFinite(wx.precip)?wx.precip.toFixed(1):"–"} מ״מ • מרגיש ${fmt(wx.feelsMax)}° / ${fmt(wx.feelsMin)}°</span>`;
+
+    let adv=card.querySelector(".advice");
+    if(!adv){ adv=document.createElement("div"); adv.className="advice"; card.appendChild(adv); }
+    adv.textContent=adviceFor(wx);
+  });
+
+  updateSummary(all);
+  const now=new Date();
+  document.getElementById("updated").textContent=
+    `עדכון אחרון: ${new Intl.DateTimeFormat("he-IL",{dateStyle:"short",timeStyle:"short"}).format(now)} • רענון אוטומטי כל 30 דקות`;
+}
+
+function updateSummary(all){
+  const set=(id,text)=>{const e=document.getElementById(id);e.textContent=text;e.classList.remove("loading");};
+  if(!all.length){
+    set("coldest","עדיין לא זמין"); set("wettest","עדיין לא זמין"); set("warmest","עדיין לא זמין"); return;
+  }
+  const cold=[...all].sort((a,b)=>a.min-b.min)[0];
+  const wet=[...all].sort((a,b)=>b.rain-a.rain)[0];
+  const warm=[...all].sort((a,b)=>b.max-a.max)[0];
+  set("coldest",`${cold.num}.9 • ${fmt(cold.min)}°`);
+  set("wettest",`${wet.num}.9 • ${fmt(wet.rain)}%`);
+  set("warmest",`${warm.num}.9 • ${fmt(warm.max)}°`);
+}
+
+document.getElementById("refreshBtn").addEventListener("click",()=>{
+  document.getElementById("updated").textContent="מרענן תחזית…";
+  loadWeather(true);
+});
+
+document.getElementById("shareBtn").addEventListener("click",async()=>{
+  const data={title:"מזג האוויר למונטנגרו 🇲🇪",text:"תחזית חיה למסלול שלנו במונטנגרו, 23–30.9.2026",url:location.href};
+  try{
+    if(navigator.share) await navigator.share(data);
+    else{
+      await navigator.clipboard.writeText(location.href);
+      const b=document.getElementById("shareBtn"); const old=b.innerHTML;
+      b.innerHTML="✓ הועתק"; setTimeout(()=>b.innerHTML=old,1600);
+    }
+  }catch(e){}
+});
+
+renderSkeleton();
+countdown();
+loadWeather();
+setInterval(()=>loadWeather(),30*60*1000);
+setInterval(countdown,60*1000);
+</script>
+</body>
+</html>
