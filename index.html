@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0d3b3a" />
-  <meta name="description" content="תחזית מזג אוויר חיה לטיול הג'יפים במונטנגרו, 23–30 בספטמבר 2026" />
-  <title>מונטנגרו 🇲🇪 | מזג האוויר למסע</title>
+  <meta name="description" content="מלווה חי לטיול הג׳יפים במונטנגרו: מה צריך עכשיו, מסלול, מזג אוויר, טיסות וציוד" />
+  <title>מונטנגרו 🇲🇪 | המלווה שלנו לטיול</title>
   <style>
     :root{
       --bg:#f3f5f2;
@@ -137,6 +137,55 @@
     .gear-empty{color:var(--muted);font-weight:700}
     .packing-head{display:flex;align-items:center;gap:8px}
     .packing-progress{font-size:11px;color:var(--brand);background:var(--soft);border-radius:99px;padding:5px 9px;font-weight:800;white-space:nowrap}
+
+    .quick-nav{
+      display:flex;gap:7px;margin:0 0 14px;overflow:auto;padding:1px 1px 4px;
+      scrollbar-width:none;
+    }
+    .quick-nav::-webkit-scrollbar{display:none}
+    .quick-nav a{
+      flex:0 0 auto;text-decoration:none;color:var(--brand);background:rgba(255,255,255,.9);
+      border:1px solid var(--line);border-radius:99px;padding:8px 12px;font-size:12px;font-weight:820;
+      box-shadow:0 4px 14px rgba(17,45,43,.04)
+    }
+    .now-card{
+      background:var(--card);border:1px solid var(--line);border-radius:24px;padding:16px;
+      box-shadow:var(--shadow);margin-bottom:16px;scroll-margin-top:12px
+    }
+    .now-card.primary{border-color:#b7d3ca;background:linear-gradient(180deg,#fff,#f5faf7)}
+    .now-kicker{font-size:11px;color:var(--brand2);font-weight:850;margin-bottom:5px}
+    .now-title{font-size:22px;line-height:1.18;font-weight:880;letter-spacing:-.025em}
+    .now-sub{font-size:13px;color:var(--muted);line-height:1.48;margin-top:5px}
+    .now-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:13px}
+    .now-stat{background:#f7f9f7;border:1px solid #e5ebe7;border-radius:14px;padding:10px;min-width:0}
+    .now-stat .k{font-size:9px;color:var(--muted);font-weight:800;margin-bottom:4px}
+    .now-stat .v{font-size:13px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .now-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+    .now-action{
+      display:inline-flex;justify-content:center;align-items:center;gap:6px;text-decoration:none;
+      border-radius:12px;padding:10px 12px;background:var(--brand);color:#fff;border:1px solid var(--brand);
+      font-size:12px;font-weight:850
+    }
+    .now-action.secondary{background:#fff;color:var(--brand);border-color:#cbd9d4}
+    .now-tomorrow{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.5}
+    .today-gear{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+    .today-gear span{font-size:10px;font-weight:800;color:var(--brand);background:var(--soft);border-radius:99px;padding:6px 8px}
+    .source-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+    .source-tag{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:850;border-radius:99px;padding:4px 7px;background:#f3f6f4;color:var(--muted);border:1px solid #e1e8e4}
+    .source-tag.booklet{background:#eef4ff;color:#3b5685;border-color:#d9e5fa}
+    .source-tag.weather{background:#edf8f4;color:#176b65;border-color:#d2ebe2}
+    .source-tag.route{background:#fff7e4;color:#765b1b;border-color:#efe1ba}
+    .section-anchor{scroll-margin-top:12px}
+    .gear-summary{
+      background:#f7f9f7;border:1px solid var(--line);border-radius:16px;padding:11px 12px;
+      margin:0 0 10px;font-size:11px;color:var(--muted);line-height:1.5
+    }
+    .gear-summary strong{color:var(--ink)}
+    @media(max-width:390px){
+      .now-grid{grid-template-columns:1fr 1fr}
+      .now-stat:last-child{grid-column:span 2}
+    }
+
     .foot{
       margin:24px 2px 0;padding:16px 2px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.65
     }
@@ -165,7 +214,7 @@
     <div>
       <div class="eyebrow">טיול ג׳יפים • 23–30.9.2026</div>
       <h1>מונטנגרו 🇲🇪</h1>
-      <p class="sub">מזג האוויר, המסלול וניווט ליעדים — לחצו על כל יום כדי לראות את התכנית המלאה.</p>
+      <p class="sub">מה צריך עכשיו — טיסה, היום במסלול, ניווט, מזג אוויר וציוד.</p>
     </div>
     <div class="actions">
       <button class="icon-btn" id="shareBtn" title="שיתוף" aria-label="שיתוף">↗︎ <span class="label">&nbsp;שתף</span></button>
@@ -177,7 +226,7 @@
     <div class="hero-top">
       <div>
         <div id="countdown" class="countdown">טוען…</div>
-        <div class="hero-note" id="heroNote">התחזית נמשכת ישירות מ־Open‑Meteo. באזורים ההרריים יכול להיות פער גדול מהחוף — לכן כל יום מוצג לפי התחנה הרלוונטית למסלול.</div>
+        <div class="hero-note" id="heroNote">טוען את הדבר הבא שחשוב לדעת…</div>
       </div>
       <div class="live"><span class="dot"></span> LIVE</div>
     </div>
@@ -186,7 +235,21 @@
 
   <div id="error" class="error"></div>
 
-  <section class="summary" aria-label="סיכום התחזית">
+
+  <nav class="quick-nav" aria-label="קיצורי דרך">
+    <a href="#now">עכשיו</a>
+    <a href="#daysSection">הימים</a>
+    <a href="#packingSection">ציוד</a>
+  </nav>
+
+  <section id="now" class="now-card primary" aria-live="polite">
+    <div class="now-kicker">מה חשוב עכשיו</div>
+    <div class="now-title">טוען…</div>
+    <div class="now-sub">מכין את המידע הרלוונטי לרגע הזה.</div>
+  </section>
+
+
+  <section class="summary section-anchor" id="forecastSummary" aria-label="סיכום התחזית">
     <div class="summary-card">
       <div class="summary-label">🥶 היום הקר ביותר</div>
       <div class="summary-value loading" id="coldest">טוען…</div>
@@ -201,25 +264,26 @@
     </div>
   </section>
 
-  <div class="section-head">
+  <div class="section-head section-anchor" id="daysSection">
     <h2>המסלול והתחזית</h2>
     <span>לחצו על יום לפרטים • טמפרטורות ב־°C</span>
   </div>
   <section id="days" class="days"></section>
 
-  <div class="section-head">
+  <div class="section-head section-anchor" id="packingSection">
     <div class="packing-head">
       <h2>מה לארוז</h2>
       <span id="packProgress" class="packing-progress">ארזתי 0/0</span>
     </div>
     <span>הנקודות מסמנות באילו ימים הציוד שימושי</span>
   </div>
+  <div class="gear-summary"><strong>רשימה אחת, שני מקורות:</strong> המלצות חוברת Tripology + התאמה לתחזית ולמסלול. הסימון ✓ נשמר במכשיר.</div>
   <section id="gear" class="gear-grid" aria-label="סיכום ציוד לטיול"></section>
 
   <footer class="foot">
     התחזית מבוססת על <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open‑Meteo</a>
     ומתרעננת בכל טעינה ובכל 30 דקות כשהעמוד פתוח.
-    מסלול הימים מבוסס על תכנית טיול הג׳יפים של Tripology לתאריכים 23–30.9.2026.
+    מסלול הימים ורשימת ההמלצות מבוססים על חוברת Tripology לתאריכים 23–30.9.2026.
     <span class="pill">תחזית ≠ הבטחה</span>
   </footer>
 </main>
@@ -403,6 +467,39 @@ const fmt = n => Number.isFinite(n) ? Math.round(n) : "–";
 
 function weatherText(code){ return wmo[code] || ["🌡️","תחזית"]; }
 
+
+function dateKeyInMontenegro(date=new Date()){
+  return new Intl.DateTimeFormat("en-CA",{
+    timeZone:"Europe/Podgorica",year:"numeric",month:"2-digit",day:"2-digit"
+  }).format(date);
+}
+
+function tripPhase(){
+  const today=dateKeyInMontenegro();
+  if(today < "2026-09-23") return "before";
+  if(today > "2026-09-30") return "after";
+  return "during";
+}
+
+function flightStatusUrl(flightNo){
+  return `https://www.flightradar24.com/data/flights/${String(flightNo).toLowerCase()}`;
+}
+
+function gearSourceTags(sources=[]){
+  const cls={booklet:"booklet",weather:"weather",route:"route"};
+  const label={booklet:"📄 חוברת Tripology",weather:"🌦️ תחזית",route:"🧭 מסלול"};
+  return `<div class="source-row">${sources.map(s=>`<span class="source-tag ${cls[s]||""}">${label[s]||s}</span>`).join("")}</div>`;
+}
+
+function allTripDays(){
+  return itinerary;
+}
+
+function dayRange(from,to){
+  return itinerary.filter(d=>Number(d.num)>=from && Number(d.num)<=to);
+}
+
+
 function adviceFor(day){
   if(!day) return "התחזית לתאריך הזה עדיין לא זמינה — היא תופיע כאן אוטומטית כשהתאריך ייכנס לטווח התחזית.";
   const parts=[];
@@ -486,8 +583,7 @@ function renderSkeleton(){
 }
 
 function markToday(){
-  const now=new Date();
-  const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Podgorica",year:"numeric",month:"2-digit",day:"2-digit"}).format(now);
+  const today=dateKeyInMontenegro();
   document.querySelectorAll(".day").forEach(el=>{
     if(el.dataset.date===today) el.classList.add("today");
     if(el.dataset.date<today) el.classList.add("past");
@@ -497,15 +593,22 @@ function markToday(){
 function countdown(){
   const now=new Date();
   const el=document.getElementById("countdown");
-  if(now < TRIP_START){
-    const diff=TRIP_START-now;
+  const note=document.getElementById("heroNote");
+  const phase=tripPhase();
+  if(phase==="before"){
+    const departure=new Date("2026-09-23T11:50:00+03:00");
+    const diff=Math.max(0,departure-now);
     const days=Math.ceil(diff/86400000);
-    el.innerHTML=`עוד ${days} ${days===1?"יום":"ימים"} <small>ליציאה</small>`;
-  } else if(now <= TRIP_END){
-    const tripDay=Math.min(8,Math.max(1,Math.floor((now-TRIP_START)/86400000)+1));
+    el.innerHTML=`עוד ${days} ${days===1?"יום":"ימים"} <small>לטיסה</small>`;
+    note.textContent="לפני היציאה: הטיסה והאריזה מקבלות עדיפות. התחזית מתעדכנת אוטומטית.";
+  } else if(phase==="during"){
+    const today=dateKeyInMontenegro();
+    const tripDay=Math.max(1,itinerary.findIndex(d=>d.date===today)+1);
     el.innerHTML=`אנחנו בטיול 🇲🇪 <small>יום ${tripDay} מתוך 8</small>`;
+    note.textContent="בזמן הטיול: מוצג קודם מה שצריך היום — יעד, ניווט, מזג אוויר וציוד.";
   } else {
     el.innerHTML=`המסע הסתיים 🇲🇪 <small>23–30.9.2026</small>`;
+    note.textContent="המסלול, התחזיות שנשמרו ורשימת הציוד עדיין זמינים לעיון.";
   }
 }
 
@@ -562,9 +665,9 @@ async function loadWeather(force=false){
       errorBox.textContent="אין כרגע חיבור לעדכון חי. מוצגים הנתונים האחרונים שנשמרו במכשיר.";
       errorBox.style.display="block";
     }else{
-      errorBox.textContent="לא הצלחתי להביא כרגע את התחזית. נסו לרענן בעוד רגע.";
+      errorBox.textContent="לא הצלחתי להביא כרגע את התחזית. המסלול והמלצות החוברת עדיין זמינים; נסו לרענן בעוד רגע.";
       errorBox.style.display="block";
-      return;
+      byLoc={};
     }
   }
 
@@ -604,6 +707,7 @@ async function loadWeather(force=false){
 
   updateSummary(all);
   renderGear(byLoc);
+  renderNow(byLoc);
   const now=new Date();
   document.getElementById("updated").textContent=
     `עדכון אחרון: ${new Intl.DateTimeFormat("he-IL",{dateStyle:"short",timeStyle:"short"}).format(now)} • רענון אוטומטי כל 30 דקות`;
@@ -639,6 +743,8 @@ function updatePackProgress(){
   const packed=cards.filter(card=>card.classList.contains("packed")).length;
   const el=document.getElementById("packProgress");
   if(el) el.textContent=`ארזתי ${packed}/${cards.length}`;
+  const nowProgress=document.getElementById("nowPackProgress");
+  if(nowProgress) nowProgress.textContent=`${packed}/${cards.length} ארוז`;
 }
 
 function dayDots(days, forecast){
@@ -654,32 +760,50 @@ function dayDots(days, forecast){
   <div class="days-caption"><span>23.9</span><span>30.9</span></div>`;
 }
 
-function renderGear(byLoc){
+function buildGear(byLoc){
   const forecast=itinerary.map(d=>({...d, wx:byLoc[d.loc]?.[d.date] || null}));
   const mountain=forecast.filter(d=>Number(d.num)<=28);
   const coast=forecast.filter(d=>Number(d.num)>=29);
+  const rafting=forecast.filter(d=>d.date==="2026-09-25");
   const match=fn=>forecast.filter(d=>d.wx && fn(d.wx,d));
   const mountainMatch=fn=>mountain.filter(d=>d.wx && fn(d.wx,d));
   const coastMatch=fn=>coast.filter(d=>d.wx && fn(d.wx,d));
+  const union=(...groups)=>{
+    const seen=new Set();
+    return groups.flat().filter(d=>!seen.has(d.date) && seen.add(d.date));
+  };
 
-  const gear=[
-    {key:"short-shirts",icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,note:"שכבת בסיס לכל הימים; כשחם אפשר להישאר איתה לבד."},
-    {key:"long-shirt",icon:"👚",name:"חולצה ארוכה דקה",qty:"1–2",days:match(wx=>wx.max<19 || wx.min<10),note:"לבקרים, לערבים ולימים קרירים יותר."},
-    {key:"fleece",icon:"🧥",name:"פליז / סווטשירט",qty:"1",days:match(wx=>wx.max<=18 || wx.min<=10),note:"השכבה המרכזית לימים הקרירים בהרים."},
-    {key:"puffer",icon:"🧥",name:"מעיל פוך קל",qty:"1",days:match(wx=>wx.min<=6 || wx.max<=14),note:"בעיקר לבקרים ולערבים הקרים; לא צריך מעיל חורף כבד."},
-    {key:"rain-jacket",icon:"🌧️",name:"מעיל גשם אטום לרוח",qty:"1",days:match(wx=>wx.rain>=25 || wx.precip>=1),note:"בכל מקרה כדאי שיהיה בתיק בכל ימי ההרים 23–28.9."},
-    {key:"hiking-pants",icon:"👖",name:"מכנסי טיולים ארוכים",qty:"2",days:mountain.concat(coastMatch(wx=>wx.max<21 || wx.rain>=30)),note:"הבחירה העיקרית בדורמיטור, טארה, קולאשין והרכסים."},
-    {key:"shorts",icon:"🩳",name:"שורט / מכנס קל",qty:"1",days:coastMatch(wx=>wx.max>=21),note:"בעיקר לקוטור ובודווה אם החוף נשאר חם."},
-    {key:"hiking-shoes",icon:"🥾",name:"נעלי הליכה עם אחיזה",qty:"1 זוג",days:mountain,note:"מומלץ לכל ימי השטח וההליכה, 23–28.9."},
-    {key:"waterproof-shoes",icon:"💧",name:"נעליים עמידות למים",qty:"עדיפות",days:mountainMatch(wx=>wx.rain>=20 || wx.precip>=0.5),note:"רלוונטי במיוחד אם התחזית מראה גשם או שבילים רטובים."},
-    {key:"socks",icon:"🧦",name:"גרבי טיולים",qty:"6–7 זוגות",days:mountain,note:"2–3 זוגות איכותיים לימים הארוכים בשטח."},
-    {key:"beanie-buff",icon:"🧢",name:"כובע גרב / Buff",qty:"1",days:match(wx=>wx.min<=7),note:"קטן בתיק ושימושי בבוקר, בערב וברוח."},
-    {key:"gloves",icon:"🧤",name:"כפפות דקות",qty:"אופציונלי",days:match(wx=>wx.min<=4),note:"כדאי אם התחזית בהרים נשארת סביב 4° ומטה."},
-    {key:"sun",icon:"🕶️",name:"כובע שמש + משקפי שמש + SPF",qty:"1 סט",days:forecast,note:"גם בהרים; הקרינה יכולה להיות חזקה בגובה."},
-    {key:"daypack",icon:"🎒",name:"תיק יום + כיסוי גשם",qty:"20–25 ל׳",days:mountain,note:"למים, שכבות שמורידים, מעיל גשם וציוד קטן."},
-    {key:"swimsuit",icon:"🏊",name:"בגד ים",qty:"1",days:coast,note:"לקוטור/בודווה; כמעט לא תופס מקום ושווה שיהיה."}
-  ];
+  return {
+    forecast,
+    gear:[
+      {key:"short-shirts",icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,sources:["booklet","weather"],note:"החוברת ממליצה על קצר וארוך; קצר משמש כשכבת בסיס לאורך הטיול."},
+      {key:"long-shirt",icon:"👚",name:"חולצות ארוכות",qty:"1–2",days:union(match(wx=>wx.max<19 || wx.min<11),mountain),sources:["booklet","weather"],note:"מומלץ בחוברת ומתאים במיוחד לבקרים, לערבים ולימים הקרירים בהרים."},
+      {key:"fleece",icon:"🧥",name:"פליז / שכבה חמה לערב",qty:"1",days:match(wx=>wx.max<=18 || wx.min<=10),sources:["booklet","weather"],note:"מופיע במפורש בחוברת כביגוד חם לערב; הימים מסומנים לפי התחזית."},
+      {key:"puffer",icon:"🧥",name:"מעיל פוך קל",qty:"1",days:match(wx=>wx.min<=6 || wx.max<=14),sources:["weather"],note:"תוספת לפי התחזית בלבד, אם הבקרים/ערבים בהרים נשארים קרים מאוד."},
+      {key:"rain-jacket",icon:"🌧️",name:"מעיל גשם אטום לרוח",qty:"1",days:union(match(wx=>wx.rain>=25 || wx.precip>=1),mountainMatch(wx=>wx.gust>=35)),sources:["weather"],note:"נכנס לרשימה לפי גשם ורוח צפויים; קטן מספיק כדי להישאר בתיק יום."},
+      {key:"hiking-pants",icon:"👖",name:"מכנסיים ארוכים נוחים",qty:"2",days:union(mountain,coastMatch(wx=>wx.max<21 || wx.rain>=30)),sources:["booklet","route","weather"],note:"החוברת ממליצה על מכנסיים קצרים וארוכים; הארוכים מתאימים לימי השטח."},
+      {key:"shorts",icon:"🩳",name:"מכנס קצר / קל",qty:"1",days:coastMatch(wx=>wx.max>=20),sources:["booklet","weather"],note:"מופיע בהמלצות החוברת ורלוונטי בעיקר אם ימי החוף נשארים חמימים."},
+      {key:"walking-shoes",icon:"🥾",name:"נעליים נוחות להליכה",qty:"2 זוגות",days:dayRange(23,29),sources:["booklet","route"],note:"בחוברת מומלץ להביא שני זוגות נעליים נוחות להליכה."},
+      {key:"waterproof-shoes",icon:"💧",name:"נעליים עמידות למים",qty:"עדיפות",days:mountainMatch(wx=>wx.rain>=20 || wx.precip>=0.5),sources:["weather"],note:"רלוונטי אם התחזית מראה גשם או שבילים רטובים."},
+      {key:"socks",icon:"🧦",name:"גרבי טיולים",qty:"6–7 זוגות",days:mountain,sources:["route"],note:"לימי ההליכה והשטח הארוכים."},
+      {key:"beanie-buff",icon:"🧢",name:"כובע צמר / Buff",qty:"1",days:union(match(wx=>wx.min<=9),mountain),sources:["booklet","weather"],note:"כובע צמר מופיע בהמלצות החוברת; שימושי במיוחד בבקרים, בערבים וברוח."},
+      {key:"gloves",icon:"🧤",name:"כפפות דקות",qty:"אופציונלי",days:match(wx=>wx.min<=4),sources:["weather"],note:"רק אם התחזית בהרים נשארת סביב 4° ומטה."},
+      {key:"swimsuit",icon:"🏊",name:"בגד ים",qty:"1",days:union(rafting,coast),sources:["booklet","route"],note:"מופיע בחוברת; שימושי לרפטינג ולימי החוף/מלון."},
+      {key:"sun",icon:"🕶️",name:"כובע רחב שוליים + משקפי שמש + SPF",qty:"1 סט",days:forecast,sources:["booklet","weather"],note:"שלושתם מופיעים בהמלצות החוברת; רלוונטי גם בגובה."},
+      {key:"spare-glasses",icon:"👓",name:"משקפי ראייה ספייר",qty:"1",days:forecast,sources:["booklet"],note:"החוברת ממליצה במפורש על זוג משקפי ראייה ספייר."},
+      {key:"repellent",icon:"🦟",name:"אלתוש",qty:"1",days:dayRange(24,29),sources:["booklet","route"],note:"מופיע בחוברת; בעיקר ליד אגמים, נהרות ובשעות הערב."},
+      {key:"toiletries",icon:"🪥",name:"כלי רחצה",qty:"לפי צורך",days:forecast,sources:["booklet"],note:"מופיע ברשימת הציוד של Tripology."},
+      {key:"power",icon:"🔌",name:"מתאם לחשמל + מטענים לרכב",qty:"1 סט",days:forecast,sources:["booklet"],note:"מופיע בחוברת; שימושי במיוחד בימי הנהיגה בג׳יפים."},
+      {key:"binoculars",icon:"🔭",name:"משקפת",qty:"אופציונלי",days:dayRange(24,29),sources:["booklet","route"],note:"מומלץ בחוברת ומתאים לימי התצפיות וההרים."},
+      {key:"daypack",icon:"🎒",name:"תיק יד / תרמיל קטן",qty:"1",days:forecast,sources:["booklet","route"],note:"החוברת ממליצה להגיע עם מזוודה ובנוסף תיק יד או תרמיל קטן לשימוש במהלך היום."},
+      {key:"music",icon:"🎵",name:"מוזיקה לדרך",qty:"לפי הטעם",days:dayRange(23,29),sources:["booklet"],note:"כן — גם 'מוסיקה' מופיעה ברשימה הרשמית 🙂"},
+      {key:"book",icon:"📖",name:"ספר טוב",qty:"1",days:forecast,sources:["booklet"],note:"מופיע ברשימת הציוד הרשמית לזמן החופשי."}
+    ]
+  };
+}
 
+function renderGear(byLoc){
+  const {forecast,gear}=buildGear(byLoc);
   const packed=getPacked();
 
   document.getElementById("gear").innerHTML=gear.map(g=>{
@@ -693,6 +817,7 @@ function renderGear(byLoc){
         </div>
       </div>
       <div class="gear-days">${dayDots(g.days,forecast)}</div>
+      ${gearSourceTags(g.sources)}
       <div class="gear-note">${g.note}</div>
     </article>`;
   }).join("");
@@ -716,6 +841,95 @@ function renderGear(byLoc){
   updatePackProgress();
 }
 
+function renderNow(byLoc){
+  const root=document.getElementById("now");
+  if(!root) return;
+  const phase=tripPhase();
+  const today=dateKeyInMontenegro();
+  const packed=getPacked();
+  const built=buildGear(byLoc);
+  const total=built.gear.length;
+  const packedCount=built.gear.filter(g=>packed[g.key]).length;
+
+  if(phase==="before"){
+    const d=itinerary[0];
+    const wx=byLoc[d.loc]?.[d.date] || null;
+    const wxText=wx ? `${weatherText(wx.code)[0]} ${fmt(wx.max)}° / ${fmt(wx.min)}°` : "תחזית תופיע כשזמינה";
+    root.innerHTML=`
+      <div class="now-kicker">הדבר הבא • יום ד׳ 23.9</div>
+      <div class="now-title">✈️ LY5467 לתיבת</div>
+      <div class="now-sub">תל״א → טיבת • 11:50–13:50. אחר כך קבלת הג׳יפים ונסיעה לז׳בליאק.</div>
+      <div class="now-grid">
+        <div class="now-stat"><div class="k">טיסה</div><div class="v">LY5467</div></div>
+        <div class="now-stat"><div class="k">יעד ראשון</div><div class="v">ז׳בליאק</div></div>
+        <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${wxText}</div></div>
+      </div>
+      <div class="now-actions">
+        <a class="now-action" href="${flightStatusUrl("LY5467")}" target="_blank" rel="noopener">✈️ סטטוס טיסה חי</a>
+        <a class="now-action secondary" href="#packingSection"><span id="nowPackProgress">${packedCount}/${total} ארוז</span> · המשך אריזה</a>
+        <a class="now-action secondary" href="#day-details-1" data-open-day="2026-09-23">פרטי יום 1</a>
+      </div>`;
+    bindNowDayLinks();
+    return;
+  }
+
+  if(phase==="during"){
+    const idx=itinerary.findIndex(d=>d.date===today);
+    const d=itinerary[Math.max(0,idx)];
+    const wx=byLoc[d.loc]?.[d.date] || null;
+    const [emoji,label]=wx ? weatherText(wx.code) : ["🕒","תחזית עדיין לא זמינה"];
+    const firstNav=d.nav?.[0];
+    const todayGear=built.gear.filter(g=>g.days.some(x=>x.date===d.date)).slice(0,5);
+    const tomorrow=itinerary[idx+1];
+    const tomorrowWx=tomorrow ? byLoc[tomorrow.loc]?.[tomorrow.date] : null;
+    const tomorrowText=tomorrow ? `${tomorrow.num}.9 · ${tomorrow.title}${tomorrowWx?` · ${weatherText(tomorrowWx.code)[0]} ${fmt(tomorrowWx.max)}°/${fmt(tomorrowWx.min)}°`:""}` : "";
+    root.innerHTML=`
+      <div class="now-kicker">היום • יום ${idx+1} מתוך 8</div>
+      <div class="now-title">${d.title}</div>
+      <div class="now-sub">${d.subtitle}</div>
+      <div class="now-grid">
+        <div class="now-stat"><div class="k">תחנה</div><div class="v">${locations[d.loc].name}</div></div>
+        <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${emoji} ${wx?`${fmt(wx.max)}° / ${fmt(wx.min)}°`:label}</div></div>
+        <div class="now-stat"><div class="k">גשם</div><div class="v">${wx?`${fmt(wx.rain)}%`:"–"}</div></div>
+      </div>
+      ${todayGear.length?`<div class="today-gear">${todayGear.map(g=>`<span>${g.icon} ${g.name}</span>`).join("")}</div>`:""}
+      <div class="now-actions">
+        ${firstNav?`<a class="now-action" href="${mapsDirectionsUrl(firstNav.query)}" target="_blank" rel="noopener">🧭 נווט: ${firstNav.label}</a>`:""}
+        ${d.flight?`<a class="now-action secondary" href="${flightStatusUrl(d.flight.split(" • ")[0])}" target="_blank" rel="noopener">✈️ סטטוס הטיסה</a>`:""}
+        <a class="now-action secondary" href="#day-details-${idx+1}" data-open-day="${d.date}">כל פרטי היום</a>
+      </div>
+      ${tomorrow?`<div class="now-tomorrow"><strong>מחר:</strong> ${tomorrowText}</div>`:""}`;
+    bindNowDayLinks();
+    return;
+  }
+
+  root.innerHTML=`
+    <div class="now-kicker">הטיול הסתיים</div>
+    <div class="now-title">🇲🇪 כל המסלול נשאר כאן</div>
+    <div class="now-sub">אפשר לפתוח כל יום, לראות את היעדים ולחזור לרשימת הציוד.</div>
+    <div class="now-actions"><a class="now-action secondary" href="#daysSection">המסלול</a><a class="now-action secondary" href="#packingSection">הציוד</a></div>`;
+}
+
+function bindNowDayLinks(){
+  document.querySelectorAll("[data-open-day]").forEach(link=>{
+    link.addEventListener("click",()=>{
+      const date=link.dataset.openDay;
+      const card=document.querySelector(`.day[data-date="${date}"]`);
+      if(!card) return;
+      const btn=card.querySelector(".day-toggle");
+      const panel=card.querySelector(".day-details");
+      if(btn && panel && btn.getAttribute("aria-expanded")!=="true"){
+        btn.setAttribute("aria-expanded","true");
+        panel.hidden=false;
+        card.classList.add("open");
+        const hint=btn.querySelector(".detail-hint");
+        if(hint) hint.textContent="סגירת פרטים ↑";
+      }
+      setTimeout(()=>card.scrollIntoView({behavior:"smooth",block:"start"}),50);
+    });
+  });
+}
+
 document.getElementById("refreshBtn").addEventListener("click",()=>{
   document.getElementById("updated").textContent="מרענן תחזית…";
   loadWeather(true);
@@ -734,8 +948,9 @@ document.getElementById("shareBtn").addEventListener("click",async()=>{
 });
 
 renderSkeleton();
-document.getElementById("gear").innerHTML='<article class="gear-card"><div class="gear-name"><span class="gear-icon">🎒</span><span>טוען המלצות ציוד…</span></div><div class="gear-note">ההמלצות יתעדכנו לפי התחזית בכל פתיחה. סימוני האריזה נשמרים במכשיר הזה.</div></article>';
+document.getElementById("gear").innerHTML='<article class="gear-card"><div class="gear-name"><span class="gear-icon">🎒</span><span>טוען המלצות ציוד…</span></div><div class="gear-note">משלב את חוברת Tripology עם התחזית העדכנית. סימוני האריזה נשמרים במכשיר הזה.</div></article>';
 countdown();
+renderNow({});
 loadWeather();
 setInterval(()=>loadWeather(),30*60*1000);
 setInterval(countdown,60*1000);
