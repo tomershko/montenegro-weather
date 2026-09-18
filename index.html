@@ -84,6 +84,26 @@
     .route h3{font-size:17px;line-height:1.25;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .route p{font-size:12px;color:var(--muted);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .wx{font-size:38px;line-height:1}
+    .day-toggle{display:block;width:100%;border:0;background:transparent;color:inherit;padding:0;text-align:inherit;cursor:pointer}
+    .day-toggle:focus-visible{outline:3px solid rgba(23,107,101,.25);outline-offset:6px;border-radius:14px}
+    .day-head{position:relative;padding-inline-end:24px}
+    .day-chevron{position:absolute;inset-inline-end:0;top:50%;transform:translateY(-50%);font-size:16px;color:var(--brand2);transition:transform .18s ease}
+    .day.open .day-chevron{transform:translateY(-50%) rotate(180deg)}
+    .detail-hint{margin-top:7px;font-size:10px;font-weight:800;color:var(--brand2)}
+    .day-details{margin-top:13px;padding:13px 14px;background:#f7f9f7;border:1px solid #e3e9e5;border-radius:16px}
+    .day-details[hidden]{display:none}
+    .day-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+    .day-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--brand);font-size:10px;font-weight:800}
+    .day-detail-list{margin:0;padding:0 18px 0 0;font-size:12px;line-height:1.62;color:#405552}
+    .day-detail-list li+li{margin-top:3px}
+    .day-detail-note{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:11px;line-height:1.5;color:var(--muted)}
+    .nav-section{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+    .nav-title{font-size:11px;font-weight:850;color:var(--brand);margin-bottom:8px}
+    .nav-links{display:flex;flex-wrap:wrap;gap:7px}
+    .nav-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:var(--brand);color:#fff;border:1px solid var(--brand);border-radius:11px;padding:8px 10px;font-size:11px;font-weight:850;line-height:1.2;box-shadow:0 4px 12px rgba(13,59,58,.12)}
+    .nav-btn:active{transform:scale(.98)}
+    .nav-btn.secondary{background:#fff;color:var(--brand);border-color:#cbd9d4;box-shadow:none}
+    .nav-disclaimer{margin-top:7px;font-size:10px;color:var(--muted);line-height:1.4}
     .weather-row{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:8px;margin-top:14px}
     .metric{background:#f7f9f7;border-radius:14px;padding:10px 11px;min-width:0}
     .metric .label{font-size:10px;font-weight:750;color:var(--muted);margin-bottom:4px}
@@ -145,7 +165,7 @@
     <div>
       <div class="eyebrow">טיול ג׳יפים • 23–30.9.2026</div>
       <h1>מונטנגרו 🇲🇪</h1>
-      <p class="sub">מזג האוויר לאורך המסלול — מתעדכן אוטומטית בכל פתיחה.</p>
+      <p class="sub">מזג האוויר, המסלול וניווט ליעדים — לחצו על כל יום כדי לראות את התכנית המלאה.</p>
     </div>
     <div class="actions">
       <button class="icon-btn" id="shareBtn" title="שיתוף" aria-label="שיתוף">↗︎ <span class="label">&nbsp;שתף</span></button>
@@ -183,7 +203,7 @@
 
   <div class="section-head">
     <h2>המסלול והתחזית</h2>
-    <span>טמפרטורות ב־°C</span>
+    <span>לחצו על יום לפרטים • טמפרטורות ב־°C</span>
   </div>
   <section id="days" class="days"></section>
 
@@ -217,14 +237,152 @@ const locations = {
 };
 
 const itinerary = [
-  {date:"2026-09-23", dow:"ד׳", num:"23", title:"טיבת → ז׳בליאק", subtitle:"נחיתה, קבלת הג׳יפים ונסיעה צפונה", loc:"zabljak"},
-  {date:"2026-09-24", dow:"ה׳", num:"24", title:"דורמיטור והאגם השחור", subtitle:"מסלול הליכה, רכס דורמיטור וקניון קומרניצה", loc:"zabljak"},
-  {date:"2026-09-25", dow:"ו׳", num:"25", title:"ארץ הגבול הסרבי → פלייבליה", subtitle:"תצפית על קניון טארה, כפרים ומפל", loc:"pljevlja"},
-  {date:"2026-09-26", dow:"ש׳", num:"26", title:"קניון טארה → קולאשין", subtitle:"רפטינג, גשר טארה ואומגה", loc:"kolasin"},
-  {date:"2026-09-27", dow:"א׳", num:"27", title:"ביוגרד ורכס סיניאווינה", subtitle:"אגם ביוגרד, שטח וכפרי קיץ", loc:"kolasin"},
-  {date:"2026-09-28", dow:"ב׳", num:"28", title:"בילאשיצה ורכס קומובי", subtitle:"הרים גבוהים, יערות ותצפיות", loc:"kolasin"},
-  {date:"2026-09-29", dow:"ג׳", num:"29", title:"קוטור → בודווה", subtitle:"מפרץ קוטור, שיט והעיר העתיקה", loc:"kotor"},
-  {date:"2026-09-30", dow:"ד׳", num:"30", title:"בודווה → טיבת → הביתה", subtitle:"בוקר בחוף ונסיעה לשדה התעופה", loc:"budva"}
+  {
+    "date": "2026-09-23",
+    "dow": "ד׳",
+    "num": "23",
+    "title": "הטיסה למונטנגרו – ז׳בליאק",
+    "subtitle": "נחיתה בטיבת, קבלת הג׳יפים ונסיעה לז׳בליאק",
+    "loc": "zabljak",
+    "stay": "Nordic Hotel • ז׳בליאק",
+    "flight": "LY5467 • תל״א → טיבת • 11:50–13:50",
+    "nav": [{"label":"שדה התעופה טיבת","query":"Tivat Airport, Montenegro"},{"label":"Nordic Hotel","query":"Nordic Hotel Zabljak Montenegro"}],
+    "details": [
+      "טיסה מתל אביב לטיבת שעל החוף המונטנגרי.",
+      "מפגש עם הצוות המקומי, קבלת הג׳יפים ויציאה לדרך.",
+      "ארוחת צהריים מול מפרץ קוטור.",
+      "המשך לעיירה ההררית ז׳בליאק, אליה נגיע בערב.",
+      "היכרות ראשונה עם הנוף המיוחד של האזור.",
+      "כניסה למלון וארוחת ערב."
+    ]
+  },
+  {
+    "date": "2026-09-24",
+    "dow": "ה׳",
+    "num": "24",
+    "title": "שמורת דורמיטור והאגם השחור",
+    "subtitle": "הליכה סביב האגם, דורמיטור, פיווה ונופי הרים",
+    "loc": "zabljak",
+    "stay": "Nordic Hotel • ז׳בליאק",
+    "nav": [{"label":"האגם השחור","query":"Crno Jezero, Zabljak, Montenegro"},{"label":"Trsa","query":"Trsa, Pluzine, Montenegro"},{"label":"קניון פיווה","query":"Piva Canyon, Montenegro"},{"label":"Nordic Hotel","query":"Nordic Hotel Zabljak Montenegro"}],
+    "details": [
+      "פתיחת הבוקר באגם השחור ומסלול הליכה סביב האגם.",
+      "עלייה בדרך מפותלת אל שמורת דורמיטור.",
+      "מעבר באוכף ההרים הגבוה של הרכס.",
+      "המשך לכפר טרסה בין פסגות גבוהות.",
+      "ירידה אל ערוץ נהר פיווה.",
+      "עצירת קפה מול נוף מרהיב.",
+      "חזרה לז׳בליאק דרך הקניון וארוחת ערב באחת ממסעדות העיירה."
+    ]
+  },
+  {
+    "date": "2026-09-25",
+    "dow": "ו׳",
+    "num": "25",
+    "title": "רפטינג על גבול בוסניה",
+    "subtitle": "תצפיות, קניון טארה ורפטינג",
+    "loc": "zabljak",
+    "stay": "Nordic Hotel • ז׳בליאק",
+    "nav": [{"label":"קניון טארה","query":"Tara River Canyon, Montenegro"},{"label":"Nordic Hotel","query":"Nordic Hotel Zabljak Montenegro"}],
+    "details": [
+      "יציאה לאחת התצפיות היפות באזור.",
+      "חציית הרכס וירידה אל קניון טארה.",
+      "החלפת בגדים וכניסה למים.",
+      "רפטינג בין קירות קניון טארה.",
+      "ארוחת צהריים בקרבת הנהר.",
+      "חזרה לז׳בליאק ללילה נוסף."
+    ]
+  },
+  {
+    "date": "2026-09-26",
+    "dow": "ש׳",
+    "num": "26",
+    "title": "קניון טארה – אל עיירת הסקי קולאשין",
+    "subtitle": "נהר טארה, גשר טארה, אגם ביוגרד וקולאשין",
+    "loc": "kolasin",
+    "stay": "Bianca Resort • קולאשין",
+    "nav": [{"label":"גשר טארה","query":"Durdevica Tara Bridge, Montenegro"},{"label":"אגם ביוגרד","query":"Biogradsko Jezero, Montenegro"},{"label":"Bianca Resort","query":"Bianca Resort & Spa Kolasin Montenegro"}],
+    "details": [
+      "פרידה מצפון מונטנגרו ויציאה דרומה.",
+      "ירידה בדרך מפותלת אל נהר טארה, מהעמוקים בעולם.",
+      "תצפית על הגשר המפורסם; לפי החוברת הוא סגור לרגל שיפוצים.",
+      "המשך בנסיעה אל אגם ביוגרד.",
+      "הליכה סביב האגם בתוך שמורת הטבע והיער העתיק.",
+      "פיקניק על גדת האגם.",
+      "המשך לעיירת הסקי קולאשין, התמקמות במלון וארוחת ערב."
+    ]
+  },
+  {
+    "date": "2026-09-27",
+    "dow": "א׳",
+    "num": "27",
+    "title": "אגם אחד, רכס שני ומשפחה מיוחדת",
+    "subtitle": "רכס סיניאווינה, כפרי קיץ ומפגש מקומי",
+    "loc": "kolasin",
+    "stay": "Bianca Resort • קולאשין",
+    "nav": [{"label":"רכס סיניאווינה","query":"Sinjajevina Montenegro"},{"label":"Bianca Resort","query":"Bianca Resort & Spa Kolasin Montenegro"}],
+    "details": [
+      "טיפוס אל רכס סיניאווינה, אזור בתולי עם כפרי קיץ ונוף בראשית.",
+      "נסיעה בדרכים מפותלות מול נופי הרכס.",
+      "הגעה לאחד מבתי הקיץ לארוחת צהריים מקומית ואותנטית.",
+      "המשך חציית רכס סיניאווינה.",
+      "חזרה לקולאשין לקראת אחר הצהריים ולינה נוספת."
+    ]
+  },
+  {
+    "date": "2026-09-28",
+    "dow": "ב׳",
+    "num": "28",
+    "title": "ביילאשיצה או קומובי – מה יפה יותר?",
+    "subtitle": "אתר הסקי, ביילאשיצה, קומובי ותצפיות הרים",
+    "loc": "kolasin",
+    "stay": "Bianca Resort • קולאשין",
+    "nav": [{"label":"Kolašin 1600","query":"Kolasin 1600 Ski Center Montenegro"},{"label":"רכס ביילאשיצה","query":"Bjelasica Montenegro"},{"label":"רכס קומובי","query":"Komovi Montenegro"},{"label":"Bianca Resort","query":"Bianca Resort & Spa Kolasin Montenegro"}],
+    "details": [
+      "יציאה אל אתר הסקי המקומי.",
+      "טיפוס גבוה מעל קו העצים, עד אזור העננים.",
+      "חציית רכס ביילאשיצה בדרך הררית מרשימה.",
+      "המשך לעבר רכס קומובי ותצפיות לכיוון אלבניה וקוסובו.",
+      "פיקניק בפינה קסומה.",
+      "הליכה קצרה מול נופי הפסגות.",
+      "חזרה לקולאשין ללילה נוסף."
+    ]
+  },
+  {
+    "date": "2026-09-29",
+    "dow": "ג׳",
+    "num": "29",
+    "title": "מפרץ קוטור – נופים בלתי נשכחים",
+    "subtitle": "פודגוריצה, אגם סקאדר, קוטור, שיט ובודווה",
+    "loc": "kotor",
+    "stay": "Avala Resort • בודווה",
+    "nav": [{"label":"אגם סקאדר","query":"Lake Skadar Montenegro"},{"label":"העיר העתיקה קוטור","query":"Kotor Old Town Montenegro"},{"label":"גברתנו שעל הסלעים","query":"Our Lady of the Rocks Perast Montenegro"},{"label":"Avala Resort","query":"Avala Resort & Villas Budva Montenegro"}],
+    "details": [
+      "יציאה מוקדמת בבוקר ליום עמוס בנופים.",
+      "מעבר דרך עיר הבירה.",
+      "נסיעה מול נופי אגם סקאדר.",
+      "ירידה אל קוטור בדרך מפותלת וטיול בין חומות העיר.",
+      "שיט במפרץ וביקור באי מקומי ושמיעת סיפורו.",
+      "חזרה לג׳יפים ונסיעה לבודווה.",
+      "פרידה מהג׳יפים, יציאה לעיר העתיקה וארוחת ערב באחת ממסעדות העיר."
+    ]
+  },
+  {
+    "date": "2026-09-30",
+    "dow": "ד׳",
+    "num": "30",
+    "title": "בחזרה הביתה",
+    "subtitle": "בוקר בבודווה, שדה התעופה וטיסה לישראל",
+    "loc": "budva",
+    "flight": "LY5468 • טיבת → תל״א • 14:55–18:35",
+    "nav": [{"label":"העיר העתיקה בודווה","query":"Budva Old Town Montenegro"},{"label":"שדה התעופה טיבת","query":"Tivat Airport, Montenegro"}],
+    "details": [
+      "בוקר רגוע וקפה מול החוף.",
+      "זמן חופשי לשוטטות בעיר העתיקה.",
+      "נסיעה לשדה התעופה בהתאם לשעת הטיסה.",
+      "טיסה חזרה לישראל."
+    ]
+  }
 ];
 
 const wmo = {
@@ -258,14 +416,49 @@ function adviceFor(day){
   return parts.length ? parts.join(" • ") : "🎒 שכבות קלות יספיקו לפי התחזית הנוכחית";
 }
 
+function mapsDirectionsUrl(query){
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}&travelmode=driving`;
+}
+
+function mapsSearchUrl(query){
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+function renderNav(d){
+  if(!d.nav?.length) return "";
+  return `<div class="nav-section">
+    <div class="nav-title">🧭 ניווט ליעדי היום</div>
+    <div class="nav-links">${d.nav.map(n=>`<a class="nav-btn" href="${mapsDirectionsUrl(n.query)}" target="_blank" rel="noopener" aria-label="ניווט אל ${n.label}">↗ ${n.label}</a>`).join("")}</div>
+    <div class="nav-disclaimer">הקישור פותח ניווט ב־Google Maps. ביעדי שטח כלליים, בדקו עם המדריך את נקודת המפגש המדויקת לפני היציאה.</div>
+  </div>`;
+}
+
 function renderSkeleton(){
   const root=document.getElementById("days");
-  root.innerHTML=itinerary.map(d=>`
+  root.innerHTML=itinerary.map((d,i)=>{
+    const panelId=`day-details-${i+1}`;
+    const meta=[
+      d.stay ? `<span class="day-chip">🛏️ ${d.stay}</span>` : "",
+      d.flight ? `<span class="day-chip">✈️ ${d.flight}</span>` : ""
+    ].join("");
+    return `
     <article class="day" data-date="${d.date}">
-      <div class="day-head">
-        <div class="datebox"><div class="dow">${d.dow}</div><div class="num">${d.num}</div></div>
-        <div class="route"><h3>${d.title}</h3><p>${d.subtitle} • תחנה: ${locations[d.loc].name}</p></div>
-        <div class="wx">…</div>
+      <button class="day-toggle" type="button" aria-expanded="false" aria-controls="${panelId}">
+        <div class="day-head">
+          <div class="datebox"><div class="dow">${d.dow}</div><div class="num">${d.num}</div></div>
+          <div class="route">
+            <h3>${d.title}</h3>
+            <p>${d.subtitle} • תחנה: ${locations[d.loc].name}</p>
+            <div class="detail-hint">פרטי היום ↓</div>
+          </div>
+          <div class="wx">…</div>
+          <span class="day-chevron" aria-hidden="true">⌄</span>
+        </div>
+      </button>
+      <div class="day-details" id="${panelId}" hidden>
+        ${meta ? `<div class="day-meta">${meta}</div>` : ""}
+        <ul class="day-detail-list">${d.details.map(item=>`<li>${item}</li>`).join("")}</ul>
+        ${renderNav(d)}
       </div>
       <div class="weather-row">
         <div class="metric"><div class="label">יום / לילה</div><div class="value loading">טוען…</div></div>
@@ -273,7 +466,22 @@ function renderSkeleton(){
         <div class="metric"><div class="label">רוח</div><div class="value loading">טוען…</div></div>
       </div>
       <div class="desc loading">מוריד תחזית עדכנית…</div>
-    </article>`).join("");
+    </article>`;
+  }).join("");
+
+  document.querySelectorAll(".day-toggle").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const card=btn.closest(".day");
+      const panel=document.getElementById(btn.getAttribute("aria-controls"));
+      const open=btn.getAttribute("aria-expanded")==="true";
+      btn.setAttribute("aria-expanded",String(!open));
+      panel.hidden=open;
+      card.classList.toggle("open",!open);
+      const hint=btn.querySelector(".detail-hint");
+      if(hint) hint.textContent=open ? "פרטי היום ↓" : "סגירת פרטים ↑";
+    });
+  });
+
   markToday();
 }
 
