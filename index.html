@@ -96,6 +96,15 @@
       background:var(--danger);border:1px solid #f1c8c0;color:#78372e;border-radius:16px;padding:12px 14px;
       margin:12px 0;font-size:13px;line-height:1.45;display:none;
     }
+    .gear-grid{display:grid;gap:10px}
+    .gear-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px 14px;box-shadow:var(--shadow)}
+    .gear-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+    .gear-name{display:flex;gap:9px;align-items:center;font-size:15px;font-weight:820;min-width:0}
+    .gear-icon{font-size:21px;line-height:1}
+    .gear-qty{font-size:11px;font-weight:800;color:var(--brand);background:var(--soft);border-radius:99px;padding:5px 8px;white-space:nowrap}
+    .gear-days{margin-top:8px;font-size:12px;font-weight:800;color:var(--brand2);line-height:1.4}
+    .gear-note{margin-top:4px;font-size:11px;color:var(--muted);line-height:1.45}
+    .gear-empty{color:var(--muted);font-weight:700}
     .foot{
       margin:24px 2px 0;padding:16px 2px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.65
     }
@@ -106,6 +115,7 @@
       .day-head{grid-template-columns:60px 1fr auto}
       .hero{padding:26px}
       .summary-card{padding:15px}
+      .gear-grid{grid-template-columns:1fr 1fr}
     }
     @media(max-width:390px){
       .actions .label{display:none}
@@ -164,6 +174,12 @@
     <span>טמפרטורות ב־°C</span>
   </div>
   <section id="days" class="days"></section>
+
+  <div class="section-head">
+    <h2>מה לארוז</h2>
+    <span>מתעדכן לפי התחזית החיה</span>
+  </div>
+  <section id="gear" class="gear-grid" aria-label="סיכום ציוד לטיול"></section>
 
   <footer class="foot">
     התחזית מבוססת על <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open‑Meteo</a>
@@ -364,6 +380,7 @@ async function loadWeather(force=false){
   });
 
   updateSummary(all);
+  renderGear(byLoc);
   const now=new Date();
   document.getElementById("updated").textContent=
     `עדכון אחרון: ${new Intl.DateTimeFormat("he-IL",{dateStyle:"short",timeStyle:"short"}).format(now)} • רענון אוטומטי כל 30 דקות`;
@@ -380,6 +397,52 @@ function updateSummary(all){
   set("coldest",`${cold.num}.9 • ${fmt(cold.min)}°`);
   set("wettest",`${wet.num}.9 • ${fmt(wet.rain)}%`);
   set("warmest",`${warm.num}.9 • ${fmt(warm.max)}°`);
+}
+
+
+function compactDays(days){
+  const nums=days.map(d=>Number(d.num)).sort((a,b)=>a-b);
+  if(!nums.length) return "לא נדרש כרגע";
+  const ranges=[];
+  let start=nums[0], prev=nums[0];
+  for(let i=1;i<=nums.length;i++){
+    const n=nums[i];
+    if(n===prev+1){ prev=n; continue; }
+    ranges.push(start===prev ? `${start}.9` : `${start}–${prev}.9`);
+    start=n; prev=n;
+  }
+  return ranges.join(", ");
+}
+
+function renderGear(byLoc){
+  const forecast=itinerary.map(d=>({...d, wx:byLoc[d.loc]?.[d.date] || null}));
+  const mountain=forecast.filter(d=>Number(d.num)<=28);
+  const coast=forecast.filter(d=>Number(d.num)>=29);
+  const match=fn=>forecast.filter(d=>d.wx && fn(d.wx,d));
+  const mountainMatch=fn=>mountain.filter(d=>d.wx && fn(d.wx,d));
+  const coastMatch=fn=>coast.filter(d=>d.wx && fn(d.wx,d));
+  const gear=[
+    {icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,note:"שכבת בסיס לכל הימים; כשחם אפשר להישאר איתה לבד."},
+    {icon:"👚",name:"חולצה ארוכה דקה",qty:"1–2",days:match(wx=>wx.max<19 || wx.min<10),note:"לבקרים, לערבים ולימים קרירים יותר."},
+    {icon:"🧥",name:"פליז / סווטשירט",qty:"1",days:match(wx=>wx.max<=18 || wx.min<=10),note:"השכבה המרכזית לימים הקרירים בהרים."},
+    {icon:"🧥",name:"מעיל פוך קל",qty:"1",days:match(wx=>wx.min<=6 || wx.max<=14),note:"בעיקר לבקרים ולערבים הקרים; לא צריך מעיל חורף כבד."},
+    {icon:"🌧️",name:"מעיל גשם אטום לרוח",qty:"1",days:match(wx=>wx.rain>=25 || wx.precip>=1),note:"בכל מקרה כדאי שיהיה בתיק בכל ימי ההרים 23–28.9."},
+    {icon:"👖",name:"מכנסי טיולים ארוכים",qty:"2",days:mountain.concat(coastMatch(wx=>wx.max<21 || wx.rain>=30)),note:"הבחירה העיקרית בדורמיטור, טארה, קולאשין והרכסים."},
+    {icon:"🩳",name:"שורט / מכנס קל",qty:"1",days:coastMatch(wx=>wx.max>=21),note:"בעיקר לקוטור ובודווה אם החוף נשאר חם."},
+    {icon:"🥾",name:"נעלי הליכה עם אחיזה",qty:"1 זוג",days:mountain,note:"מומלץ לכל ימי השטח וההליכה, 23–28.9."},
+    {icon:"💧",name:"נעליים עמידות למים",qty:"עדיפות",days:mountainMatch(wx=>wx.rain>=20 || wx.precip>=0.5),note:"רלוונטי במיוחד אם התחזית מראה גשם או שבילים רטובים."},
+    {icon:"🧦",name:"גרבי טיולים",qty:"6–7 זוגות",days:mountain,note:"2–3 זוגות איכותיים לימים הארוכים בשטח."},
+    {icon:"🧢",name:"כובע גרב / Buff",qty:"1",days:match(wx=>wx.min<=7),note:"קטן בתיק ושימושי בבוקר, בערב וברוח."},
+    {icon:"🧤",name:"כפפות דקות",qty:"אופציונלי",days:match(wx=>wx.min<=4),note:"כדאי אם התחזית בהרים נשארת סביב 4° ומטה."},
+    {icon:"🕶️",name:"כובע שמש + משקפי שמש + SPF",qty:"1 סט",days:forecast,note:"גם בהרים; הקרינה יכולה להיות חזקה בגובה."},
+    {icon:"🎒",name:"תיק יום + כיסוי גשם",qty:"20–25 ל׳",days:mountain,note:"למים, שכבות שמורידים, מעיל גשם וציוד קטן."},
+    {icon:"🏊",name:"בגד ים",qty:"1",days:coast,note:"לקוטור/בודווה; כמעט לא תופס מקום ושווה שיהיה."}
+  ];
+  const uniqDays=arr=>{const seen=new Set();return arr.filter(d=>{if(seen.has(d.date))return false;seen.add(d.date);return true;});};
+  document.getElementById("gear").innerHTML=gear.map(g=>{
+    const days=uniqDays(g.days||[]);const label=compactDays(days);
+    return `<article class="gear-card"><div class="gear-top"><div class="gear-name"><span class="gear-icon">${g.icon}</span><span>${g.name}</span></div><span class="gear-qty">${g.qty}</span></div><div class="gear-days">${days.length?"מתאים לימים: "+label:'<span class="gear-empty">כרגע לא נדרש לפי התחזית</span>'}</div><div class="gear-note">${g.note}</div></article>`;
+  }).join("");
 }
 
 document.getElementById("refreshBtn").addEventListener("click",()=>{
@@ -400,6 +463,7 @@ document.getElementById("shareBtn").addEventListener("click",async()=>{
 });
 
 renderSkeleton();
+document.getElementById("gear").innerHTML='<article class="gear-card"><div class="gear-name"><span class="gear-icon">🎒</span><span>טוען המלצות ציוד…</span></div><div class="gear-note">ההמלצות יתעדכנו לפי התחזית בכל פתיחה.</div></article>';
 countdown();
 loadWeather();
 setInterval(()=>loadWeather(),30*60*1000);
