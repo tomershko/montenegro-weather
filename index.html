@@ -206,6 +206,32 @@
       .summary{grid-template-columns:1fr 1fr}
       .summary .summary-card:last-child{grid-column:span 2}
     }
+
+    body{background:#f4f2eb}
+    .wrap{padding-bottom:calc(108px + env(safe-area-inset-bottom))}
+    header .eyebrow{letter-spacing:.06em} header h1{font-weight:900}
+    .hero{min-height:230px;background:linear-gradient(160deg,#173e3b,#426b60);display:flex;flex-direction:column;justify-content:flex-end;padding-top:70px}
+    .hero:before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,transparent 48%,#6d918078 49%) 0 0/70% 100%,linear-gradient(215deg,transparent 47%,#a8bda13b 48%) 100% 0/80% 100%;background-repeat:no-repeat;pointer-events:none}
+    .hero:after{width:65px;height:65px;left:38px;top:28px;background:#efdbaf;border-radius:50%;opacity:.8}
+    .hero-top,.hero-note,.updated{z-index:1}
+    .quick-nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(440px,calc(100% - 28px));z-index:20;background:#fffef9f2;border:1px solid #d7ded5;border-radius:22px;padding:7px;box-shadow:0 8px 32px #163e3b26;backdrop-filter:blur(16px);margin:0}
+    .quick-nav a{flex:1;text-align:center;border:0;background:transparent;box-shadow:none;padding:12px 4px;font-size:14px}
+    .quick-nav a[aria-current="page"]{background:var(--brand);color:white;border-radius:16px}
+    [data-view][hidden]{display:none!important}
+    .now-card{padding:24px;border-radius:24px}.now-title{font-size:clamp(25px,6vw,34px)}
+    .now-stat{padding:15px 10px}.now-stat .k{font-size:11px}.now-stat .v{font-size:15px}
+    .now-actions a{min-height:44px}.day-detail-list li{padding-block:5px}
+    .map-card,.offline-card{background:#fffef9;border:1px solid var(--line);border-radius:22px;padding:18px;margin:16px 0}
+    .map-card h2{margin:0 0 5px;font-size:23px}.map-card p,.offline-card p{font-size:12px;line-height:1.6;color:var(--muted)}
+    .map-days,.map-stops{display:flex;gap:8px;overflow:auto;padding:8px 0}
+    .map-days button,.map-stops button{flex-shrink:0;border:1px solid var(--line);border-radius:12px;background:white;color:var(--brand);padding:12px;cursor:pointer;font:inherit;font-size:12px}
+    .map-days button[aria-pressed="true"],.map-stops button[aria-pressed="true"]{background:var(--brand);color:white}
+    #mapFrame{width:100%;height:310px;border:0;border-radius:16px;background:var(--soft)}
+    #mapTitle{font-size:16px;margin:12px 0 2px}#mapFallback{padding:40px 15px;background:var(--soft);border-radius:16px;text-align:center}
+    .offline-card{display:flex;align-items:center;gap:12px}.offline-card p{margin:3px 0 0}.offline-card strong{font-size:13px}
+    .stay-card{margin-top:16px;padding:14px;border-radius:14px;background:var(--soft);font-size:13px;line-height:1.6}
+    a:focus-visible,button:focus-visible{outline:3px solid #c59038;outline-offset:3px}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
   </style>
 </head>
 <body>
@@ -222,6 +248,7 @@
     </div>
   </header>
 
+  <div data-view="today">
   <section class="hero">
     <div class="hero-top">
       <div>
@@ -236,11 +263,7 @@
   <div id="error" class="error"></div>
 
 
-  <nav class="quick-nav" aria-label="קיצורי דרך">
-    <a href="#now">עכשיו</a>
-    <a href="#daysSection">הימים</a>
-    <a href="#packingSection">ציוד</a>
-  </nav>
+
 
   <section id="now" class="now-card primary" aria-live="polite">
     <div class="now-kicker">מה חשוב עכשיו</div>
@@ -249,6 +272,18 @@
   </section>
 
 
+  <aside class="offline-card"><span aria-hidden="true">▣</span><div><strong id="offlineStatus" role="status">מכין את האתר לשימוש ללא קליטה…</strong><p>המסלול והציוד נשמרים במכשיר. מפות, ניווט ותחזית חדשה דורשים חיבור.</p></div></aside>
+  </div>
+  <div data-view="route" hidden>
+  <section class="map-card" aria-label="מפת יעדי הטיול">
+    <h2>הדרך שלנו</h2><p>בחרו יום ותחנה כדי לראות אותה במפה.</p>
+    <div id="mapDays" class="map-days" aria-label="בחירת יום"></div>
+    <h3 id="mapTitle"></h3><div id="mapStops" class="map-stops" aria-label="תחנות היום"></div>
+    <div id="mapFallback" hidden>המפה זמינה עם חיבור לאינטרנט. שמות התחנות והמסלול נשארים כאן.</div>
+    <iframe id="mapFrame" title="מפת התחנה הנבחרת" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    <p><a id="mapExternal" target="_blank" rel="noopener">פתיחת התחנה ב־Google Maps ↗</a></p>
+    <p>המפה מציגה חיפוש לפי שם המקום, ולא תוואי נסיעה בג׳יפים. נקודות מפגש בשטח יש לוודא עם המדריך.</p>
+  </section>
   <section class="summary section-anchor" id="forecastSummary" aria-label="סיכום התחזית">
     <div class="summary-card">
       <div class="summary-label">🥶 היום הקר ביותר</div>
@@ -270,6 +305,8 @@
   </div>
   <section id="days" class="days"></section>
 
+  </div>
+  <div data-view="packing" hidden>
   <div class="section-head section-anchor" id="packingSection">
     <div class="packing-head">
       <h2>מה לארוז</h2>
@@ -280,6 +317,8 @@
   <div class="gear-summary"><strong>רשימה אחת, שני מקורות:</strong> המלצות חוברת Tripology + התאמה לתחזית ולמסלול. הסימון ✓ נשמר במכשיר.</div>
   <section id="gear" class="gear-grid" aria-label="סיכום ציוד לטיול"></section>
 
+  </div>
+  <nav class="quick-nav" aria-label="ניווט ראשי"><a href="#today" aria-current="page">◉ היום</a><a href="#route">⌁ המסלול</a><a href="#packing">✓ הציוד</a></nav>
   <footer class="foot">
     התחזית מבוססת על <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open‑Meteo</a>
     ומתרעננת בכל טעינה ובכל 30 דקות כשהעמוד פתוח.
@@ -642,7 +681,7 @@ async function fetchLocation(key){
     wind_speed_unit:"kmh",
     precipitation_unit:"mm"
   });
-  const r=await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, {signal:AbortSignal.timeout(12000)});
   if(!r.ok) throw new Error(`Weather API ${r.status}`);
   return normalizeDaily(await r.json());
 }
@@ -652,16 +691,21 @@ async function loadWeather(force=false){
   errorBox.style.display="none";
   const unique=[...new Set(itinerary.map(x=>x.loc))];
   let byLoc={};
+  let weatherAt=null;
+  let cachedWeather=false;
 
   try{
     const values=await Promise.all(unique.map(fetchLocation));
     unique.forEach((k,i)=>byLoc[k]=values[i]);
-    localStorage.setItem("montenegro-weather-cache",JSON.stringify({at:Date.now(),byLoc}));
+    weatherAt=Date.now();
+    try{localStorage.setItem("montenegro-weather-cache",JSON.stringify({at:weatherAt,byLoc}));}catch(e){}
   }catch(err){
-    const cached=localStorage.getItem("montenegro-weather-cache");
+    let cached=null;
+    try{cached=localStorage.getItem("montenegro-weather-cache"); if(cached) JSON.parse(cached);}catch(e){cached=null;}
     if(cached){
       const c=JSON.parse(cached);
-      byLoc=c.byLoc;
+      byLoc=c.byLoc || {};
+      weatherAt=c.at; cachedWeather=true;
       errorBox.textContent="אין כרגע חיבור לעדכון חי. מוצגים הנתונים האחרונים שנשמרו במכשיר.";
       errorBox.style.display="block";
     }else{
@@ -708,9 +752,8 @@ async function loadWeather(force=false){
   updateSummary(all);
   renderGear(byLoc);
   renderNow(byLoc);
-  const now=new Date();
-  document.getElementById("updated").textContent=
-    `עדכון אחרון: ${new Intl.DateTimeFormat("he-IL",{dateStyle:"short",timeStyle:"short"}).format(now)} • רענון אוטומטי כל 30 דקות`;
+  document.getElementById("updated").textContent=weatherAt ?
+    `${cachedWeather?"תחזית שמורה":"עדכון אחרון"}: ${new Intl.DateTimeFormat("he-IL",{dateStyle:"short",timeStyle:"short"}).format(new Date(weatherAt))} • רענון אוטומטי כל 30 דקות` : "אין כרגע תחזית זמינה • המסלול והציוד זמינים";
 }
 
 function updateSummary(all){
@@ -735,7 +778,7 @@ function getPacked(){
 }
 
 function savePacked(packed){
-  localStorage.setItem(PACKING_STORAGE_KEY,JSON.stringify(packed));
+  try{localStorage.setItem(PACKING_STORAGE_KEY,JSON.stringify(packed));}catch(e){document.getElementById("offlineStatus").textContent="הדפדפן חוסם שמירה; סימוני האריזה לא יישמרו לאחר סגירה.";}
 }
 
 function updatePackProgress(){
@@ -892,6 +935,7 @@ function renderNow(byLoc){
         <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${emoji} ${wx?`${fmt(wx.max)}° / ${fmt(wx.min)}°`:label}</div></div>
         <div class="now-stat"><div class="k">גשם</div><div class="v">${wx?`${fmt(wx.rain)}%`:"–"}</div></div>
       </div>
+      ${d.stay?`<div class="stay-card">🛏️ <strong>הלילה שלנו</strong><br>${d.stay}</div>`:""}
       ${todayGear.length?`<div class="today-gear">${todayGear.map(g=>`<span>${g.icon} ${g.name}</span>`).join("")}</div>`:""}
       <div class="now-actions">
         ${firstNav?`<a class="now-action" href="${mapsDirectionsUrl(firstNav.query)}" target="_blank" rel="noopener">🧭 נווט: ${firstNav.label}</a>`:""}
@@ -913,6 +957,7 @@ function renderNow(byLoc){
 function bindNowDayLinks(){
   document.querySelectorAll("[data-open-day]").forEach(link=>{
     link.addEventListener("click",()=>{
+      showView("route");
       const date=link.dataset.openDay;
       const card=document.querySelector(`.day[data-date="${date}"]`);
       if(!card) return;
@@ -947,8 +992,64 @@ document.getElementById("shareBtn").addEventListener("click",async()=>{
   }catch(e){}
 });
 
+function showView(view){
+  document.querySelectorAll('[data-view]').forEach(el=>el.hidden=el.dataset.view!==view);
+  document.querySelectorAll('.quick-nav a').forEach(a=>{if(a.hash==='#'+view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+}
+function setupNavigation(){
+  const followHash=()=>{
+    const hash=location.hash.slice(1);
+    const view=hash==='packing'||hash==='packingSection'?'packing':hash==='route'||hash==='daysSection'||hash.startsWith('day-details-')?'route':'today';
+    showView(view);
+  };
+  window.addEventListener('hashchange',followHash);
+  document.addEventListener('click',e=>{
+    const a=e.target.closest('a[href^="#"]');if(!a)return;
+    const h=a.getAttribute('href').slice(1);
+    if(['today','route','packing','now','daysSection','packingSection'].includes(h)){
+      showView(h==='packingSection'?'packing':h==='daysSection'?'route':h==='now'?'today':h);
+      window.scrollTo({top:0,behavior:'auto'});
+    }
+  });followHash();
+}
+let selectedMapDay=0,selectedMapStop=0;
+function setupMap(){
+  const today=itinerary.findIndex(d=>d.date===dateKeyInMontenegro());selectedMapDay=Math.max(0,today);
+  document.getElementById('mapDays').innerHTML=itinerary.map((d,i)=>`<button type="button" data-map-day="${i}" aria-pressed="false">יום ${i+1} · ${d.num}.9</button>`).join('');
+  document.getElementById('mapDays').addEventListener('click',e=>{const b=e.target.closest('[data-map-day]');if(!b)return;selectedMapDay=Number(b.dataset.mapDay);selectedMapStop=0;updateMap();});
+  document.getElementById('mapStops').addEventListener('click',e=>{const b=e.target.closest('[data-map-stop]');if(!b)return;selectedMapStop=Number(b.dataset.mapStop);updateMap();});
+  window.addEventListener('online',updateMap);window.addEventListener('offline',updateMap);updateMap();
+}
+function updateMap(){
+  const d=itinerary[selectedMapDay];const stops=d.nav||[];const stop=stops[selectedMapStop];
+  document.getElementById('mapTitle').textContent=d.title;
+  document.querySelectorAll('[data-map-day]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.mapDay)===selectedMapDay)));
+  document.getElementById('mapStops').innerHTML=stops.map((n,i)=>`<button type="button" data-map-stop="${i}" aria-pressed="${i===selectedMapStop}">${i+1}. ${n.label}</button>`).join('');
+  const frame=document.getElementById('mapFrame');frame.hidden=!navigator.onLine||!stop;
+  document.getElementById('mapFallback').hidden=navigator.onLine&&!!stop;
+  if(stop){
+    const url=`https://maps.google.com/maps?q=${encodeURIComponent(stop.query)}&output=embed`;
+    if(navigator.onLine&&frame.getAttribute('src')!==url)frame.src=url;
+    frame.title='מפת '+stop.label;
+    document.getElementById('mapExternal').href=mapsSearchUrl(stop.query);
+  }
+}
+async function setupOffline(){
+  const status=document.getElementById('offlineStatus');
+  if(!('serviceWorker' in navigator)){status.textContent='שמירה ללא קליטה אינה נתמכת בדפדפן הזה';return;}
+  const indicate=()=>{status.textContent=navigator.onLine?'האתר מוכן לפתיחה ללא קליטה ✓':'מצב ללא קליטה · המסלול והציוד זמינים';};
+  try{
+    await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+    indicate();window.addEventListener('online',indicate);window.addEventListener('offline',indicate);
+  }catch(e){status.textContent='לא ניתן לשמור לפתיחה ללא קליטה כרגע';}
+}
+
+setupNavigation();
+setupMap();
+setupOffline();
 renderSkeleton();
-document.getElementById("gear").innerHTML='<article class="gear-card"><div class="gear-name"><span class="gear-icon">🎒</span><span>טוען המלצות ציוד…</span></div><div class="gear-note">משלב את חוברת Tripology עם התחזית העדכנית. סימוני האריזה נשמרים במכשיר הזה.</div></article>';
+renderGear({});
 countdown();
 renderNow({});
 loadWeather();
@@ -957,3 +1058,4 @@ setInterval(countdown,60*1000);
 </script>
 </body>
 </html>
+
