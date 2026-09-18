@@ -97,14 +97,26 @@
       margin:12px 0;font-size:13px;line-height:1.45;display:none;
     }
     .gear-grid{display:grid;gap:10px}
-    .gear-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px 14px;box-shadow:var(--shadow)}
+    .gear-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px 14px;box-shadow:var(--shadow);transition:.18s ease}
+    .gear-card.packed{background:#f0f7f3;border-color:#bdd8c9}
+    .gear-card.packed .gear-name,.gear-card.packed .gear-note{opacity:.68}
     .gear-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
     .gear-name{display:flex;gap:9px;align-items:center;font-size:15px;font-weight:820;min-width:0}
     .gear-icon{font-size:21px;line-height:1}
+    .gear-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
     .gear-qty{font-size:11px;font-weight:800;color:var(--brand);background:var(--soft);border-radius:99px;padding:5px 8px;white-space:nowrap}
-    .gear-days{margin-top:8px;font-size:12px;font-weight:800;color:var(--brand2);line-height:1.4}
-    .gear-note{margin-top:4px;font-size:11px;color:var(--muted);line-height:1.45}
+    .pack-toggle{border:1px solid var(--line);background:#fff;color:var(--brand);border-radius:99px;padding:5px 9px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+    .pack-toggle[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+    .gear-days{margin-top:10px}
+    .day-dots{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;direction:ltr}
+    .day-dot{aspect-ratio:1;max-width:29px;width:100%;justify-self:center;border-radius:50%;display:grid;place-items:center;border:1px solid #cad5d1;background:#fff;color:#9aa8a4;font-size:9px;font-weight:850;line-height:1}
+    .day-dot.active{background:var(--brand2);border-color:var(--brand2);color:#fff;box-shadow:0 2px 8px rgba(23,107,101,.18)}
+    .day-dot.unavailable{border-style:dashed}
+    .days-caption{display:flex;justify-content:space-between;margin-top:4px;color:var(--muted);font-size:9px;font-weight:750;direction:ltr}
+    .gear-note{margin-top:7px;font-size:11px;color:var(--muted);line-height:1.45}
     .gear-empty{color:var(--muted);font-weight:700}
+    .packing-head{display:flex;align-items:center;gap:8px}
+    .packing-progress{font-size:11px;color:var(--brand);background:var(--soft);border-radius:99px;padding:5px 9px;font-weight:800;white-space:nowrap}
     .foot{
       margin:24px 2px 0;padding:16px 2px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.65
     }
@@ -176,8 +188,11 @@
   <section id="days" class="days"></section>
 
   <div class="section-head">
-    <h2>מה לארוז</h2>
-    <span>מתעדכן לפי התחזית החיה</span>
+    <div class="packing-head">
+      <h2>מה לארוז</h2>
+      <span id="packProgress" class="packing-progress">ארזתי 0/0</span>
+    </div>
+    <span>הנקודות מסמנות באילו ימים הציוד שימושי</span>
   </div>
   <section id="gear" class="gear-grid" aria-label="סיכום ציוד לטיול"></section>
 
@@ -400,18 +415,35 @@ function updateSummary(all){
 }
 
 
-function compactDays(days){
-  const nums=days.map(d=>Number(d.num)).sort((a,b)=>a-b);
-  if(!nums.length) return "לא נדרש כרגע";
-  const ranges=[];
-  let start=nums[0], prev=nums[0];
-  for(let i=1;i<=nums.length;i++){
-    const n=nums[i];
-    if(n===prev+1){ prev=n; continue; }
-    ranges.push(start===prev ? `${start}.9` : `${start}–${prev}.9`);
-    start=n; prev=n;
-  }
-  return ranges.join(", ");
+const PACKING_STORAGE_KEY="montenegro-packed-v1";
+
+function getPacked(){
+  try{return JSON.parse(localStorage.getItem(PACKING_STORAGE_KEY) || "{}");}
+  catch(e){return {};}
+}
+
+function savePacked(packed){
+  localStorage.setItem(PACKING_STORAGE_KEY,JSON.stringify(packed));
+}
+
+function updatePackProgress(){
+  const cards=[...document.querySelectorAll(".gear-card[data-gear-key]")];
+  const packed=cards.filter(card=>card.classList.contains("packed")).length;
+  const el=document.getElementById("packProgress");
+  if(el) el.textContent=`ארזתי ${packed}/${cards.length}`;
+}
+
+function dayDots(days, forecast){
+  const active=new Set((days||[]).map(d=>d.date));
+  return `<div class="day-dots" aria-label="ימים שבהם הפריט שימושי">
+    ${forecast.map(d=>{
+      const hasForecast=!!d.wx;
+      const cls=active.has(d.date) ? "day-dot active" : `day-dot${hasForecast ? "" : " unavailable"}`;
+      const state=active.has(d.date) ? "שימושי" : "לא נדרש";
+      return `<span class="${cls}" title="${d.date}: ${state}" aria-label="${d.num} בספטמבר: ${state}">${d.num}</span>`;
+    }).join("")}
+  </div>
+  <div class="days-caption"><span>23.9</span><span>30.9</span></div>`;
 }
 
 function renderGear(byLoc){
@@ -421,28 +453,59 @@ function renderGear(byLoc){
   const match=fn=>forecast.filter(d=>d.wx && fn(d.wx,d));
   const mountainMatch=fn=>mountain.filter(d=>d.wx && fn(d.wx,d));
   const coastMatch=fn=>coast.filter(d=>d.wx && fn(d.wx,d));
+
   const gear=[
-    {icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,note:"שכבת בסיס לכל הימים; כשחם אפשר להישאר איתה לבד."},
-    {icon:"👚",name:"חולצה ארוכה דקה",qty:"1–2",days:match(wx=>wx.max<19 || wx.min<10),note:"לבקרים, לערבים ולימים קרירים יותר."},
-    {icon:"🧥",name:"פליז / סווטשירט",qty:"1",days:match(wx=>wx.max<=18 || wx.min<=10),note:"השכבה המרכזית לימים הקרירים בהרים."},
-    {icon:"🧥",name:"מעיל פוך קל",qty:"1",days:match(wx=>wx.min<=6 || wx.max<=14),note:"בעיקר לבקרים ולערבים הקרים; לא צריך מעיל חורף כבד."},
-    {icon:"🌧️",name:"מעיל גשם אטום לרוח",qty:"1",days:match(wx=>wx.rain>=25 || wx.precip>=1),note:"בכל מקרה כדאי שיהיה בתיק בכל ימי ההרים 23–28.9."},
-    {icon:"👖",name:"מכנסי טיולים ארוכים",qty:"2",days:mountain.concat(coastMatch(wx=>wx.max<21 || wx.rain>=30)),note:"הבחירה העיקרית בדורמיטור, טארה, קולאשין והרכסים."},
-    {icon:"🩳",name:"שורט / מכנס קל",qty:"1",days:coastMatch(wx=>wx.max>=21),note:"בעיקר לקוטור ובודווה אם החוף נשאר חם."},
-    {icon:"🥾",name:"נעלי הליכה עם אחיזה",qty:"1 זוג",days:mountain,note:"מומלץ לכל ימי השטח וההליכה, 23–28.9."},
-    {icon:"💧",name:"נעליים עמידות למים",qty:"עדיפות",days:mountainMatch(wx=>wx.rain>=20 || wx.precip>=0.5),note:"רלוונטי במיוחד אם התחזית מראה גשם או שבילים רטובים."},
-    {icon:"🧦",name:"גרבי טיולים",qty:"6–7 זוגות",days:mountain,note:"2–3 זוגות איכותיים לימים הארוכים בשטח."},
-    {icon:"🧢",name:"כובע גרב / Buff",qty:"1",days:match(wx=>wx.min<=7),note:"קטן בתיק ושימושי בבוקר, בערב וברוח."},
-    {icon:"🧤",name:"כפפות דקות",qty:"אופציונלי",days:match(wx=>wx.min<=4),note:"כדאי אם התחזית בהרים נשארת סביב 4° ומטה."},
-    {icon:"🕶️",name:"כובע שמש + משקפי שמש + SPF",qty:"1 סט",days:forecast,note:"גם בהרים; הקרינה יכולה להיות חזקה בגובה."},
-    {icon:"🎒",name:"תיק יום + כיסוי גשם",qty:"20–25 ל׳",days:mountain,note:"למים, שכבות שמורידים, מעיל גשם וציוד קטן."},
-    {icon:"🏊",name:"בגד ים",qty:"1",days:coast,note:"לקוטור/בודווה; כמעט לא תופס מקום ושווה שיהיה."}
+    {key:"short-shirts",icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,note:"שכבת בסיס לכל הימים; כשחם אפשר להישאר איתה לבד."},
+    {key:"long-shirt",icon:"👚",name:"חולצה ארוכה דקה",qty:"1–2",days:match(wx=>wx.max<19 || wx.min<10),note:"לבקרים, לערבים ולימים קרירים יותר."},
+    {key:"fleece",icon:"🧥",name:"פליז / סווטשירט",qty:"1",days:match(wx=>wx.max<=18 || wx.min<=10),note:"השכבה המרכזית לימים הקרירים בהרים."},
+    {key:"puffer",icon:"🧥",name:"מעיל פוך קל",qty:"1",days:match(wx=>wx.min<=6 || wx.max<=14),note:"בעיקר לבקרים ולערבים הקרים; לא צריך מעיל חורף כבד."},
+    {key:"rain-jacket",icon:"🌧️",name:"מעיל גשם אטום לרוח",qty:"1",days:match(wx=>wx.rain>=25 || wx.precip>=1),note:"בכל מקרה כדאי שיהיה בתיק בכל ימי ההרים 23–28.9."},
+    {key:"hiking-pants",icon:"👖",name:"מכנסי טיולים ארוכים",qty:"2",days:mountain.concat(coastMatch(wx=>wx.max<21 || wx.rain>=30)),note:"הבחירה העיקרית בדורמיטור, טארה, קולאשין והרכסים."},
+    {key:"shorts",icon:"🩳",name:"שורט / מכנס קל",qty:"1",days:coastMatch(wx=>wx.max>=21),note:"בעיקר לקוטור ובודווה אם החוף נשאר חם."},
+    {key:"hiking-shoes",icon:"🥾",name:"נעלי הליכה עם אחיזה",qty:"1 זוג",days:mountain,note:"מומלץ לכל ימי השטח וההליכה, 23–28.9."},
+    {key:"waterproof-shoes",icon:"💧",name:"נעליים עמידות למים",qty:"עדיפות",days:mountainMatch(wx=>wx.rain>=20 || wx.precip>=0.5),note:"רלוונטי במיוחד אם התחזית מראה גשם או שבילים רטובים."},
+    {key:"socks",icon:"🧦",name:"גרבי טיולים",qty:"6–7 זוגות",days:mountain,note:"2–3 זוגות איכותיים לימים הארוכים בשטח."},
+    {key:"beanie-buff",icon:"🧢",name:"כובע גרב / Buff",qty:"1",days:match(wx=>wx.min<=7),note:"קטן בתיק ושימושי בבוקר, בערב וברוח."},
+    {key:"gloves",icon:"🧤",name:"כפפות דקות",qty:"אופציונלי",days:match(wx=>wx.min<=4),note:"כדאי אם התחזית בהרים נשארת סביב 4° ומטה."},
+    {key:"sun",icon:"🕶️",name:"כובע שמש + משקפי שמש + SPF",qty:"1 סט",days:forecast,note:"גם בהרים; הקרינה יכולה להיות חזקה בגובה."},
+    {key:"daypack",icon:"🎒",name:"תיק יום + כיסוי גשם",qty:"20–25 ל׳",days:mountain,note:"למים, שכבות שמורידים, מעיל גשם וציוד קטן."},
+    {key:"swimsuit",icon:"🏊",name:"בגד ים",qty:"1",days:coast,note:"לקוטור/בודווה; כמעט לא תופס מקום ושווה שיהיה."}
   ];
-  const uniqDays=arr=>{const seen=new Set();return arr.filter(d=>{if(seen.has(d.date))return false;seen.add(d.date);return true;});};
+
+  const packed=getPacked();
+
   document.getElementById("gear").innerHTML=gear.map(g=>{
-    const days=uniqDays(g.days||[]);const label=compactDays(days);
-    return `<article class="gear-card"><div class="gear-top"><div class="gear-name"><span class="gear-icon">${g.icon}</span><span>${g.name}</span></div><span class="gear-qty">${g.qty}</span></div><div class="gear-days">${days.length?"מתאים לימים: "+label:'<span class="gear-empty">כרגע לא נדרש לפי התחזית</span>'}</div><div class="gear-note">${g.note}</div></article>`;
+    const isPacked=!!packed[g.key];
+    return `<article class="gear-card${isPacked ? " packed" : ""}" data-gear-key="${g.key}">
+      <div class="gear-top">
+        <div class="gear-name"><span class="gear-icon">${g.icon}</span><span>${g.name}</span></div>
+        <div class="gear-actions">
+          <span class="gear-qty">${g.qty}</span>
+          <button class="pack-toggle" type="button" aria-pressed="${isPacked}" data-pack-key="${g.key}">${isPacked ? "✓ ארוז" : "○ ארזתי"}</button>
+        </div>
+      </div>
+      <div class="gear-days">${dayDots(g.days,forecast)}</div>
+      <div class="gear-note">${g.note}</div>
+    </article>`;
   }).join("");
+
+  document.querySelectorAll(".pack-toggle").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const key=btn.dataset.packKey;
+      const state=getPacked();
+      state[key]=!state[key];
+      savePacked(state);
+
+      const card=btn.closest(".gear-card");
+      const isPacked=!!state[key];
+      card.classList.toggle("packed",isPacked);
+      btn.setAttribute("aria-pressed",String(isPacked));
+      btn.textContent=isPacked ? "✓ ארוז" : "○ ארזתי";
+      updatePackProgress();
+    });
+  });
+
+  updatePackProgress();
 }
 
 document.getElementById("refreshBtn").addEventListener("click",()=>{
@@ -463,7 +526,7 @@ document.getElementById("shareBtn").addEventListener("click",async()=>{
 });
 
 renderSkeleton();
-document.getElementById("gear").innerHTML='<article class="gear-card"><div class="gear-name"><span class="gear-icon">🎒</span><span>טוען המלצות ציוד…</span></div><div class="gear-note">ההמלצות יתעדכנו לפי התחזית בכל פתיחה.</div></article>';
+document.getElementById("gear").innerHTML='<article class="gear-card"><div class="gear-name"><span class="gear-icon">🎒</span><span>טוען המלצות ציוד…</span></div><div class="gear-note">ההמלצות יתעדכנו לפי התחזית בכל פתיחה. סימוני האריזה נשמרים במכשיר הזה.</div></article>';
 countdown();
 loadWeather();
 setInterval(()=>loadWeather(),30*60*1000);
