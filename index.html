@@ -221,6 +221,17 @@
     }
     .now-action.secondary{background:#fff;color:var(--brand);border-color:#cbd9d4}
     .now-tomorrow{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.5}
+    .countdown-clock{display:flex;gap:8px;align-items:stretch;margin-top:3px;direction:ltr}
+    .countdown-unit{min-width:68px;padding:10px 8px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.10);text-align:center;backdrop-filter:blur(6px)}
+    .countdown-unit strong{display:block;font-size:25px;line-height:1;font-variant-numeric:tabular-nums}
+    .countdown-unit span{display:block;margin-top:5px;font-size:10px;font-weight:750;opacity:.76;direction:rtl}
+    .context-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+    .context-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:99px;background:var(--soft);color:var(--brand);font-size:10px;font-weight:850}
+    .context-chip.current{background:#e9f5ef;border:1px solid #c8e0d5}
+    .now-source-note{margin-top:8px;font-size:10px;line-height:1.45;color:var(--muted)}
+    .flight-live-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:13px}
+    .flight-live-grid .now-stat .v{font-variant-numeric:tabular-nums}
+    @media(max-width:520px){.countdown-clock{gap:6px}.countdown-unit{min-width:0;flex:1;padding:9px 5px}.countdown-unit strong{font-size:22px}.flight-live-grid{grid-template-columns:1fr 1fr}}
     .today-gear{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
     .today-gear span{font-size:10px;font-weight:800;color:var(--brand);background:var(--soft);border-radius:99px;padding:6px 8px}
     .source-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
@@ -800,6 +811,99 @@ function tripPhase(){
   return "during";
 }
 
+const FLIGHT_CONTEXT={
+  number:"LY5467",
+  departure:new Date("2026-09-23T11:50:00+03:00"),
+  arrival:new Date("2026-09-23T13:50:00+02:00"),
+  airportArrival:new Date("2026-09-23T08:50:00+03:00")
+};
+let liveFlightData=null;
+let contextPosition=null;
+
+function contextualPhase(now=new Date()){
+  const flightDayStart=new Date("2026-09-23T00:00:00+03:00");
+  const flightFocusEnd=new Date("2026-09-23T15:00:00+02:00");
+  if(now<flightDayStart) return "before-flight";
+  if(now<flightFocusEnd) return "flight-day";
+  if(dateKeyInMontenegro(now)<="2026-09-30") return "trip";
+  return "after";
+}
+
+function timeInZone(zone="Europe/Podgorica"){
+  return Number(new Intl.DateTimeFormat("en-GB",{timeZone:zone,hour:"2-digit",hourCycle:"h23"}).format(new Date()));
+}
+
+function pad2(n){return String(Math.max(0,n)).padStart(2,"0");}
+
+function distanceKm(a,b){
+  const R=6371,toRad=x=>x*Math.PI/180;
+  const dLat=toRad(b.lat-a.lat),dLon=toRad(b.lon-a.lon);
+  const q=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(q));
+}
+
+function locationContext(){
+  if(!contextPosition) return "";
+  const here={lat:contextPosition.coords.latitude,lon:contextPosition.coords.longitude};
+  const places=[
+    {name:"נתב״ג",lat:32.0005,lon:34.8708},
+    {name:"טיבת",lat:42.4047,lon:18.7233},
+    ...Object.values(locations).map(x=>({name:x.name,lat:x.lat,lon:x.lon}))
+  ].map(p=>({...p,d:distanceKm(here,p)})).sort((a,b)=>a.d-b.d);
+  const p=places[0];
+  if(!p || p.d>90) return "";
+  return p.d<8 ? `📍 באזור ${p.name}` : `📍 כ־${Math.round(p.d)} ק״מ מ${p.name}`;
+}
+
+function requestContextLocation(){
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    contextPosition=pos;
+    renderNow(latestGearWeather);
+  },()=>{}, {enableHighAccuracy:false,maximumAge:15*60*1000,timeout:7000});
+}
+
+async function setupContextLocation(){
+  if(!navigator.geolocation) return;
+  try{
+    if(navigator.permissions){
+      const p=await navigator.permissions.query({name:"geolocation"});
+      if(p.state==="granted") requestContextLocation();
+      p.addEventListener?.("change",()=>{if(p.state==="granted") requestContextLocation();});
+    }
+  }catch(e){}
+}
+
+function bindContextLocationButton(){
+  document.querySelectorAll("[data-context-location]").forEach(btn=>btn.addEventListener("click",requestContextLocation));
+}
+
+async function loadLiveFlightStatus(force=false){
+  if(contextualPhase()!=="flight-day" && !force) return;
+  try{
+    const u=new URL("https://data.gov.il/api/3/action/datastore_search");
+    u.searchParams.set("resource_id","e83f763b-b7d7-479e-b172-ae981ddc6de5");
+    u.searchParams.set("q",FLIGHT_CONTEXT.number);
+    u.searchParams.set("limit","30");
+    const r=await fetch(u,{signal:AbortSignal.timeout(10000)});
+    if(!r.ok) throw new Error("flight status unavailable");
+    const j=await r.json();
+    const rows=j?.result?.records||[];
+    const row=rows.find(x=>String(x.CHOPER||"").trim()==="LY" && String(x.CHFLTN||"").trim()==="5467" && String(x.CHAORD||"").trim()==="D" && String(x.CHSTOL||"").startsWith("2026-09-23"))
+      || rows.find(x=>String(x.CHOPER||"").trim()==="LY" && String(x.CHFLTN||"").trim()==="5467" && String(x.CHAORD||"").trim()==="D");
+    if(!row) return;
+    liveFlightData={
+      status:row.CHRMINH||row.CHRMINE||"טרם פורסם",
+      terminal:row.CHTERM ? String(row.CHTERM) : "—",
+      counters:row.CHCINT||"—",
+      zone:row.CHCKZN||"",
+      gate:row.CHGATE||row.GATE||"",
+      estimated:row.CHPTOL||row.CHSTOL||""
+    };
+    renderNow(latestGearWeather);
+  }catch(e){}
+}
+
 function flightStatusUrl(flightNo){
   return `https://www.flightradar24.com/data/flights/${String(flightNo).toLowerCase()}`;
 }
@@ -927,18 +1031,34 @@ function countdown(){
   const now=new Date();
   const el=document.getElementById("countdown");
   const note=document.getElementById("heroNote");
-  const phase=tripPhase();
-  if(phase==="before"){
-    const departure=new Date("2026-09-23T11:50:00+03:00");
-    const diff=Math.max(0,departure-now);
-    const days=Math.ceil(diff/86400000);
-    el.innerHTML=`עוד ${days} ${days===1?"יום":"ימים"} <small>לטיסה</small>`;
-    note.textContent="לפני היציאה: הטיסה והאריזה מקבלות עדיפות. התחזית מתעדכנת אוטומטית.";
-  } else if(phase==="during"){
+  const phase=contextualPhase(now);
+
+  if(phase==="before-flight"){
+    const diff=Math.max(0,FLIGHT_CONTEXT.departure-now);
+    const totalMinutes=Math.floor(diff/60000);
+    const days=Math.floor(totalMinutes/1440);
+    const hours=Math.floor((totalMinutes%1440)/60);
+    const minutes=totalMinutes%60;
+    el.innerHTML=`<div class="countdown-clock" aria-label="עוד ${days} ימים, ${hours} שעות ו-${minutes} דקות לטיסה">
+      <div class="countdown-unit"><strong>${days}</strong><span>ימים</span></div>
+      <div class="countdown-unit"><strong>${pad2(hours)}</strong><span>שעות</span></div>
+      <div class="countdown-unit"><strong>${pad2(minutes)}</strong><span>דקות</span></div>
+    </div>`;
+    note.textContent="עד הטיסה • מומלץ להגיע לנתב״ג ב־08:50, שלוש שעות לפני ההמראה.";
+  } else if(phase==="flight-day"){
+    const diff=FLIGHT_CONTEXT.departure-now;
+    if(diff>0){
+      const mins=Math.floor(diff/60000),h=Math.floor(mins/60),m=mins%60;
+      el.innerHTML=`היום טסים ✈️ <small>עוד ${h}:${pad2(m)} להמראה</small>`;
+    }else{
+      el.innerHTML=`יום הטיסה ✈️ <small>LY5467 • תל״א → טיבת</small>`;
+    }
+    note.textContent="היום הטיסה במרכז: סטטוס, טרמינל, דלפקים והפרטים שחשוב לבדוק לפני העלייה למטוס.";
+  } else if(phase==="trip"){
     const today=dateKeyInMontenegro();
     const tripDay=Math.max(1,itinerary.findIndex(d=>d.date===today)+1);
     el.innerHTML=`אנחנו בטיול 🇲🇪 <small>יום ${tripDay} מתוך 8</small>`;
-    note.textContent="בזמן הטיול: מוצג קודם מה שצריך היום — יעד, ניווט, מזג אוויר וציוד.";
+    note.textContent="עכשיו מוצגים קודם פרטי היום, היעדים המרכזיים, ניווט, מזג האוויר והציוד הרלוונטי.";
   } else {
     el.innerHTML=`המסע הסתיים 🇲🇪 <small>23–30.9.2026</small>`;
     note.textContent="המסלול, התחזיות שנשמרו ורשימת הציוד עדיין זמינים לעיון.";
@@ -1246,51 +1366,90 @@ function setupGearAdd(){
 function renderNow(byLoc){
   const root=document.getElementById("now");
   if(!root) return;
-  const phase=tripPhase();
+  const phase=contextualPhase();
   const today=dateKeyInMontenegro();
   const packed=getPacked();
   const built=buildGear(byLoc);
   const total=built.gear.length;
   const packedCount=built.gear.filter(g=>packed[g.key]).length;
+  const locationLabel=locationContext();
 
-  if(phase==="before"){
+  if(phase==="before-flight"){
     const d=itinerary[0];
     const wx=byLoc[d.loc]?.[d.date] || null;
     const wxText=wx ? `${weatherText(wx.code)[0]} ${fmt(wx.max)}° / ${fmt(wx.min)}°` : "תחזית תופיע כשזמינה";
     root.innerHTML=`
-      <div class="now-kicker">הדבר הבא • יום ד׳ 23.9</div>
+      <div class="now-kicker">לפני הטיסה • מה כדאי לסגור עכשיו</div>
       <div class="now-title">✈️ LY5467 לתיבת</div>
-      <div class="now-sub">תל״א → טיבת • 11:50–13:50. אחר כך קבלת הג׳יפים ונסיעה לז׳בליאק.</div>
+      <div class="now-sub">המראה ב־11:50 • מומלץ להגיע לנתב״ג ב־<strong>08:50</strong> (3 שעות לפני).</div>
       <div class="now-grid">
-        <div class="now-stat"><div class="k">טיסה</div><div class="v">LY5467</div></div>
-        <div class="now-stat"><div class="k">יעד ראשון</div><div class="v">ז׳בליאק</div></div>
-        <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${wxText}</div></div>
+        <div class="now-stat"><div class="k">הגעה לשדה</div><div class="v">08:50</div></div>
+        <div class="now-stat"><div class="k">המראה</div><div class="v">11:50</div></div>
+        <div class="now-stat"><div class="k">יום 1 בז׳בליאק</div><div class="v">${wxText}</div></div>
       </div>
       <div class="now-actions">
-        <a class="now-action" href="${flightStatusUrl("LY5467")}" target="_blank" rel="noopener">✈️ סטטוס טיסה חי</a>
-        <a class="now-action secondary" href="#packingSection"><span id="nowPackProgress">${packedCount}/${total} ארוז</span> · המשך אריזה</a>
-        <a class="now-action secondary" href="#day-details-1" data-open-day="2026-09-23">פרטי יום 1</a>
+        <a class="now-action" href="#packingSection"><span id="nowPackProgress">${packedCount}/${total} ארוז</span> · לרשימת הציוד</a>
+        <a class="now-action secondary" href="${flightStatusUrl(FLIGHT_CONTEXT.number)}" target="_blank" rel="noopener">✈️ פרטי הטיסה</a>
+        <a class="now-action secondary" href="#day-details-1" data-open-day="2026-09-23">מה מחכה ביום הראשון</a>
       </div>`;
     bindNowDayLinks();
     return;
   }
 
-  if(phase==="during"){
+  if(phase==="flight-day"){
+    const status=liveFlightData?.status || "ממתין לעדכון";
+    const terminal=liveFlightData?.terminal || "—";
+    const counters=liveFlightData?.counters || "—";
+    const gate=liveFlightData?.gate || "טרם פורסם";
+    const estimated=liveFlightData?.estimated ? new Date(liveFlightData.estimated).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"}) : "11:50";
+    root.innerHTML=`
+      <div class="now-kicker">יום הטיסה • LY5467</div>
+      <div class="now-title">✈️ תל״א → טיבת</div>
+      <div class="now-sub">המידע החי מתעדכן מלוח הטיסות של רשות שדות התעופה. זמן מתוכנן 11:50.</div>
+      ${locationLabel?`<div class="context-row"><span class="context-chip current">${locationLabel}</span></div>`:""}
+      <div class="flight-live-grid">
+        <div class="now-stat"><div class="k">מצב</div><div class="v">${esc(status)}</div></div>
+        <div class="now-stat"><div class="k">זמן עדכני</div><div class="v">${estimated}</div></div>
+        <div class="now-stat"><div class="k">טרמינל</div><div class="v">${esc(terminal)}</div></div>
+        <div class="now-stat"><div class="k">שער</div><div class="v">${esc(gate)}</div></div>
+      </div>
+      <div class="context-row">
+        <span class="context-chip">🎫 דלפקים: ${esc(counters)}${liveFlightData?.zone?` · אזור ${esc(liveFlightData.zone)}`:""}</span>
+        <span class="context-chip">🕗 הגעה מומלצת: 08:50</span>
+      </div>
+      <div class="now-actions">
+        <a class="now-action" href="${flightStatusUrl(FLIGHT_CONTEXT.number)}" target="_blank" rel="noopener">✈️ סטטוס מלא ב־FlightRadar24</a>
+        <a class="now-action secondary" href="https://www.iaa.gov.il/airports/ben-gurion/flight-board/" target="_blank" rel="noopener">לוח הטיסות נתב״ג</a>
+        ${!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 להתאים לפי המיקום</button>`:""}
+      </div>
+      <div class="now-source-note">שער העלייה למטוס אינו תמיד נכלל במידע הפתוח של נתב״ג; אם אינו מופיע כאן, יש לבדוק במסכי השדה או בכרטיס העלייה למטוס.</div>`;
+    bindContextLocationButton();
+    return;
+  }
+
+  if(phase==="trip"){
     const idx=itinerary.findIndex(d=>d.date===today);
-    const d=itinerary[Math.max(0,idx)];
+    const safeIdx=idx>=0?idx:0;
+    const d=itinerary[safeIdx];
     const wx=byLoc[d.loc]?.[d.date] || null;
     const [emoji,label]=wx ? weatherText(wx.code) : ["🕒","תחזית עדיין לא זמינה"];
     const firstNav=d.nav?.[0];
     const todayGear=built.gear.filter(g=>g.days.some(x=>x.date===d.date)).slice(0,5);
-    const tomorrow=itinerary[idx+1];
+    const tomorrow=itinerary[safeIdx+1];
     const tomorrowWx=tomorrow ? byLoc[tomorrow.loc]?.[tomorrow.date] : null;
     const tomorrowText=tomorrow ? `${tomorrow.num}.9 · ${tomorrow.title}${tomorrowWx?` · ${weatherText(tomorrowWx.code)[0]} ${fmt(tomorrowWx.max)}°/${fmt(tomorrowWx.min)}°`:""}` : "";
+    const hour=timeInZone();
+    const part=hour<12?"בוקר טוב":hour<18?"היום":"ערב טוב";
     root.innerHTML=`
-      <div class="now-kicker">היום • יום ${idx+1} מתוך 8</div>
+      <div class="now-kicker">${part} • יום ${safeIdx+1} מתוך 8</div>
       <div class="now-title">${d.title}</div>
       <div class="now-sub">${d.subtitle}</div>
+      <div class="context-row">
+        ${locationLabel?`<span class="context-chip current">${locationLabel}</span>`:""}
+        ${(d.nav||[]).slice(0,3).map(n=>`<span class="context-chip">📌 ${n.label}</span>`).join("")}
+      </div>
       <div class="now-grid">
-        <div class="now-stat"><div class="k">תחנה</div><div class="v">${locations[d.loc].name}</div></div>
+        <div class="now-stat"><div class="k">אזור היום</div><div class="v">${locations[d.loc].name}</div></div>
         <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${emoji} ${wx?`${fmt(wx.max)}° / ${fmt(wx.min)}°`:label}</div></div>
         <div class="now-stat"><div class="k">גשם</div><div class="v">${wx?`${fmt(wx.rain)}%`:"–"}</div></div>
       </div>
@@ -1298,11 +1457,12 @@ function renderNow(byLoc){
       ${todayGear.length?`<div class="today-gear">${todayGear.map(g=>`<span>${g.icon} ${g.name}</span>`).join("")}</div>`:""}
       <div class="now-actions">
         ${firstNav?`<a class="now-action" href="${mapsDirectionsUrl(firstNav.query)}" target="_blank" rel="noopener">🧭 נווט: ${firstNav.label}</a>`:""}
-        ${d.flight?`<a class="now-action secondary" href="${flightStatusUrl(d.flight.split(" • ")[0])}" target="_blank" rel="noopener">✈️ סטטוס הטיסה</a>`:""}
-        <a class="now-action secondary" href="#day-details-${idx+1}" data-open-day="${d.date}">כל פרטי היום</a>
+        <a class="now-action secondary" href="#day-details-${safeIdx+1}" data-open-day="${d.date}">כל פרטי היום</a>
+        ${!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 התאמה לפי המיקום</button>`:""}
       </div>
-      ${tomorrow?`<div class="now-tomorrow"><strong>מחר:</strong> ${tomorrowText}</div>`:""}`;
+      ${tomorrow?`<div class="now-tomorrow"><strong>${hour>=18?"מחר":"הצצה למחר"}:</strong> ${tomorrowText}</div>`:""}`;
     bindNowDayLinks();
+    bindContextLocationButton();
     return;
   }
 
@@ -1502,13 +1662,16 @@ setupNavigation();
 setupMap();
 setupGearAdd();
 setupOffline();
+setupContextLocation();
 renderSkeleton();
 renderGear({});
 countdown();
 renderNow({});
 loadWeather();
+loadLiveFlightStatus();
 setInterval(()=>loadWeather(),30*60*1000);
-setInterval(countdown,60*1000);
+setInterval(countdown,30*1000);
+setInterval(()=>loadLiveFlightStatus(),5*60*1000);
 </script>
 </body>
 </html>
