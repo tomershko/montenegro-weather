@@ -514,6 +514,14 @@
     .bag-preview{border:1px solid var(--line);padding:18px;border-radius:22px;margin:16px 0}.bag-preview>label{display:block;font-size:17px;font-weight:750;margin-bottom:10px}.bag-preview select{width:100%}
     :focus-visible{outline:3px solid #b77b13!important;outline-offset:3px}
     @media(max-width:520px){header{gap:12px}header .actions{width:100%;justify-content:flex-end}.now-card{padding:18px}.route-tools>label{width:100%}.route-tools select{flex-basis:60%}.packing-head{flex-wrap:wrap}.section-head{flex-wrap:wrap}.route p,.advice-summary{font-size:14px}.route h3{font-size:18px}.gear-name{font-size:15px}.hotel-top{gap:8px}.now-actions .now-action:first-child{width:100%}.quick-nav a{font-size:14px}.hero{padding:20px}.flight-board-head{gap:10px}.gear-add input{font-size:16px}.weather-summary{white-space:normal;flex-wrap:wrap;overflow:visible}.trip-notice{font-size:12px}.split-label{font-size:12px}}
+
+    /* Explicit theme pairs prevent primary action colors leaking into secondary links. */
+    .day-meta .day-chip{background:var(--soft);color:var(--ink);border-color:var(--line);font-size:13px;line-height:1.6}
+    .now-action.secondary,.info-card a.now-action.secondary,
+    [data-theme="dark"] .now-action.secondary,
+    [data-theme="dark"] .info-card a.now-action.secondary{
+      background:var(--card);color:var(--brand);border-color:var(--line)
+    }
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -872,7 +880,7 @@ function renderHotel(d){
   const current=hotels[d.stay],previous=hotels[itinerary[i-1]?.stay];
   const leaving=previous && itinerary[i-1].stay!==d.stay;
   if(!current&&!leaving)return '';
-  const departure=leaving?`<div class="hotel-exit"><strong>יציאה היום:</strong> <bdi>${esc(previous.name)}</bdi> · ${esc(previous.city)} · לקחת את כל הציוד${!current?` · חוזרים הביתה`:''} <a href="${previous.url}" target="_blank" rel="noopener noreferrer">${previous.official?'אתר המלון':'פרטים ב־Booking'}</a></div>`:'';
+  const departure=leaving?`<div class="hotel-exit"><strong>יציאה היום:</strong> <bdi>${esc(previous.name)}</bdi> · ${esc(previous.city)} · לקחת את כל הציוד${!current?` · חוזרים הביתה`:''}</div>`:'';
   if(!current)return `<section class="hotel-panel" aria-label="מלון ויציאה"><div class="hotel-heading">🛏️ המלון של היום</div>${departure}<div class="hotel-dates">אין לינה במלון הלילה</div></section>`;
   let first=i,last=i;
   while(first>0&&itinerary[first-1].stay===d.stay)first--;
