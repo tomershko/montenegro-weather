@@ -7,6 +7,32 @@
   <meta name="theme-color" content="#0d3b3a" />
   <meta name="description" content="מלווה חי לטיול הג׳יפים במונטנגרו: מה צריך עכשיו, מסלול, מזג אוויר, טיסות וציוד" />
   <title>מונטנגרו 🇲🇪 | המלווה שלנו לטיול</title>
+
+  <link rel="canonical" href="https://tomershko.github.io/montenegro-weather/" />
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/icon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/icon-180.png" />
+  <link rel="manifest" href="./site.webmanifest" />
+  <meta name="apple-mobile-web-app-title" content="מונטנגרו" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="he_IL" />
+  <meta property="og:site_name" content="מונטנגרו · המלווה שלנו לטיול" />
+  <meta property="og:title" content="מונטנגרו 🇲🇪 · הטיול שלנו, במקום אחד" />
+  <meta property="og:description" content="23–30.9.2026 · מסלול יומי, מפות וניווט, תחזית מזג אוויר ורשימת ציוד אישית לטיול הג׳יפים שלנו." />
+  <meta property="og:url" content="https://tomershko.github.io/montenegro-weather/" />
+  <meta property="og:image" content="https://tomershko.github.io/montenegro-weather/assets/share-v1.png" />
+  <meta property="og:image:secure_url" content="https://tomershko.github.io/montenegro-weather/assets/share-v1.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="מונטנגרו — המלווה שלנו לטיול, 23–30.9.2026, איור הרים ודרך" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="מונטנגרו · המלווה שלנו לטיול" />
+  <meta name="twitter:description" content="מסלול, מזג אוויר, ניווט וציוד · 23–30.9.2026" />
+  <meta name="twitter:image" content="https://tomershko.github.io/montenegro-weather/assets/share-v1.png" />
+  <meta name="twitter:image:alt" content="הטיול שלנו למונטנגרו — הרים ודרך" />
   <style>
     :root{
       --bg:#f3f5f2;
@@ -39,6 +65,9 @@
       padding:18px 4px 8px;
       display:flex;gap:14px;align-items:flex-start;justify-content:space-between;
     }
+    .site-brand{display:flex;align-items:center;gap:10px}
+    .site-logo{width:52px;height:52px;flex:none;border-radius:14px;box-shadow:0 4px 12px rgba(13,59,58,.15)}
+    @media(max-width:480px){header{flex-wrap:wrap}.site-logo{width:44px;height:44px;border-radius:12px}}
     .eyebrow{font-size:13px;font-weight:750;color:var(--brand2);letter-spacing:.02em;margin-bottom:5px}
     h1{font-size:clamp(28px,8vw,46px);line-height:1.03;margin:0;letter-spacing:-.035em}
     .sub{margin:9px 0 0;color:var(--muted);font-size:15px;line-height:1.5}
@@ -252,7 +281,7 @@
   <header>
     <div>
       <div class="eyebrow">טיול ג׳יפים • 23–30.9.2026</div>
-      <h1>מונטנגרו 🇲🇪</h1>
+      <div class="site-brand"><img class="site-logo" src="./assets/icon-192.png" width="52" height="52" alt="" /><h1>מונטנגרו 🇲🇪</h1></div>
       <p class="sub">מה צריך עכשיו — טיסה, היום במסלול, ניווט, מזג אוויר וציוד.</p>
     </div>
     <div class="actions">
@@ -1016,11 +1045,11 @@ document.getElementById("refreshBtn").addEventListener("click",()=>{
 });
 
 document.getElementById("shareBtn").addEventListener("click",async()=>{
-  const data={title:"מזג האוויר למונטנגרו 🇲🇪",text:"תחזית חיה למסלול שלנו במונטנגרו, 23–30.9.2026",url:location.href};
+  const data={title:"מונטנגרו 🇲🇪 · המלווה שלנו לטיול",text:"כל הטיול במקום אחד: מסלול, מפות וניווט, מזג אוויר ורשימת ציוד אישית · 23–30.9.2026",url:"https://tomershko.github.io/montenegro-weather/"};
   try{
     if(navigator.share) await navigator.share(data);
     else{
-      await navigator.clipboard.writeText(location.href);
+      await navigator.clipboard.writeText(data.url);
       const b=document.getElementById("shareBtn"); const old=b.innerHTML;
       b.innerHTML="✓ הועתק"; setTimeout(()=>b.innerHTML=old,1600);
     }
