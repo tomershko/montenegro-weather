@@ -522,6 +522,8 @@
     [data-theme="dark"] .info-card a.now-action.secondary{
       background:var(--card);color:var(--brand);border-color:var(--line)
     }
+    .holiday-note{margin:14px 16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--ink);font-size:14px;line-height:1.65}
+    .now-card .holiday-note{margin-inline:0}
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -875,6 +877,9 @@ const hotels = {
   "Avala Resort • בודווה": {name:"Avala Resort & Villas",city:"בודווה",query:"Avala Resort & Villas Budva Montenegro",url:"https://www.avalaresort.com/",official:true}
 };
 function hotelDate(date){const [,m,d]=date.split('-');return `${Number(d)}.${Number(m)}`;}
+function renderHoliday(d){
+  return d.date==="2026-09-25" ? '<p class="holiday-note">🌿 <strong>ערב סוכות בארץ</strong> — חג שמח למשפחות ולחברים בבית!</p>' : '';
+}
 function renderHotel(d){
   const i=itinerary.findIndex(day=>day.date===d.date);
   const current=hotels[d.stay],previous=hotels[itinerary[i-1]?.stay];
@@ -1111,6 +1116,7 @@ function renderSkeleton(){
         <div class="detail-hint">${isOpen ? "סגירת פרטים ↑" : "פרטי היום ↓"}</div>
       </button>
 
+      ${renderHoliday(d)}
       ${renderHotel(d)}
 
       <div class="day-details" id="${panelId}" ${isOpen ? "" : "hidden"}>
@@ -1646,6 +1652,7 @@ function renderNow(byLoc){
         <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${emoji} ${wx?`${fmt(wx.max)}° / ${fmt(wx.min)}°`:label}</div></div>
         <div class="now-stat"><div class="k">גשם</div><div class="v">${wx?`${fmt(wx.rain)}%`:"–"}</div></div>
       </div>
+      ${renderHoliday(d)}
       ${renderHotel(d)}
       ${renderDayBag(d,byLoc)}
       <div class="now-actions">
