@@ -33,6 +33,9 @@
   <meta name="twitter:description" content="מסלול, מזג אוויר, ניווט וציוד · 23–30.9.2026" />
   <meta name="twitter:image" content="https://tomershko.github.io/montenegro-weather/assets/share-v1.png" />
   <meta name="twitter:image:alt" content="הטיול שלנו למונטנגרו — הרים ודרך" />
+  <script>
+  (function(){let mode='auto';try{mode=localStorage.getItem('montenegro-theme')||'auto';}catch(e){}if(!['auto','light','dark'].includes(mode))mode='auto';document.documentElement.dataset.themeMode=mode;document.documentElement.dataset.theme=mode==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):mode;})();
+  </script>
   <style>
     :root{
       --bg:#f3f5f2;
@@ -462,6 +465,53 @@
     .hotel-dates{font-size:12px;color:#405552;line-height:1.7;margin-top:8px}.hotel-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
     .hotel-links a{display:inline-flex;align-items:center;min-height:40px;padding:8px 12px;border:1px solid #bdcfc5;border-radius:10px;background:white;color:var(--brand);font-size:12px;font-weight:750;text-decoration:none}
     .hotel-panel a:focus-visible{outline:3px solid #a66a0a;outline-offset:3px}.hotel-exit a{color:inherit;text-underline-offset:3px}
+
+    /* Travel UI: shared surfaces in both color schemes. */
+    :root{--bg:#eff3ef;--card:#ffffff;--ink:#19332f;--muted:#50675f;--line:#cddcd4;--brand:#19574e;--brand2:#246c5c;--soft:#e5f0e9;--surface:#f5f8f4;--amber-bg:#fff0d0;--amber-ink:#714800;--shadow:0 8px 26px #19332f0c;color-scheme:light}
+    :root[data-theme="dark"]{--bg:#101e26;--card:#182b34;--ink:#e4f0eb;--muted:#b0c5bc;--line:#36505a;--brand:#9bddc6;--brand2:#a6e3c9;--soft:#233e43;--surface:#1d333c;--amber-bg:#443820;--amber-ink:#f6d594;--shadow:0 8px 26px #0003;color-scheme:dark}
+    body{background:var(--bg);color:var(--ink)}
+    .day,.now-card,.now-card.primary,.info-card,.map-card,.offline-card,.bag-preview,.gear-matrix-wrap,.quick-nav{background:var(--card);border-color:var(--line)}
+    .icon-btn,.feedback-link{background:var(--card);color:var(--brand);border-color:var(--line)}
+    .quick-nav a{color:var(--brand)}
+    .quick-nav a[aria-current="page"],#shareBtn,.now-action,.nav-btn,.gear-add button,.map-days button[aria-pressed="true"],.map-stops button[aria-pressed="true"]{background:#19574e;color:#fff;border-color:#19574e}
+    [data-theme="dark"] .quick-nav a[aria-current="page"],[data-theme="dark"] #shareBtn,[data-theme="dark"] .now-action,[data-theme="dark"] .nav-btn,[data-theme="dark"] .gear-add button,[data-theme="dark"] .map-days button[aria-pressed="true"],[data-theme="dark"] .map-stops button[aria-pressed="true"]{background:#9bddc6;color:#102c27;border-color:#9bddc6}
+    .now-action.secondary,.nav-btn.secondary,.hotel-links a,.hotel-badge,.map-days button,.map-stops button{background:var(--card);color:var(--brand);border-color:var(--line)}
+    .now-stat,.expanded-weather-item,.day-details,.gear-matrix th,.gear-matrix th:first-child{background:var(--surface);border-color:var(--line)}
+    .expanded-weather,.weather-summary{border-color:var(--line)}
+    .hotel-panel,.detail-hint,.context-chip,.gear-card.packed,.gear-qty,.datebox,.today-gear span{background:var(--soft);border-color:var(--line);color:var(--brand)}
+    .hotel-badge.last,.hotel-exit{background:var(--amber-bg);color:var(--amber-ink)}
+    .hotel-location,.hotel-dates,.day-detail-list,.info-card p,.trip-notice{color:var(--muted)}
+    .trip-notice{background:var(--surface);border-color:var(--line);font-size:13px}
+    .gear-matrix-scroll,.gear-matrix td:first-child,.gear-matrix th:first-child,.gear-add input,.fx-fields input,.fx-fields select{background:var(--card);color:var(--ink);border-color:var(--line)}
+    .gear-matrix td,.gear-matrix th{border-color:var(--line)}
+    .gear-matrix td:first-child{z-index:1}.gear-matrix th:first-child{background:var(--surface)}
+    .info-card a,.info-card a.secondary{color:var(--brand)}
+    .info-card a.now-action{color:#fff}[data-theme="dark"] .info-card a.now-action{color:#102c27}
+    .error{background:var(--amber-bg);color:var(--amber-ink);border-color:var(--line)}
+    .hero{min-height:0;padding:24px;background:linear-gradient(145deg,#173e3b,#286b5c)}
+    [data-theme="dark"] .hero{background:linear-gradient(145deg,#112f35,#204a45)}
+    .hero:after{display:none}.hero-top>div:first-child{width:100%}.hero .countdown{color:#fff}
+    .day-details[hidden],[hidden]{display:none!important}
+    .day-details{max-height:none;overflow:visible;transition:none}
+    .day{scroll-margin-top:16px}.route p,.day-detail-list,.advice-summary,.hotel-dates,.hotel-location,.map-card p,.offline-card p{font-size:14px;line-height:1.65}
+    .hotel-heading,.hotel-badge,.now-stat .k,.expanded-weather-item .k,.summary-label{font-size:12px}
+    .expanded-weather-item .v,.nav-btn,.hotel-links a,.now-action{font-size:14px}
+    .detail-hint{min-height:44px;font-size:14px}.nav-btn,.hotel-links a,.icon-btn,.gear-remove{min-height:44px;min-width:44px}
+    .now-stat .v{white-space:normal;overflow:visible;overflow-wrap:anywhere}
+    .route-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+    .route-tools select,.bag-preview select{min-width:0;max-width:100%;flex:1;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-size:16px}
+    .route-tools button{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--brand);font-weight:750;min-height:44px;cursor:pointer}
+    details>summary{cursor:pointer;min-height:44px;padding-block:10px;font-weight:750;color:var(--brand);font-size:15px}
+    .hotel-more{margin-top:5px}.hotel-more summary{font-size:14px}.hotel-panel.compact{padding-block:10px}
+    .gear-matrix-wrap{padding:14px;border:1px solid var(--line);border-radius:18px}
+    .gear-card{display:flex;padding:0;gap:0;min-height:56px}.gear-row{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:14px 12px;cursor:pointer}.gear-main{flex:1}.gear-name{font-size:15px;line-height:1.5}.gear-qty{font-size:13px;direction:rtl}.gear-remove{margin-inline-end:4px;color:var(--muted)}
+    .pack-check,.bag-item input,.filter-control input{width:24px;height:24px;flex:none;accent-color:#246c5c}
+    .filter-control{display:flex;gap:10px;align-items:center;min-height:48px;margin:8px 0 14px;font-weight:750;cursor:pointer}
+    .day-bag{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}.day-bag h3{font-size:20px;margin:0 0 6px}.day-bag p{color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 10px}
+    .bag-item{display:flex;align-items:center;gap:10px;min-height:48px;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer;font-size:15px}.bag-item:has(input:checked) span{text-decoration:line-through;color:var(--muted)}.bag-status{font-size:13px;color:var(--muted);margin-top:8px}
+    .bag-preview{border:1px solid var(--line);padding:18px;border-radius:22px;margin:16px 0}.bag-preview>label{display:block;font-size:17px;font-weight:750;margin-bottom:10px}.bag-preview select{width:100%}
+    :focus-visible{outline:3px solid #b77b13!important;outline-offset:3px}
+    @media(max-width:520px){header{gap:12px}header .actions{width:100%;justify-content:flex-end}.now-card{padding:18px}.route-tools>label{width:100%}.route-tools select{flex-basis:60%}.packing-head{flex-wrap:wrap}.section-head{flex-wrap:wrap}.route p,.advice-summary{font-size:14px}.route h3{font-size:18px}.gear-name{font-size:15px}.hotel-top{gap:8px}.now-actions .now-action:first-child{width:100%}.quick-nav a{font-size:14px}.hero{padding:20px}.flight-board-head{gap:10px}.gear-add input{font-size:16px}.weather-summary{white-space:normal;flex-wrap:wrap;overflow:visible}.trip-notice{font-size:12px}.split-label{font-size:12px}}
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -485,6 +535,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15V3m-4 4 4-4 4 4M8 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-3"/></svg>
         <span class="share-label">שיתוף</span>
       </button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="ערכת צבעים">◐</button>
       <button class="icon-btn" id="refreshBtn" title="רענון" aria-label="רענון">↻</button>
     </div>
   </header>
@@ -518,10 +569,17 @@
   </section>
 
 
+  <details class="bag-preview" id="bagPreview"><summary>🎒 להכין תיק ליום בטיול</summary><label for="bagDate">בחרו יום</label><select id="bagDate"></select><div id="previewBag"></div></details>
   <aside class="offline-card"><span aria-hidden="true">▣</span><div><strong id="offlineStatus" role="status">מכין את האתר לשימוש ללא קליטה…</strong><p>המסלול והציוד נשמרים במכשיר. מפות, ניווט ותחזית חדשה דורשים חיבור.</p></div></aside>
   </div>
   <div data-view="route" hidden>
-  <section class="map-card" aria-label="מפת יעדי הטיול">
+  <div class="section-head section-anchor" id="daysSection">
+    <h2>המסלול והתחזית</h2>
+    <span>לחצו על יום לפרטים • טמפרטורות ב־°C</span>
+  </div>
+  <div class="route-tools"><label for="routeDate">קפיצה ליום</label><select id="routeDate"></select><button type="button" id="jumpToday">היום / היום הקרוב</button></div>
+  <section id="days" class="days"></section>
+  <details class="map-card" id="routeMap"><summary>🗺️ מפת תחנות הטיול</summary>
     <h2>הדרך שלנו</h2><p>בחרו יום ותחנה כדי לראות אותה במפה.</p>
     <div id="mapDays" class="map-days" aria-label="בחירת יום"></div>
     <h3 id="mapTitle"></h3><div id="mapStops" class="map-stops" aria-label="תחנות היום"></div>
@@ -529,7 +587,7 @@
     <iframe id="mapFrame" title="מפת התחנה הנבחרת" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     <p><a id="mapExternal" target="_blank" rel="noopener">פתיחת התחנה ב־Google Maps ↗</a></p>
     <p>המפה מציגה חיפוש לפי שם המקום, ולא תוואי נסיעה בג׳יפים. נקודות מפגש בשטח יש לוודא עם המדריך.</p>
-  </section>
+  </details>
   <section class="summary section-anchor" id="forecastSummary" aria-label="סיכום התחזית">
     <div class="summary-card">
       <div class="summary-label">🥶 היום הקר ביותר</div>
@@ -545,11 +603,7 @@
     </div>
   </section>
 
-  <div class="section-head section-anchor" id="daysSection">
-    <h2>המסלול והתחזית</h2>
-    <span>לחצו על יום לפרטים • טמפרטורות ב־°C</span>
-  </div>
-  <section id="days" class="days"></section>
+
 
   </div>
   <div data-view="packing" hidden>
@@ -566,10 +620,12 @@
     <input id="gearAddQty" name="qty" type="text" maxlength="20" placeholder="כמות" aria-label="כמות, לא חובה" />
     <button type="submit">＋ הוספה</button>
   </form>
+  <label class="filter-control"><input type="checkbox" id="unpackedOnly"> רק מה שעוד לא ארזתי</label>
+  <p id="packingEmpty" role="status" hidden>הכול ארוז ✓ אפשר להציג שוב את כל הפריטים.</p>
   <section id="gear" class="gear-grid" aria-label="רשימת ציוד לטיול"></section>
 
-  <section class="gear-matrix-wrap" aria-labelledby="gearMatrixTitle">
-    <h3 id="gearMatrixTitle">מתי צריך כל פריט?</h3>
+  <details class="gear-matrix-wrap">
+    <summary>מתי צריך כל פריט?</summary>
     <p>הטבלה מרכזת את אותם פריטים לפי ימי הטיול. ● = מומלץ לאותו יום לפי המסלול והתחזית הנוכחית. פריטים שהוספת ידנית אינם מקבלים ימים אוטומטית.</p>
     <div class="gear-matrix-scroll">
       <table class="gear-matrix">
@@ -577,7 +633,7 @@
         <tbody id="gearMatrix"></tbody>
       </table>
     </div>
-  </section>
+  </details>
   </div>
 
   <section data-view="info" hidden aria-labelledby="infoTitle">
@@ -820,8 +876,9 @@ function renderHotel(d){
   while(first>0&&itinerary[first-1].stay===d.stay)first--;
   while(last+1<itinerary.length&&itinerary[last+1].stay===d.stay)last++;
   const checkout=itinerary[last+1]?.date;
+  const compact=i>first&&i<last;
   const badges=[i===first?'<span class="hotel-badge">כניסה היום</span>':'',i===last?'<span class="hotel-badge last">לילה אחרון · מחר יוצאים</span>':`<span class="hotel-badge">לילה ${i-first+1} מתוך ${last-first+1}</span>`].join('');
-  return `<section class="hotel-panel" aria-label="המלון ללילה">${departure}<div class="hotel-heading">🛏️ כאן ישנים הלילה</div><div class="hotel-top"><div><strong class="hotel-name"><bdi>${esc(current.name)}</bdi></strong><div class="hotel-location">📍 ${esc(current.city)}</div></div><div class="hotel-badges">${badges}</div></div><div class="hotel-dates">כניסה: <bdi>${hotelDate(itinerary[first].date)}</bdi> · יציאה: <bdi>${checkout?hotelDate(checkout):'טרם נקבעה'}</bdi> · ${last-first+1===1?'לילה אחד':`${last-first+1} לילות`}</div><div class="hotel-links"><a href="${mapsDirectionsUrl(current.query)}" target="_blank" rel="noopener noreferrer" aria-label="ניווט אל ${esc(current.name)}">📍 ניווט למלון</a><a href="${current.url}" target="_blank" rel="noopener noreferrer" aria-label="${current.official?'אתר':'פרטים על'} ${esc(current.name)}">${current.official?'אתר המלון ↗':'פרטי המלון ב־Booking ↗'}</a></div></section>`;
+  return `<section class="hotel-panel${compact?' compact':''}" aria-label="המלון ללילה">${departure}<div class="hotel-heading">🛏️ כאן ישנים הלילה</div><div class="hotel-top"><div><strong class="hotel-name"><bdi>${esc(current.name)}</bdi></strong><div class="hotel-location">📍 ${esc(current.city)}</div></div><div class="hotel-badges">${badges}</div></div>${compact?'<details class="hotel-more"><summary>תאריכי שהייה, ניווט ואתר המלון</summary>':''}<div class="hotel-dates">כניסה: <bdi>${hotelDate(itinerary[first].date)}</bdi> · יציאה: <bdi>${checkout?hotelDate(checkout):'טרם נקבעה'}</bdi> · ${last-first+1===1?'לילה אחד':`${last-first+1} לילות`}</div><div class="hotel-links"><a href="${mapsDirectionsUrl(current.query)}" target="_blank" rel="noopener noreferrer" aria-label="ניווט אל ${esc(current.name)}">📍 ניווט למלון</a><a href="${current.url}" target="_blank" rel="noopener noreferrer" aria-label="${current.official?'אתר':'פרטים על'} ${esc(current.name)}">${current.official?'אתר המלון ↗':'פרטי המלון ב־Booking ↗'}</a></div>${compact?'</details>':''}</section>`;
 }
 
 const wmo = {
@@ -1122,7 +1179,7 @@ function countdown(){
           ${splitUnit("minutes",pad2(minutes),"דקות")}
           ${splitUnit("seconds",pad2(seconds),"שניות")}
         </div>
-        <div class="airport-time">🕗 מומלץ להגיע לנתב״ג ב־08:50 · שלוש שעות לפני ההמראה</div>
+        <div class="airport-time">🕗 הגעה לנתב״ג: 08:50 · המראה: 11:50<br><small>מגיעים 3 שעות לפני הטיסה</small></div>
       </div>`;
     note.textContent="";
   } else if(phase==="flight-day"){
@@ -1382,14 +1439,14 @@ function renderGear(byLoc){
   document.getElementById("gear").innerHTML=gear.map(g=>{
     const isPacked=!!packed[g.key];
     return `<article class="gear-card${isPacked ? " packed" : ""}" data-gear-key="${esc(g.key)}">
-      <input class="pack-check" type="checkbox" ${isPacked ? "checked" : ""} data-pack-key="${esc(g.key)}" aria-label="ארזתי: ${esc(g.name)}" />
+      <label class="gear-row"><input class="pack-check" type="checkbox" ${isPacked ? "checked" : ""} data-pack-key="${esc(g.key)}" aria-label="ארזתי: ${esc(g.name)}" />
       <div class="gear-main">
         <div class="gear-name"><span class="gear-icon">${g.icon}</span><span>${esc(g.name)}</span></div>
       </div>
       <div style="display:flex;align-items:center;gap:5px">
         ${g.qty ? `<span class="gear-qty">${esc(g.qty)}</span>` : ""}
-        ${g.custom ? `<button class="gear-remove" type="button" data-remove-gear="${esc(g.key)}" aria-label="מחיקת ${esc(g.name)}">×</button>` : ""}
-      </div>
+      </div></label>
+      ${g.custom ? `<button class="gear-remove" type="button" data-remove-gear="${esc(g.key)}" aria-label="מחיקת ${esc(g.name)}">×</button>` : ""}
     </article>`;
   }).join("");
 
@@ -1401,6 +1458,7 @@ function renderGear(byLoc){
       savePacked(state);
       input.closest(".gear-card").classList.toggle("packed",input.checked);
       updatePackProgress();
+      applyPackingFilter();
       trackTripEvent('packing_toggle',{view_name:'packing',item_id:key,packed:input.checked});
     });
   });
@@ -1423,6 +1481,7 @@ function renderGear(byLoc){
   }
 
   updatePackProgress();
+  applyPackingFilter();
 }
 
 let latestGearWeather={};
@@ -1443,7 +1502,56 @@ function setupGearAdd(){
   });
 }
 
+
+function applyPackingFilter(){
+  const only=document.getElementById('unpackedOnly').checked;
+  const cards=[...document.querySelectorAll('.gear-card')];
+  cards.forEach(card=>card.hidden=only&&card.classList.contains('packed'));
+  document.getElementById('packingEmpty').hidden=!only||cards.some(card=>!card.hidden);
+}
+const DAY_BAG_KEYS=new Set(['daypack','fleece','puffer','rain-jacket','beanie-buff','gloves','swimsuit','sun','repellent']);
+let bagMemory={};
+try{bagMemory=JSON.parse(localStorage.getItem('montenegro-day-bags-v1')||'{}')||{};}catch(e){}
+function renderDayBag(d,byLoc){
+  const all=buildGear(byLoc).gear.filter(g=>g.days.some(x=>x.date===d.date));
+  const useful=all.filter(g=>DAY_BAG_KEYS.has(g.key));
+  if(!useful.some(g=>/מים לשתייה/.test(g.name)))useful.unshift({key:'drinking-water',name:'מים לשתייה',icon:'💧'});
+  return `<section class="day-bag" data-bag-date="${d.date}"><h3>מה לקחת היום מהמלון?</h3><p>${d.num}.9 · ${esc(d.title)} · סימון נפרד מהאריזה לטיול</p>${useful.map(g=>`<label class="bag-item"><input type="checkbox" data-bag-key="${esc(g.key)}" ${bagMemory[d.date]?.[g.key]?'checked':''}><span>${g.icon} ${esc(g.name)}</span></label>`).join('')}<div class="bag-status" role="status"></div></section>`;
+}
+function bindDayBag(){
+  document.querySelectorAll('[data-bag-key]').forEach(input=>input.onchange=()=>{
+    const section=input.closest('[data-bag-date]'),date=section.dataset.bagDate;
+    if(!bagMemory[date])bagMemory[date]={};bagMemory[date][input.dataset.bagKey]=input.checked;
+    try{localStorage.setItem('montenegro-day-bags-v1',JSON.stringify(bagMemory));section.querySelector('.bag-status').textContent='נשמר ליום הזה במכשיר';}catch(e){section.querySelector('.bag-status').textContent='השמירה במכשיר חסומה; הסימון זמני';}
+  });
+}
+function renderBagPreview(byLoc){
+  const box=document.getElementById('bagPreview');box.hidden=contextualPhase()==='trip';
+  if(!box.hidden){const d=itinerary.find(x=>x.date===document.getElementById('bagDate').value)||itinerary[0];document.getElementById('previewBag').innerHTML=renderDayBag(d,byLoc);bindDayBag();}
+}
+function setupTravelTools(){
+  const options=itinerary.map((d,i)=>`<option value="${d.date}">${d.num}.9 · יום ${i+1} · ${esc(d.title)}</option>`).join('');
+  for(const id of ['routeDate','bagDate'])document.getElementById(id).innerHTML=options;
+  document.getElementById('routeDate').addEventListener('change',e=>jumpToDay(e.target.value));
+  document.getElementById('jumpToday').addEventListener('click',()=>jumpToDay((itinerary.find(d=>d.date>=dateKeyInMontenegro())||itinerary.at(-1)).date));
+  document.getElementById('bagDate').addEventListener('change',()=>renderBagPreview(latestGearWeather));
+  document.getElementById('unpackedOnly').addEventListener('change',applyPackingFilter);
+  renderBagPreview({});
+}
+function jumpToDay(date){
+  const card=document.querySelector(`.day[data-date="${date}"]`);if(!card)return;
+  document.getElementById('routeDate').value=date;
+  selectedMapDay=itinerary.findIndex(d=>d.date===date);selectedMapStop=0;updateMap();
+  const btn=card.querySelector('.day-toggle');if(btn.getAttribute('aria-expanded')!=='true')btn.click();
+  btn.focus({preventScroll:true});card.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+}
+function setupTheme(){
+  const root=document.documentElement,button=document.getElementById('themeBtn'),media=matchMedia('(prefers-color-scheme: dark)');
+  function apply(){const mode=root.dataset.themeMode;root.dataset.theme=mode==='auto'?(media.matches?'dark':'light'):mode;const label={auto:'לפי המכשיר',light:'בהיר',dark:'לילה'}[mode];button.textContent={auto:'◐ אוטומטי',light:'☀️ בהיר',dark:'🌙 לילה'}[mode];button.setAttribute('aria-label','ערכת צבעים: '+label+'; לחצו להחלפה');button.title='ערכת צבעים: '+label;document.querySelector('meta[name="theme-color"]').content=root.dataset.theme==='dark'?'#101e26':'#19574e';}
+  button.addEventListener('click',()=>{const modes=['auto','light','dark'];root.dataset.themeMode=modes[(modes.indexOf(root.dataset.themeMode)+1)%3];try{localStorage.setItem('montenegro-theme',root.dataset.themeMode);}catch(e){}apply();});media.addEventListener('change',apply);apply();
+}
 function renderNow(byLoc){
+  renderBagPreview(byLoc);
   const root=document.getElementById("now");
   if(!root) return;
   const phase=contextualPhase();
@@ -1459,14 +1567,9 @@ function renderNow(byLoc){
     const wx=byLoc[d.loc]?.[d.date] || null;
     const wxText=wx ? `${weatherText(wx.code)[0]} ${fmt(wx.max)}° / ${fmt(wx.min)}°` : "תחזית תופיע כשזמינה";
     root.innerHTML=`
-      <div class="now-kicker">לפני הטיסה • מה כדאי לסגור עכשיו</div>
-      <div class="now-title">✈️ LY5467 לתיבת</div>
-      <div class="now-sub">המראה ב־11:50 • מומלץ להגיע לנתב״ג ב־<strong>08:50</strong> (3 שעות לפני).</div>
-      <div class="now-grid">
-        <div class="now-stat"><div class="k">הגעה לשדה</div><div class="v">08:50</div></div>
-        <div class="now-stat"><div class="k">המראה</div><div class="v">11:50</div></div>
-        <div class="now-stat"><div class="k">יום 1 בז׳בליאק</div><div class="v">${wxText}</div></div>
-      </div>
+      <div class="now-kicker">לפני הטיסה</div>
+      <div class="now-title">מוכנים למונטנגרו?</div>
+      <div class="now-sub">ביום הראשון בז׳בליאק: ${wxText}</div>
       <div class="now-actions">
         <a class="now-action" href="#packingSection"><span id="nowPackProgress">${packedCount}/${total} ארוז</span> · לרשימת הציוד</a>
         <a class="now-action secondary" href="${flightStatusUrl(FLIGHT_CONTEXT.number)}" target="_blank" rel="noopener">✈️ פרטי הטיסה</a>
@@ -1534,7 +1637,7 @@ function renderNow(byLoc){
         <div class="now-stat"><div class="k">גשם</div><div class="v">${wx?`${fmt(wx.rain)}%`:"–"}</div></div>
       </div>
       ${renderHotel(d)}
-      ${todayGear.length?`<div class="today-gear">${todayGear.map(g=>`<span>${g.icon} ${g.name}</span>`).join("")}</div>`:""}
+      ${renderDayBag(d,byLoc)}
       <div class="now-actions">
         ${firstNav?`<a class="now-action" href="${mapsDirectionsUrl(firstNav.query)}" target="_blank" rel="noopener">🧭 נווט: ${firstNav.label}</a>`:""}
         <a class="now-action secondary" href="#day-details-${safeIdx+1}" data-open-day="${d.date}">כל פרטי היום</a>
@@ -1542,6 +1645,7 @@ function renderNow(byLoc){
       </div>
       ${tomorrow?`<div class="now-tomorrow"><strong>${hour>=18?"מחר":"הצצה למחר"}:</strong> ${tomorrowText}</div>`:""}`;
     bindNowDayLinks();
+    bindDayBag();
     bindContextLocationButton();
     return;
   }
@@ -1623,6 +1727,7 @@ function setupNavigation(){
 }
 let selectedMapDay=0,selectedMapStop=0;
 function setupMap(){
+  document.getElementById('routeMap').addEventListener('toggle',()=>{if(document.getElementById('routeMap').open)updateMap();});
   const today=itinerary.findIndex(d=>d.date===dateKeyInMontenegro());selectedMapDay=Math.max(0,today);
   document.getElementById('mapDays').innerHTML=itinerary.map((d,i)=>`<button type="button" data-map-day="${i}" aria-pressed="false">יום ${i+1} · ${d.num}.9</button>`).join('');
   document.getElementById('mapDays').addEventListener('click',e=>{const b=e.target.closest('[data-map-day]');if(!b)return;selectedMapDay=Number(b.dataset.mapDay);selectedMapStop=0;updateMap();});
@@ -1638,7 +1743,7 @@ function updateMap(){
   document.getElementById('mapFallback').hidden=navigator.onLine&&!!stop;
   if(stop){
     const url=`https://maps.google.com/maps?q=${encodeURIComponent(stop.query)}&output=embed`;
-    if(navigator.onLine&&frame.getAttribute('src')!==url)frame.src=url;
+    if(document.getElementById('routeMap').open&&navigator.onLine&&frame.getAttribute('src')!==url)frame.src=url;
     frame.title='מפת '+stop.label;
     document.getElementById('mapExternal').href=mapsSearchUrl(stop.query);
   }
@@ -1738,6 +1843,8 @@ document.getElementById('fxRefresh').addEventListener('click',()=>{loadFx(true);
 window.addEventListener('online',()=>{if(location.hash==='#info')loadFx(true);});
 updateInfoClocks();setInterval(updateInfoClocks,60000);
 
+setupTheme();
+setupTravelTools();
 setupNavigation();
 setupMap();
 setupGearAdd();
