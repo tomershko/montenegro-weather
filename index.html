@@ -238,6 +238,14 @@
     a:focus-visible,button:focus-visible{outline:3px solid #c59038;outline-offset:3px}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
   </style>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-FKF0TX340Z');
+  </script>
 </head>
 <body>
 <main class="wrap">
@@ -1019,7 +1027,15 @@ document.getElementById("shareBtn").addEventListener("click",async()=>{
   }catch(e){}
 });
 
+let lastTrackedView = null;
+function trackTripEvent(name, params = {}){
+  if(typeof window.gtag === 'function') window.gtag('event', name, params);
+}
 function showView(view){
+  if(lastTrackedView !== view){
+    trackTripEvent('trip_view', {view_name:view});
+    lastTrackedView = view;
+  }
   document.querySelectorAll('[data-view]').forEach(el=>el.hidden=el.dataset.view!==view);
   document.querySelectorAll('.quick-nav a').forEach(a=>{if(a.hash==='#'+view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   updateFeedbackLink();
@@ -1072,6 +1088,43 @@ async function setupOffline(){
     indicate();window.addEventListener('online',indicate);window.addEventListener('offline',indicate);
   }catch(e){status.textContent='לא ניתן לשמור לפתיחה ללא קליטה כרגע';}
 }
+
+
+function setupTripAnalytics(){
+  // The document listener runs after the controls have updated their state.
+  document.addEventListener('click', e=>{
+    const el=e.target.closest('button,a');
+    if(!el)return;
+    const view=document.querySelector('[data-view]:not([hidden])')?.dataset.view || 'today';
+    const params={view_name:view};
+    if(el.matches('.day-toggle')){
+      if(el.getAttribute('aria-expanded')==='true')
+        trackTripEvent('day_open',{...params,trip_date:el.closest('.day').dataset.date});
+    }else if(el.matches('[data-open-day]')){
+      trackTripEvent('day_open',{...params,trip_date:el.dataset.openDay});
+    }else if(el.matches('[data-pack-key]')){
+      trackTripEvent('packing_toggle',{...params,item_id:el.dataset.packKey,packed:el.getAttribute('aria-pressed')==='true'});
+    }else if(el.matches('[data-map-day]')){
+      trackTripEvent('map_day_select',{...params,trip_date:itinerary[Number(el.dataset.mapDay)]?.date});
+    }else if(el.matches('[data-map-stop]')){
+      trackTripEvent('map_stop_select',{...params,trip_date:itinerary[selectedMapDay].date,stop_name:itinerary[selectedMapDay].nav?.[Number(el.dataset.mapStop)]?.label});
+    }else if(el.id==='feedbackLink'){
+      trackTripEvent('feedback_click',params);
+    }else if(el.id==='shareBtn'){
+      trackTripEvent('share_click',params);
+    }else if(el.id==='refreshBtn'){
+      trackTripEvent('weather_refresh',params);
+    }else if(el.matches('a[href]')){
+      const url=new URL(el.href,location.href);
+      if(['www.google.com','maps.google.com','maps.apple.com','www.waze.com'].includes(url.hostname)){
+        trackTripEvent('navigation_click',{...params,target_name:el.id==='mapExternal'?itinerary[selectedMapDay].nav?.[selectedMapStop]?.label:el.textContent.trim(),trip_date:el.closest('.day')?.dataset.date || ''});
+      }else if(el.textContent.includes('סטטוס')){
+        trackTripEvent('flight_status_click',params);
+      }
+    }
+  });
+}
+setupTripAnalytics();
 
 setupNavigation();
 setupMap();
