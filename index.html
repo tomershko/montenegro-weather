@@ -383,6 +383,41 @@
       .expanded-weather{grid-template-columns:1fr 1fr}
     }
 
+  
+    /* Day card fixes: stable chevron + bidi-safe temperatures */
+    .day-chevron{
+      position:static;
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      background:var(--soft);
+      display:grid;
+      place-items:center;
+      color:var(--brand2);
+      transform:none;
+    }
+    .day-chevron::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-right:3px solid currentColor;
+      border-bottom:3px solid currentColor;
+      transform:rotate(45deg);
+      transition:transform .22s ease;
+      margin-top:-3px;
+    }
+    .day.open .day-chevron{transform:none}
+    .day.open .day-chevron::before{
+      transform:rotate(225deg);
+      margin-top:3px;
+    }
+    .weather-temp,
+    .weather-feels{
+      direction:ltr;
+      unicode-bidi:isolate;
+      display:inline-block;
+    }
+
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -738,6 +773,17 @@ const wmo = {
 
 const fmt = n => Number.isFinite(n) ? Math.round(n) : "–";
 
+function fmtSignedTemp(n){
+  if(!Number.isFinite(n)) return "–";
+  const value=Math.round(n);
+  return `${value<0?"−":""}${Math.abs(value)}°`;
+}
+
+function fmtTempRange(min,max){
+  if(!Number.isFinite(min)||!Number.isFinite(max)) return "–";
+  return `<bdi dir="ltr">${fmtSignedTemp(min)}–${fmtSignedTemp(max)}</bdi>`;
+}
+
 function weatherText(code){ return wmo[code] || ["🌡️","תחזית"]; }
 
 
@@ -824,7 +870,7 @@ function renderSkeleton(){
             <h3>${d.title}</h3>
             <p>${d.subtitle} • תחנה: ${locations[d.loc].name}</p>
           </div>
-          <span class="day-chevron" aria-hidden="true">⌄</span>
+          <span class="day-chevron" aria-hidden="true"></span>
         </div>
 
         <div class="weather-summary" aria-label="תקציר מזג האוויר">
@@ -995,11 +1041,11 @@ async function loadWeather(force=false){
 
     const [emoji,label]=weatherText(wx.code);
     icon.textContent=emoji;
-    temp.textContent=`${fmt(wx.min)}°–${fmt(wx.max)}°`;
+    temp.innerHTML=fmtTempRange(wx.min,wx.max);
     rain.textContent=`${fmt(wx.rain)}%`;
     wind.textContent=`${fmt(wx.gust)} קמ״ש`;
     advice.textContent=adviceFor(wx);
-    feels.textContent=`${fmt(wx.feelsMin)}°–${fmt(wx.feelsMax)}°`;
+    feels.innerHTML=fmtTempRange(wx.feelsMin,wx.feelsMax);
     precip.textContent=`${Number.isFinite(wx.precip)?wx.precip.toFixed(1):"–"} מ״מ`;
     condition.textContent=label;
     gustDetail.textContent=`עד ${fmt(wx.gust)} קמ״ש`;
