@@ -161,27 +161,35 @@
       background:var(--danger);border:1px solid #f1c8c0;color:#78372e;border-radius:16px;padding:12px 14px;
       margin:12px 0;font-size:13px;line-height:1.45;display:none;
     }
-    .gear-grid{display:grid;gap:10px}
-    .gear-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:13px 14px;box-shadow:var(--shadow);transition:.18s ease}
+    .gear-grid{display:grid;gap:7px}
+    .gear-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:15px;padding:11px 12px;transition:.18s ease}
     .gear-card.packed{background:#f0f7f3;border-color:#bdd8c9}
-    .gear-card.packed .gear-name,.gear-card.packed .gear-note{opacity:.68}
-    .gear-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
-    .gear-name{display:flex;gap:9px;align-items:center;font-size:15px;font-weight:820;min-width:0}
-    .gear-icon{font-size:21px;line-height:1}
-    .gear-actions{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+    .gear-card.packed .gear-name{text-decoration:line-through;opacity:.6}
+    .pack-check{width:22px;height:22px;margin:0;accent-color:var(--brand2);cursor:pointer}
+    .gear-main{min-width:0}
+    .gear-name{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:820;min-width:0}
+    .gear-icon{font-size:19px;line-height:1}
     .gear-qty{font-size:11px;font-weight:800;color:var(--brand);background:var(--soft);border-radius:99px;padding:5px 8px;white-space:nowrap}
-    .pack-toggle{border:1px solid var(--line);background:#fff;color:var(--brand);border-radius:99px;padding:5px 9px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
-    .pack-toggle[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
-    .gear-days{margin-top:10px}
-    .day-dots{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;direction:ltr}
-    .day-dot{aspect-ratio:1;max-width:29px;width:100%;justify-self:center;border-radius:50%;display:grid;place-items:center;border:1px solid #cad5d1;background:#fff;color:#9aa8a4;font-size:9px;font-weight:850;line-height:1}
-    .day-dot.active{background:var(--brand2);border-color:var(--brand2);color:#fff;box-shadow:0 2px 8px rgba(23,107,101,.18)}
-    .day-dot.unavailable{border-style:dashed}
-    .days-caption{display:flex;justify-content:space-between;margin-top:4px;color:var(--muted);font-size:9px;font-weight:750;direction:ltr}
-    .gear-note{margin-top:7px;font-size:11px;color:var(--muted);line-height:1.45}
+    .gear-remove{border:0;background:transparent;color:#899794;font-size:18px;line-height:1;padding:4px;cursor:pointer}
     .gear-empty{color:var(--muted);font-weight:700}
     .packing-head{display:flex;align-items:center;gap:8px}
     .packing-progress{font-size:11px;color:var(--brand);background:var(--soft);border-radius:99px;padding:5px 9px;font-weight:800;white-space:nowrap}
+    .gear-add{display:grid;grid-template-columns:minmax(0,1fr) 92px auto;gap:7px;margin:10px 0 12px}
+    .gear-add input{min-width:0;border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;font:inherit;color:var(--ink)}
+    .gear-add button{border:1px solid var(--brand);border-radius:12px;background:var(--brand);color:#fff;padding:10px 14px;font-weight:800;cursor:pointer}
+    .gear-matrix-wrap{margin-top:22px}
+    .gear-matrix-wrap h3{margin:0 0 5px;font-size:18px}
+    .gear-matrix-wrap p{margin:0 0 10px;color:var(--muted);font-size:11px;line-height:1.5}
+    .gear-matrix-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
+    .gear-matrix{width:100%;min-width:620px;border-collapse:collapse;font-size:11px}
+    .gear-matrix th,.gear-matrix td{padding:9px 7px;text-align:center;border-bottom:1px solid #edf1ee}
+    .gear-matrix th{background:#f7f9f7;color:var(--muted);font-weight:850;position:sticky;top:0}
+    .gear-matrix th:first-child,.gear-matrix td:first-child{text-align:right;min-width:190px;position:sticky;right:0;background:#fff;z-index:1}
+    .gear-matrix th:first-child{background:#f7f9f7;z-index:2}
+    .gear-matrix tr:last-child td{border-bottom:0}
+    .need-yes{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--brand2);color:#fff;font-weight:900}
+    .need-no{color:#c0cac6}
+    @media(max-width:520px){.gear-add{grid-template-columns:1fr auto}.gear-add input[name="qty"]{grid-column:1/-1;grid-row:2}.gear-add button{grid-column:2;grid-row:1}}
 
     .quick-nav{
       display:flex;gap:7px;margin:0 0 14px;overflow:auto;padding:1px 1px 4px;
@@ -245,7 +253,6 @@
       .day-head{grid-template-columns:60px 1fr auto}
       .hero{padding:26px}
       .summary-card{padding:15px}
-      .gear-grid{grid-template-columns:1fr 1fr}
     }
     @media(max-width:390px){
       .icon-btn{padding:0 10px}
@@ -373,14 +380,29 @@
   <div data-view="packing" hidden>
   <div class="section-head section-anchor" id="packingSection">
     <div class="packing-head">
-      <h2>מה לארוז</h2>
+      <h2>רשימת ציוד</h2>
       <span id="packProgress" class="packing-progress">ארזתי 0/0</span>
     </div>
-    <span>הנקודות מסמנות באילו ימים הציוד שימושי</span>
+    <span>מסמנים מימין מה כבר ארזנו</span>
   </div>
-  <div class="gear-summary"><strong>רשימה אחת, שני מקורות:</strong> המלצות חוברת Tripology + התאמה לתחזית ולמסלול.<br>הסימונים אישיים ונשמרים רק בדפדפן הזה. הם אינם משותפים לקבוצה ואינם מסתנכרנים בין מכשירים.</div>
-  <section id="gear" class="gear-grid" aria-label="סיכום ציוד לטיול"></section>
+  <div class="gear-summary"><strong>רשימה פשוטה לאריזה.</strong> ההמלצות מבוססות על חוברת Tripology, המסלול והתחזית. הסימונים והפריטים שתוסיפו נשמרים רק במכשיר הזה.</div>
+  <form id="gearAddForm" class="gear-add" aria-label="הוספת פריט לרשימת הציוד">
+    <input id="gearAddName" name="name" type="text" maxlength="80" placeholder="להוסיף פריט…" aria-label="שם הפריט" required />
+    <input id="gearAddQty" name="qty" type="text" maxlength="20" placeholder="כמות" aria-label="כמות, לא חובה" />
+    <button type="submit">＋ הוספה</button>
+  </form>
+  <section id="gear" class="gear-grid" aria-label="רשימת ציוד לטיול"></section>
 
+  <section class="gear-matrix-wrap" aria-labelledby="gearMatrixTitle">
+    <h3 id="gearMatrixTitle">מתי צריך כל פריט?</h3>
+    <p>הטבלה מרכזת את אותם פריטים לפי ימי הטיול. ● = מומלץ לאותו יום לפי המסלול והתחזית הנוכחית. פריטים שהוספת ידנית אינם מקבלים ימים אוטומטית.</p>
+    <div class="gear-matrix-scroll">
+      <table class="gear-matrix">
+        <thead><tr><th scope="col">פריט</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th></tr></thead>
+        <tbody id="gearMatrix"></tbody>
+      </table>
+    </div>
+  </section>
   </div>
 
   <section data-view="info" hidden aria-labelledby="infoTitle">
@@ -866,6 +888,7 @@ async function loadWeather(force=false){
   });
 
   updateSummary(all);
+  latestGearWeather=byLoc;
   renderGear(byLoc);
   renderNow(byLoc);
   document.getElementById("updated").textContent=weatherAt ?
@@ -887,6 +910,7 @@ function updateSummary(all){
 
 
 const PACKING_STORAGE_KEY="montenegro-packed-v1";
+const CUSTOM_GEAR_STORAGE_KEY="montenegro-custom-gear-v1";
 
 function getPacked(){
   try{return JSON.parse(localStorage.getItem(PACKING_STORAGE_KEY) || "{}");}
@@ -895,6 +919,22 @@ function getPacked(){
 
 function savePacked(packed){
   try{localStorage.setItem(PACKING_STORAGE_KEY,JSON.stringify(packed));}catch(e){document.getElementById("offlineStatus").textContent="הדפדפן חוסם שמירה; סימוני האריזה לא יישמרו לאחר סגירה.";}
+}
+
+function getCustomGear(){
+  try{
+    const items=JSON.parse(localStorage.getItem(CUSTOM_GEAR_STORAGE_KEY) || "[]");
+    return Array.isArray(items) ? items : [];
+  }catch(e){return [];}
+}
+
+function saveCustomGear(items){
+  try{localStorage.setItem(CUSTOM_GEAR_STORAGE_KEY,JSON.stringify(items));}
+  catch(e){document.getElementById("offlineStatus").textContent="הדפדפן חוסם שמירה; פריטים אישיים לא יישמרו לאחר סגירה.";}
+}
+
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 }
 
 function updatePackProgress(){
@@ -962,42 +1002,80 @@ function buildGear(byLoc){
 }
 
 function renderGear(byLoc){
-  const {forecast,gear}=buildGear(byLoc);
+  const built=buildGear(byLoc);
   const packed=getPacked();
+  const custom=getCustomGear().map(item=>({
+    key:item.key,
+    icon:"＋",
+    name:item.name,
+    qty:item.qty || "",
+    days:[],
+    custom:true
+  }));
+  const gear=[...built.gear,...custom];
 
   document.getElementById("gear").innerHTML=gear.map(g=>{
     const isPacked=!!packed[g.key];
-    return `<article class="gear-card${isPacked ? " packed" : ""}" data-gear-key="${g.key}">
-      <div class="gear-top">
-        <div class="gear-name"><span class="gear-icon">${g.icon}</span><span>${g.name}</span></div>
-        <div class="gear-actions">
-          <span class="gear-qty">${g.qty}</span>
-          <button class="pack-toggle" type="button" aria-pressed="${isPacked}" data-pack-key="${g.key}">${isPacked ? "✓ ארוז" : "○ ארזתי"}</button>
-        </div>
+    return `<article class="gear-card${isPacked ? " packed" : ""}" data-gear-key="${esc(g.key)}">
+      <input class="pack-check" type="checkbox" ${isPacked ? "checked" : ""} data-pack-key="${esc(g.key)}" aria-label="ארזתי: ${esc(g.name)}" />
+      <div class="gear-main">
+        <div class="gear-name"><span class="gear-icon">${g.icon}</span><span>${esc(g.name)}</span></div>
       </div>
-      <div class="gear-days">${dayDots(g.days,forecast)}</div>
-      ${gearSourceTags(g.sources)}
-      <div class="gear-note">${g.note}</div>
+      <div style="display:flex;align-items:center;gap:5px">
+        ${g.qty ? `<span class="gear-qty">${esc(g.qty)}</span>` : ""}
+        ${g.custom ? `<button class="gear-remove" type="button" data-remove-gear="${esc(g.key)}" aria-label="מחיקת ${esc(g.name)}">×</button>` : ""}
+      </div>
     </article>`;
   }).join("");
 
-  document.querySelectorAll(".pack-toggle").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const key=btn.dataset.packKey;
+  document.querySelectorAll(".pack-check").forEach(input=>{
+    input.addEventListener("change",()=>{
+      const key=input.dataset.packKey;
       const state=getPacked();
-      state[key]=!state[key];
+      state[key]=input.checked;
       savePacked(state);
-
-      const card=btn.closest(".gear-card");
-      const isPacked=!!state[key];
-      card.classList.toggle("packed",isPacked);
-      btn.setAttribute("aria-pressed",String(isPacked));
-      btn.textContent=isPacked ? "✓ ארוז" : "○ ארזתי";
+      input.closest(".gear-card").classList.toggle("packed",input.checked);
       updatePackProgress();
+      trackTripEvent('packing_toggle',{view_name:'packing',item_id:key,packed:input.checked});
     });
   });
 
+  document.querySelectorAll("[data-remove-gear]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const key=btn.dataset.removeGear;
+      saveCustomGear(getCustomGear().filter(item=>item.key!==key));
+      const state=getPacked(); delete state[key]; savePacked(state);
+      renderGear(byLoc);
+    });
+  });
+
+  const matrix=document.getElementById("gearMatrix");
+  if(matrix){
+    matrix.innerHTML=gear.map(g=>{
+      const active=new Set((g.days||[]).map(d=>d.date));
+      return `<tr><td>${g.icon} ${esc(g.name)}</td>${built.forecast.map(d=>`<td><span class="${active.has(d.date)?"need-yes":"need-no"}" aria-label="${active.has(d.date)?"צריך":"לא נדרש"}">${active.has(d.date)?"●":"–"}</span></td>`).join("")}</tr>`;
+    }).join("");
+  }
+
   updatePackProgress();
+}
+
+let latestGearWeather={};
+function setupGearAdd(){
+  const form=document.getElementById("gearAddForm");
+  if(!form) return;
+  form.addEventListener("submit",e=>{
+    e.preventDefault();
+    const name=document.getElementById("gearAddName").value.trim();
+    const qty=document.getElementById("gearAddQty").value.trim();
+    if(!name) return;
+    const items=getCustomGear();
+    items.push({key:`custom-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,name,qty});
+    saveCustomGear(items);
+    form.reset();
+    renderGear(latestGearWeather);
+    document.getElementById("gearAddName").focus();
+  });
 }
 
 function renderNow(byLoc){
@@ -1185,7 +1263,7 @@ function setupTripAnalytics(){
     }else if(el.matches('[data-open-day]')){
       trackTripEvent('day_open',{...params,trip_date:el.dataset.openDay});
     }else if(el.matches('[data-pack-key]')){
-      trackTripEvent('packing_toggle',{...params,item_id:el.dataset.packKey,packed:el.getAttribute('aria-pressed')==='true'});
+      // Checkboxes are tracked by their change handler so the saved state is accurate.
     }else if(el.matches('[data-map-day]')){
       trackTripEvent('map_day_select',{...params,trip_date:itinerary[Number(el.dataset.mapDay)]?.date});
     }else if(el.matches('[data-map-stop]')){
@@ -1257,6 +1335,7 @@ updateInfoClocks();setInterval(updateInfoClocks,60000);
 
 setupNavigation();
 setupMap();
+setupGearAdd();
 setupOffline();
 renderSkeleton();
 renderGear({});
