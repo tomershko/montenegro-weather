@@ -190,6 +190,10 @@
       margin:24px 2px 0;padding:16px 2px 0;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.65
     }
     .foot a{color:var(--brand2);text-decoration:none;font-weight:700}
+    .trip-notice{margin:10px 0 16px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:#fffef9;color:#405552;font-size:12px;line-height:1.65}
+    .creator-credit{margin:12px 0 0;font-size:13px;color:var(--brand);font-weight:700}
+    .feedback-link{display:inline-flex;align-items:center;min-height:44px;margin-top:8px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .feedback-link[hidden]{display:none}
     .pill{display:inline-block;padding:4px 8px;border-radius:99px;background:var(--soft);color:var(--brand);font-weight:750;margin-inline-start:4px}
     @media(min-width:680px){
       .days{grid-template-columns:1fr 1fr}
@@ -247,6 +251,11 @@
       <button class="icon-btn" id="refreshBtn" title="רענון" aria-label="רענון">↻</button>
     </div>
   </header>
+
+  <aside class="trip-notice" aria-label="מידע על המלצות האתר">
+    <strong>נבנה בכיף לטובת הקבוצה 🇲🇪</strong>
+    המידע והמלצות הציוד הם לעזר בלבד ועשויים לכלול טעויות או להשתנות. יש לוודא פרטים מול המדריך והגורמים הרשמיים.
+  </aside>
 
   <div data-view="today">
   <section class="hero">
@@ -314,7 +323,7 @@
     </div>
     <span>הנקודות מסמנות באילו ימים הציוד שימושי</span>
   </div>
-  <div class="gear-summary"><strong>רשימה אחת, שני מקורות:</strong> המלצות חוברת Tripology + התאמה לתחזית ולמסלול. הסימון ✓ נשמר במכשיר.</div>
+  <div class="gear-summary"><strong>רשימה אחת, שני מקורות:</strong> המלצות חוברת Tripology + התאמה לתחזית ולמסלול.<br>הסימונים אישיים ונשמרים רק בדפדפן הזה. הם אינם משותפים לקבוצה ואינם מסתנכרנים בין מכשירים.</div>
   <section id="gear" class="gear-grid" aria-label="סיכום ציוד לטיול"></section>
 
   </div>
@@ -324,10 +333,27 @@
     ומתרעננת בכל טעינה ובכל 30 דקות כשהעמוד פתוח.
     מסלול הימים ורשימת ההמלצות מבוססים על חוברת Tripology לתאריכים 23–30.9.2026.
     <span class="pill">תחזית ≠ הבטחה</span>
+    <p class="creator-credit">נבנה באהבה על ידי תומר · כי גם טיול ג׳יפים צריך אתר 😅</p>
+    <a id="feedbackLink" class="feedback-link" hidden target="_blank" rel="noopener noreferrer">💬 רעיון / מצאתם טעות? · WhatsApp</a>
   </footer>
 </main>
 
 <script>
+// International digits only, without + or the local leading zero. Hidden until configured.
+const FEEDBACK_WHATSAPP_NUMBER = "";
+function updateFeedbackLink(){
+  const link=document.getElementById('feedbackLink');
+  const configured=/^[1-9]\d{7,14}$/.test(FEEDBACK_WHATSAPP_NUMBER);
+  link.hidden=!configured;
+  if(!configured){link.removeAttribute('href');return;}
+  const view=document.querySelector('[data-view]:not([hidden])')?.dataset.view || 'today';
+  const labels={today:'היום',route:'המסלול',packing:'הציוד'};
+  const url=new URL(location.href);
+  url.search='';
+  url.hash=view;
+  const message=`היי תומר, יש לי פידבק על אתר מונטנגרו 🇲🇪\nמסך: ${labels[view]}\n${url.href}\n\n`;
+  link.href=`https://wa.me/${FEEDBACK_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
 const TRIP_START = new Date("2026-09-23T00:00:00+02:00");
 const TRIP_END   = new Date("2026-09-30T23:59:59+02:00");
 
@@ -995,6 +1021,7 @@ document.getElementById("shareBtn").addEventListener("click",async()=>{
 function showView(view){
   document.querySelectorAll('[data-view]').forEach(el=>el.hidden=el.dataset.view!==view);
   document.querySelectorAll('.quick-nav a').forEach(a=>{if(a.hash==='#'+view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  updateFeedbackLink();
 }
 function setupNavigation(){
   const followHash=()=>{
