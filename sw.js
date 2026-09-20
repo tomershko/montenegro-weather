@@ -1,4 +1,4 @@
-const CACHE='montenegro-shell-v1';
+const CACHE='montenegro-shell-v2';
 const BASE=new URL('./',self.location.href);
 const INDEX=new URL('index.html',BASE).href;
 self.addEventListener('install',event=>{
