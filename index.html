@@ -452,6 +452,16 @@
       display:inline-block;
     }
 
+
+    .hotel-panel{margin-top:14px;padding:14px;background:#edf4f0;border:1px solid #c9dcd2;border-inline-start:4px solid var(--brand2);border-radius:14px;color:var(--ink)}
+    .hotel-heading{font-size:11px;font-weight:800;color:var(--brand2);margin-bottom:8px}
+    .hotel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .hotel-name{font-size:17px;line-height:1.4;overflow-wrap:anywhere}.hotel-location{font-size:12px;color:#405552;margin-top:2px}
+    .hotel-badges{display:flex;flex-wrap:wrap;gap:6px}.hotel-badge{font-size:11px;font-weight:800;padding:5px 8px;border-radius:8px;background:white;color:var(--brand)}
+    .hotel-badge.last,.hotel-exit{background:#fff1d6;color:#704600}.hotel-exit{padding:9px 10px;border-radius:9px;font-size:12px;line-height:1.6;margin-bottom:10px}
+    .hotel-dates{font-size:12px;color:#405552;line-height:1.7;margin-top:8px}.hotel-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .hotel-links a{display:inline-flex;align-items:center;min-height:40px;padding:8px 12px;border:1px solid #bdcfc5;border-radius:10px;background:white;color:var(--brand);font-size:12px;font-weight:750;text-decoration:none}
+    .hotel-panel a:focus-visible{outline:3px solid #a66a0a;outline-offset:3px}.hotel-exit a{color:inherit;text-underline-offset:3px}
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -791,6 +801,29 @@ const itinerary = [
   }
 ];
 
+
+// Stay dates describe nights; checkout belongs to the following travel day.
+const hotels = {
+  "Nordic Hotel • ז׳בליאק": {name:"Nordic Hotel",city:"ז׳בליאק",query:"Hotel Nordik Moticki Gaj Zabljak Montenegro",url:"https://www.booking.com/hotel/me/nordik.en-gb.html",official:false},
+  "Bianca Resort • קולאשין": {name:"Bianca Resort & Spa",city:"קולאשין",query:"Bianca Resort & Spa Kolasin Montenegro",url:"https://www.biancaresort.com/",official:true},
+  "Avala Resort • בודווה": {name:"Avala Resort & Villas",city:"בודווה",query:"Avala Resort & Villas Budva Montenegro",url:"https://www.avalaresort.com/",official:true}
+};
+function hotelDate(date){const [,m,d]=date.split('-');return `${Number(d)}.${Number(m)}`;}
+function renderHotel(d){
+  const i=itinerary.findIndex(day=>day.date===d.date);
+  const current=hotels[d.stay],previous=hotels[itinerary[i-1]?.stay];
+  const leaving=previous && itinerary[i-1].stay!==d.stay;
+  if(!current&&!leaving)return '';
+  const departure=leaving?`<div class="hotel-exit"><strong>יציאה היום:</strong> <bdi>${esc(previous.name)}</bdi> · ${esc(previous.city)} · לקחת את כל הציוד${!current?` · חוזרים הביתה`:''} <a href="${previous.url}" target="_blank" rel="noopener noreferrer">${previous.official?'אתר המלון':'פרטים ב־Booking'}</a></div>`:'';
+  if(!current)return `<section class="hotel-panel" aria-label="מלון ויציאה"><div class="hotel-heading">🛏️ המלון של היום</div>${departure}<div class="hotel-dates">אין לינה במלון הלילה</div></section>`;
+  let first=i,last=i;
+  while(first>0&&itinerary[first-1].stay===d.stay)first--;
+  while(last+1<itinerary.length&&itinerary[last+1].stay===d.stay)last++;
+  const checkout=itinerary[last+1]?.date;
+  const badges=[i===first?'<span class="hotel-badge">כניסה היום</span>':'',i===last?'<span class="hotel-badge last">לילה אחרון · מחר יוצאים</span>':`<span class="hotel-badge">לילה ${i-first+1} מתוך ${last-first+1}</span>`].join('');
+  return `<section class="hotel-panel" aria-label="המלון ללילה">${departure}<div class="hotel-heading">🛏️ כאן ישנים הלילה</div><div class="hotel-top"><div><strong class="hotel-name"><bdi>${esc(current.name)}</bdi></strong><div class="hotel-location">📍 ${esc(current.city)}</div></div><div class="hotel-badges">${badges}</div></div><div class="hotel-dates">כניסה: <bdi>${hotelDate(itinerary[first].date)}</bdi> · יציאה: <bdi>${checkout?hotelDate(checkout):'טרם נקבעה'}</bdi> · ${last-first+1===1?'לילה אחד':`${last-first+1} לילות`}</div><div class="hotel-links"><a href="${mapsDirectionsUrl(current.query)}" target="_blank" rel="noopener noreferrer" aria-label="ניווט אל ${esc(current.name)}">📍 ניווט למלון</a><a href="${current.url}" target="_blank" rel="noopener noreferrer" aria-label="${current.official?'אתר':'פרטים על'} ${esc(current.name)}">${current.official?'אתר המלון ↗':'פרטי המלון ב־Booking ↗'}</a></div></section>`;
+}
+
 const wmo = {
   0:["☀️","בהיר"],
   1:["🌤️","בהיר בעיקר"], 2:["⛅️","מעונן חלקית"], 3:["☁️","מעונן"],
@@ -984,7 +1017,6 @@ function renderSkeleton(){
   root.innerHTML=itinerary.map((d,i)=>{
     const panelId=`day-details-${i+1}`;
     const meta=[
-      d.stay ? `<span class="day-chip">🛏️ ${d.stay}</span>` : "",
       d.flight ? `<span class="day-chip">✈️ ${d.flight}</span>` : ""
     ].join("");
     const isOpen=d.date===defaultDate;
@@ -1011,6 +1043,8 @@ function renderSkeleton(){
         <div class="advice-summary loading">מחשב מה כדאי ללבוש…</div>
         <div class="detail-hint">${isOpen ? "סגירת פרטים ↑" : "פרטי היום ↓"}</div>
       </button>
+
+      ${renderHotel(d)}
 
       <div class="day-details" id="${panelId}" ${isOpen ? "" : "hidden"}>
         ${meta ? `<div class="day-meta">${meta}</div>` : ""}
@@ -1499,7 +1533,7 @@ function renderNow(byLoc){
         <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${emoji} ${wx?`${fmt(wx.max)}° / ${fmt(wx.min)}°`:label}</div></div>
         <div class="now-stat"><div class="k">גשם</div><div class="v">${wx?`${fmt(wx.rain)}%`:"–"}</div></div>
       </div>
-      ${d.stay?`<div class="stay-card">🛏️ <strong>הלילה שלנו</strong><br>${d.stay}</div>`:""}
+      ${renderHotel(d)}
       ${todayGear.length?`<div class="today-gear">${todayGear.map(g=>`<span>${g.icon} ${g.name}</span>`).join("")}</div>`:""}
       <div class="now-actions">
         ${firstNav?`<a class="now-action" href="${mapsDirectionsUrl(firstNav.query)}" target="_blank" rel="noopener">🧭 נווט: ${firstNav.label}</a>`:""}
@@ -1721,4 +1755,5 @@ setInterval(()=>loadLiveFlightStatus(),5*60*1000);
 </script>
 </body>
 </html>
+
 
