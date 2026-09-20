@@ -88,6 +88,11 @@
       display:grid;place-items:center;box-shadow:0 5px 16px rgba(17,45,43,.04);cursor:pointer
     }
     .icon-btn:active{transform:scale(.97)}
+    #shareBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:100px;padding:0 15px;background:var(--brand);border-color:var(--brand);color:#fff;font-size:14px;font-weight:750;line-height:1;white-space:nowrap;box-shadow:0 4px 12px rgba(13,59,58,.12)}
+    #shareBtn svg{display:block;flex:none}
+    @media(hover:hover){#shareBtn:hover{background:var(--brand2);border-color:var(--brand2)}}
+    header .actions{align-items:center}
+
     .hero{
       margin:14px 0 16px;background:linear-gradient(145deg,var(--brand),#155a55);
       color:white;border-radius:28px;padding:22px;box-shadow:0 16px 38px rgba(13,59,58,.19);
@@ -243,7 +248,6 @@
       .gear-grid{grid-template-columns:1fr 1fr}
     }
     @media(max-width:390px){
-      .actions .label{display:none}
       .icon-btn{padding:0 10px}
       .weather-row{grid-template-columns:1.4fr 1fr}
       .weather-row .metric:last-child{grid-column:span 2}
@@ -295,7 +299,10 @@
       <p class="sub">מה צריך עכשיו — טיסה, היום במסלול, ניווט, מזג אוויר וציוד.</p>
     </div>
     <div class="actions">
-      <button class="icon-btn" id="shareBtn" title="שיתוף" aria-label="שיתוף">↗︎ <span class="label">&nbsp;שתף</span></button>
+      <button class="icon-btn share-btn" id="shareBtn" type="button" title="שיתוף האתר" aria-label="שיתוף האתר">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15V3m-4 4 4-4 4 4M8 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-3"/></svg>
+        <span class="share-label">שיתוף</span>
+      </button>
       <button class="icon-btn" id="refreshBtn" title="רענון" aria-label="רענון">↻</button>
     </div>
   </header>
