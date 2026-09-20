@@ -287,6 +287,102 @@
     .stay-card{margin-top:16px;padding:14px;border-radius:14px;background:var(--soft);font-size:13px;line-height:1.6}
     a:focus-visible,button:focus-visible{outline:3px solid #c59038;outline-offset:3px}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+  
+    /* Day cards v2 — compact summary + expandable details */
+    .days{grid-template-columns:1fr!important;gap:14px}
+    .day{
+      padding:0;
+      border-radius:24px;
+      overflow:hidden;
+      transition:border-color .22s ease,box-shadow .22s ease,transform .22s ease;
+    }
+    .day.today{padding:0;border:2px solid #bfd6cf}
+    .day.today:before{z-index:3;left:14px;top:12px}
+    .day-toggle{
+      display:block;width:100%;padding:16px 18px 12px;border:0;background:transparent;
+      color:inherit;text-align:inherit;cursor:pointer
+    }
+    .day-toggle:active{background:#fbfcfb}
+    .day-toggle:focus-visible{outline:3px solid rgba(23,107,101,.25);outline-offset:-4px;border-radius:22px}
+    .day-head{
+      display:grid;
+      grid-template-columns:58px minmax(0,1fr) 34px;
+      gap:12px;align-items:start;padding:0;position:relative
+    }
+    .datebox{
+      border-radius:18px;background:var(--soft);text-align:center;padding:9px 5px;color:var(--brand);
+      min-height:62px;display:flex;flex-direction:column;justify-content:center
+    }
+    .datebox .dow{font-size:11px;font-weight:850}
+    .datebox .num{font-size:25px;font-weight:880;line-height:1.05;margin-top:2px}
+    .route{min-width:0;padding-top:2px}
+    .route h3{
+      font-size:18px;line-height:1.28;margin:0 0 4px;
+      white-space:normal;overflow:visible;text-overflow:clip
+    }
+    .route p{
+      font-size:12px;color:var(--muted);margin:0;line-height:1.5;
+      white-space:normal;overflow:visible;text-overflow:clip
+    }
+    .day-chevron{
+      position:static;width:34px;height:34px;border-radius:12px;background:var(--soft);
+      display:grid;place-items:center;font-size:20px;color:var(--brand2);
+      transform:none;transition:transform .22s ease,background .22s ease
+    }
+    .day.open .day-chevron{transform:rotate(180deg)}
+    .weather-summary{
+      direction:rtl;display:flex;align-items:center;justify-content:center;gap:12px;
+      margin-top:14px;padding:11px 8px;border-top:1px solid #edf1ef;border-bottom:1px solid #edf1ef;
+      font-size:14px;font-weight:830;color:var(--ink);white-space:nowrap;overflow-x:auto;
+      scrollbar-width:none
+    }
+    .weather-summary::-webkit-scrollbar{display:none}
+    .weather-main{display:inline-flex;align-items:center;gap:7px}
+    .wx{font-size:29px;line-height:1}
+    .weather-sep{color:#b8c6c2;font-weight:500}
+    .weather-summary .loading{min-width:38px}
+    .advice-summary{
+      margin-top:10px;color:var(--brand);font-size:12px;font-weight:760;line-height:1.5;
+      text-align:right
+    }
+    .detail-hint{
+      margin-top:10px;padding:9px 10px;border-radius:12px;background:linear-gradient(90deg,#edf5f2,#e5f0ec);
+      color:var(--brand2);font-size:12px;font-weight:850;text-align:center
+    }
+    .day-details{
+      margin:0 16px 16px;padding:14px;background:#f7f9f7;border:1px solid #e3e9e5;border-radius:16px;
+      overflow:hidden;max-height:1200px;opacity:1;
+      transition:max-height .24s ease,opacity .2s ease,margin .24s ease,padding .24s ease,border-width .24s ease
+    }
+    .day-details[hidden]{
+      display:block;max-height:0;opacity:0;margin-top:0;margin-bottom:0;
+      padding-top:0;padding-bottom:0;border-width:0;pointer-events:none
+    }
+    .expanded-weather{
+      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;
+      background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+      margin:0 0 13px
+    }
+    .expanded-weather-item{background:#fff;padding:10px 7px;text-align:center;min-width:0}
+    .expanded-weather-item .k{display:block;font-size:9px;color:var(--muted);font-weight:800;margin-bottom:4px}
+    .expanded-weather-item .v{display:block;font-size:12px;color:var(--ink);font-weight:850;line-height:1.3}
+    .day-detail-list{font-size:12px;line-height:1.7}
+    .day-meta{margin-bottom:12px}
+    .nav-section{margin-top:14px}
+    @media(max-width:520px){
+      .day-toggle{padding:14px 13px 11px}
+      .day-head{grid-template-columns:54px minmax(0,1fr) 32px;gap:9px}
+      .datebox{min-height:58px}
+      .datebox .num{font-size:23px}
+      .route h3{font-size:16px}
+      .route p{font-size:11px}
+      .weather-summary{justify-content:flex-start;gap:9px;padding-inline:3px;font-size:13px}
+      .wx{font-size:26px}
+      .advice-summary{font-size:11px}
+      .day-details{margin-inline:12px;margin-bottom:12px}
+      .expanded-weather{grid-template-columns:1fr 1fr}
+    }
+
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -709,37 +805,51 @@ function renderNav(d){
 
 function renderSkeleton(){
   const root=document.getElementById("days");
+  const today=dateKeyInMontenegro();
+  const defaultDate=itinerary.find(d=>d.date>=today)?.date || itinerary[itinerary.length-1]?.date;
+
   root.innerHTML=itinerary.map((d,i)=>{
     const panelId=`day-details-${i+1}`;
     const meta=[
       d.stay ? `<span class="day-chip">🛏️ ${d.stay}</span>` : "",
       d.flight ? `<span class="day-chip">✈️ ${d.flight}</span>` : ""
     ].join("");
+    const isOpen=d.date===defaultDate;
     return `
-    <article class="day" data-date="${d.date}">
-      <button class="day-toggle" type="button" aria-expanded="false" aria-controls="${panelId}">
+    <article class="day${isOpen ? " open" : ""}" data-date="${d.date}">
+      <button class="day-toggle" type="button" aria-expanded="${isOpen}" aria-controls="${panelId}">
         <div class="day-head">
           <div class="datebox"><div class="dow">${d.dow}</div><div class="num">${d.num}</div></div>
           <div class="route">
             <h3>${d.title}</h3>
             <p>${d.subtitle} • תחנה: ${locations[d.loc].name}</p>
-            <div class="detail-hint">פרטי היום ↓</div>
           </div>
-          <div class="wx">…</div>
           <span class="day-chevron" aria-hidden="true">⌄</span>
         </div>
+
+        <div class="weather-summary" aria-label="תקציר מזג האוויר">
+          <span class="weather-main"><span class="wx">…</span><strong class="weather-temp loading">טוען…</strong></span>
+          <span class="weather-sep" aria-hidden="true">|</span>
+          <span>💧 <strong class="weather-rain loading">–</strong></span>
+          <span class="weather-sep" aria-hidden="true">|</span>
+          <span>💨 <strong class="weather-wind loading">–</strong></span>
+        </div>
+
+        <div class="advice-summary loading">מחשב מה כדאי ללבוש…</div>
+        <div class="detail-hint">${isOpen ? "סגירת פרטים ↑" : "פרטי היום ↓"}</div>
       </button>
-      <div class="day-details" id="${panelId}" hidden>
+
+      <div class="day-details" id="${panelId}" ${isOpen ? "" : "hidden"}>
         ${meta ? `<div class="day-meta">${meta}</div>` : ""}
+        <div class="expanded-weather" aria-label="פרטי מזג אוויר נוספים">
+          <div class="expanded-weather-item"><span class="k">מרגיש כמו</span><span class="v weather-feels loading">–</span></div>
+          <div class="expanded-weather-item"><span class="k">משקעים צפויים</span><span class="v weather-precip loading">–</span></div>
+          <div class="expanded-weather-item"><span class="k">מצב</span><span class="v weather-condition loading">–</span></div>
+          <div class="expanded-weather-item"><span class="k">משבי רוח</span><span class="v weather-gust-detail loading">–</span></div>
+        </div>
         <ul class="day-detail-list">${d.details.map(item=>`<li>${item}</li>`).join("")}</ul>
         ${renderNav(d)}
       </div>
-      <div class="weather-row">
-        <div class="metric"><div class="label">יום / לילה</div><div class="value loading">טוען…</div></div>
-        <div class="metric"><div class="label">גשם</div><div class="value loading">טוען…</div></div>
-        <div class="metric"><div class="label">רוח</div><div class="value loading">טוען…</div></div>
-      </div>
-      <div class="desc loading">מוריד תחזית עדכנית…</div>
     </article>`;
   }).join("");
 
@@ -859,32 +969,41 @@ async function loadWeather(force=false){
     if(wx) all.push({...wx,...d});
     const card=document.querySelector(`.day[data-date="${d.date}"]`);
     const icon=card.querySelector(".wx");
-    const vals=card.querySelectorAll(".metric .value");
-    const desc=card.querySelector(".desc");
+    const temp=card.querySelector(".weather-temp");
+    const rain=card.querySelector(".weather-rain");
+    const wind=card.querySelector(".weather-wind");
+    const advice=card.querySelector(".advice-summary");
+    const feels=card.querySelector(".weather-feels");
+    const precip=card.querySelector(".weather-precip");
+    const condition=card.querySelector(".weather-condition");
+    const gustDetail=card.querySelector(".weather-gust-detail");
+    const loadingEls=[temp,rain,wind,advice,feels,precip,condition,gustDetail].filter(Boolean);
 
     if(!wx){
       icon.textContent="🕒";
-      vals[0].textContent="עדיין לא זמין";
-      vals[1].textContent="–";
-      vals[2].textContent="–";
-      desc.classList.remove("loading");
-      desc.textContent=adviceFor(null);
-      vals.forEach(v=>v.classList.remove("loading"));
+      temp.textContent="עדיין לא זמין";
+      rain.textContent="–";
+      wind.textContent="–";
+      advice.textContent=adviceFor(null);
+      feels.textContent="–";
+      precip.textContent="–";
+      condition.textContent="תחזית בהמשך";
+      gustDetail.textContent="–";
+      loadingEls.forEach(v=>v.classList.remove("loading"));
       return;
     }
 
-    const [emoji, label]=weatherText(wx.code);
+    const [emoji,label]=weatherText(wx.code);
     icon.textContent=emoji;
-    vals[0].textContent=`${fmt(wx.max)}° / ${fmt(wx.min)}°`;
-    vals[1].textContent=`${fmt(wx.rain)}%`;
-    vals[2].textContent=`עד ${fmt(wx.gust)} קמ״ש`;
-    vals.forEach(v=>v.classList.remove("loading"));
-    desc.classList.remove("loading");
-    desc.innerHTML=`<span>${emoji}</span><span><strong>${label}</strong> • משקעים צפויים ${Number.isFinite(wx.precip)?wx.precip.toFixed(1):"–"} מ״מ • מרגיש ${fmt(wx.feelsMax)}° / ${fmt(wx.feelsMin)}°</span>`;
-
-    let adv=card.querySelector(".advice");
-    if(!adv){ adv=document.createElement("div"); adv.className="advice"; card.appendChild(adv); }
-    adv.textContent=adviceFor(wx);
+    temp.textContent=`${fmt(wx.min)}°–${fmt(wx.max)}°`;
+    rain.textContent=`${fmt(wx.rain)}%`;
+    wind.textContent=`${fmt(wx.gust)} קמ״ש`;
+    advice.textContent=adviceFor(wx);
+    feels.textContent=`${fmt(wx.feelsMin)}°–${fmt(wx.feelsMax)}°`;
+    precip.textContent=`${Number.isFinite(wx.precip)?wx.precip.toFixed(1):"–"} מ״מ`;
+    condition.textContent=label;
+    gustDetail.textContent=`עד ${fmt(wx.gust)} קמ״ש`;
+    loadingEls.forEach(v=>v.classList.remove("loading"));
   });
 
   updateSummary(all);
