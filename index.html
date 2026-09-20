@@ -524,6 +524,10 @@
     }
     .holiday-note{margin:14px 16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--ink);font-size:14px;line-height:1.65}
     .now-card .holiday-note{margin-inline:0}
+    .preview-controls,.parking-card{padding:18px;margin:16px 0;background:var(--card);border:1px solid var(--line);border-radius:20px;color:var(--ink)}
+    .preview-controls{border:2px dashed var(--brand2)}.preview-controls p,.parking-card p,#parkingDetails{font-size:14px;line-height:1.6;color:var(--muted)}.parking-card h2{font-size:21px;margin:0 0 8px}
+    .preview-fields{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.preview-fields label{flex:1;min-width:140px}.preview-fields input,.preview-fields select{display:block;width:100%;min-height:44px;margin-top:6px;padding:10px;font:inherit;font-size:16px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px}
+    button:disabled{opacity:.65;cursor:not-allowed}
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -557,6 +561,11 @@
     המידע והמלצות הציוד הם לעזר בלבד ועשויים לכלול טעויות או להשתנות. יש לוודא פרטים מול המדריך והגורמים הרשמיים.
   </aside>
 
+  <section id="previewControls" class="preview-controls" hidden aria-label="מצב בדיקה">
+    <strong>🧪 מצב בדיקה — התאריך מדומה</strong>
+    <p>שעה לפי מונטנגרו. התחזית היא המידע הזמין כעת, לא תחזית היסטורית; סטטוס טיסה חי ומיקום כבויים במצב הזה.</p>
+    <div class="preview-fields"><label>יום לתצוגה<select id="previewDate"></select></label><label>שעה במונטנגרו<input type="time" id="previewTime" value="09:00"></label><a id="exitPreview" class="now-action secondary">יציאה מבדיקה</a></div>
+  </section>
   <div data-view="today">
   <section class="hero">
     <div class="hero-top">
@@ -582,6 +591,7 @@
 
 
   <details class="bag-preview" id="bagPreview"><summary>🎒 להכין תיק ליום בטיול</summary><label for="bagDate">בחרו יום</label><select id="bagDate"></select><div id="previewBag"></div></details>
+  <section class="parking-card" aria-labelledby="parkingTitle"><h2 id="parkingTitle">📍 איפה חנינו?</h2><p>שומרים את מיקום הג׳יפ במכשיר הזה וחוזרים אליו בניווט רגלי.</p><div id="parkingDetails"></div><div class="now-actions"><button type="button" class="now-action" id="saveParking">שמירת מקום החניה</button><a id="parkingNavigate" class="now-action secondary" target="_blank" rel="noopener noreferrer" hidden>הליכה חזרה לג׳יפ ↗</a><button type="button" class="now-action secondary" id="deleteParking" hidden>מחיקת החניה</button></div><p id="parkingStatus" role="status"></p></section>
   <aside class="offline-card"><span aria-hidden="true">▣</span><div><strong id="offlineStatus" role="status">מכין את האתר לשימוש ללא קליטה…</strong><p>המסלול והציוד נשמרים במכשיר. מפות, ניווט ותחזית חדשה דורשים חיבור.</p></div></aside>
   </div>
   <div data-view="route" hidden>
@@ -709,6 +719,14 @@ function updateFeedbackLink(){
   const message=`היי תומר, יש לי פידבק על אתר מונטנגרו 🇲🇪\nמסך: ${labels[view]}\n${url.href}\n\n`;
   link.href=`https://wa.me/${FEEDBACK_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+const previewParams=new URLSearchParams(location.search);
+const PREVIEW_MODE=previewParams.get('preview')==='1';
+const PREVIEW_DATES=['2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-26','2026-09-27','2026-09-28','2026-09-29','2026-09-30','2026-10-01'];
+let previewDate=PREVIEW_DATES.includes(previewParams.get('date'))?previewParams.get('date'):'2026-09-23';
+let previewTime=/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(previewParams.get('time')||'')?previewParams.get('time'):'09:00';
+function appNow(){return PREVIEW_MODE?new Date(`${previewDate}T${previewTime}:00+02:00`):new Date();}
+// Preview checklists cannot overwrite the real packing list or day bags.
+const tripStorage={getItem(key){return localStorage.getItem((PREVIEW_MODE?'preview:':'')+key);},setItem(key,value){localStorage.setItem((PREVIEW_MODE?'preview:':'')+key,value);}};
 const TRIP_START = new Date("2026-09-23T00:00:00+02:00");
 const TRIP_END   = new Date("2026-09-30T23:59:59+02:00");
 
@@ -926,7 +944,7 @@ function fmtTempRange(min,max){
 function weatherText(code){ return wmo[code] || ["🌡️","תחזית"]; }
 
 
-function dateKeyInMontenegro(date=new Date()){
+function dateKeyInMontenegro(date=appNow()){
   return new Intl.DateTimeFormat("en-CA",{
     timeZone:"Europe/Podgorica",year:"numeric",month:"2-digit",day:"2-digit"
   }).format(date);
@@ -948,17 +966,18 @@ const FLIGHT_CONTEXT={
 let liveFlightData=null;
 let contextPosition=null;
 
-function contextualPhase(now=new Date()){
+function contextualPhase(now=appNow()){
   const flightDayStart=new Date("2026-09-23T00:00:00+03:00");
   const flightFocusEnd=new Date("2026-09-23T15:00:00+02:00");
   if(now<flightDayStart) return "before-flight";
   if(now<flightFocusEnd) return "flight-day";
+  if(dateKeyInMontenegro(now)==="2026-09-30") return "return-flight";
   if(dateKeyInMontenegro(now)<="2026-09-30") return "trip";
   return "after";
 }
 
 function timeInZone(zone="Europe/Podgorica"){
-  return Number(new Intl.DateTimeFormat("en-GB",{timeZone:zone,hour:"2-digit",hourCycle:"h23"}).format(new Date()));
+  return Number(new Intl.DateTimeFormat("en-GB",{timeZone:zone,hour:"2-digit",hourCycle:"h23"}).format(appNow()));
 }
 
 function pad2(n){return String(Math.max(0,n)).padStart(2,"0");}
@@ -971,6 +990,7 @@ function distanceKm(a,b){
 }
 
 function locationContext(){
+  if(PREVIEW_MODE)return "";
   if(!contextPosition) return "";
   const here={lat:contextPosition.coords.latitude,lon:contextPosition.coords.longitude};
   const places=[
@@ -984,6 +1004,7 @@ function locationContext(){
 }
 
 function requestContextLocation(){
+  if(PREVIEW_MODE)return;
   if(!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(pos=>{
     contextPosition=pos;
@@ -992,6 +1013,7 @@ function requestContextLocation(){
 }
 
 async function setupContextLocation(){
+  if(PREVIEW_MODE)return;
   if(!navigator.geolocation) return;
   try{
     if(navigator.permissions){
@@ -1007,6 +1029,7 @@ function bindContextLocationButton(){
 }
 
 async function loadLiveFlightStatus(force=false){
+  if(PREVIEW_MODE)return;
   if(contextualPhase()!=="flight-day" && !force) return;
   try{
     const u=new URL("https://data.gov.il/api/3/action/datastore_search");
@@ -1165,7 +1188,7 @@ function splitUnit(id,value,label){
 }
 
 function countdown(){
-  const now=new Date();
+  const now=appNow();
   const el=document.getElementById("countdown");
   const note=document.getElementById("heroNote");
   const phase=contextualPhase(now);
@@ -1207,6 +1230,10 @@ function countdown(){
       el.innerHTML=`יום הטיסה ✈️ <small>LY5467 • תל״א → טיבת</small>`;
     }
     note.textContent="היום הטיסה במרכז: סטטוס, טרמינל, דלפקים והפרטים שחשוב לבדוק לפני העלייה למטוס.";
+  } else if(phase==="return-flight"){
+    const remaining=new Date("2026-09-30T14:55:00+02:00")-now;
+    el.innerHTML=remaining>0?`חוזרים הביתה ✈️ <small>עוד ${Math.floor(remaining/3600000)} שעות ו־${Math.floor(remaining/60000)%60} דקות להמראה המתוכננת</small>`:'בחזרה הביתה ✈️ <small>LY5468 · טיבת → תל אביב</small>';
+    note.textContent="שעות מקומיות: המראה מטיבת 14:55 · נחיתה בישראל 18:35. המועדים מתוכננים, יש לבדוק סטטוס עדכני.";
   } else if(phase==="trip"){
     const today=dateKeyInMontenegro();
     const tripDay=Math.max(1,itinerary.findIndex(d=>d.date===today)+1);
@@ -1351,23 +1378,23 @@ const PACKING_STORAGE_KEY="montenegro-packed-v1";
 const CUSTOM_GEAR_STORAGE_KEY="montenegro-custom-gear-v1";
 
 function getPacked(){
-  try{return JSON.parse(localStorage.getItem(PACKING_STORAGE_KEY) || "{}");}
+  try{return JSON.parse(tripStorage.getItem(PACKING_STORAGE_KEY) || "{}");}
   catch(e){return {};}
 }
 
 function savePacked(packed){
-  try{localStorage.setItem(PACKING_STORAGE_KEY,JSON.stringify(packed));}catch(e){document.getElementById("offlineStatus").textContent="הדפדפן חוסם שמירה; סימוני האריזה לא יישמרו לאחר סגירה.";}
+  try{tripStorage.setItem(PACKING_STORAGE_KEY,JSON.stringify(packed));}catch(e){document.getElementById("offlineStatus").textContent="הדפדפן חוסם שמירה; סימוני האריזה לא יישמרו לאחר סגירה.";}
 }
 
 function getCustomGear(){
   try{
-    const items=JSON.parse(localStorage.getItem(CUSTOM_GEAR_STORAGE_KEY) || "[]");
+    const items=JSON.parse(tripStorage.getItem(CUSTOM_GEAR_STORAGE_KEY) || "[]");
     return Array.isArray(items) ? items : [];
   }catch(e){return [];}
 }
 
 function saveCustomGear(items){
-  try{localStorage.setItem(CUSTOM_GEAR_STORAGE_KEY,JSON.stringify(items));}
+  try{tripStorage.setItem(CUSTOM_GEAR_STORAGE_KEY,JSON.stringify(items));}
   catch(e){document.getElementById("offlineStatus").textContent="הדפדפן חוסם שמירה; פריטים אישיים לא יישמרו לאחר סגירה.";}
 }
 
@@ -1527,7 +1554,7 @@ function applyPackingFilter(){
 }
 const DAY_BAG_KEYS=new Set(['daypack','fleece','puffer','rain-jacket','beanie-buff','gloves','swimsuit','sun','repellent']);
 let bagMemory={};
-try{bagMemory=JSON.parse(localStorage.getItem('montenegro-day-bags-v1')||'{}')||{};}catch(e){}
+try{bagMemory=JSON.parse(tripStorage.getItem('montenegro-day-bags-v1')||'{}')||{};}catch(e){}
 function renderDayBag(d,byLoc){
   const all=buildGear(byLoc).gear.filter(g=>g.days.some(x=>x.date===d.date));
   const useful=all.filter(g=>DAY_BAG_KEYS.has(g.key));
@@ -1538,7 +1565,7 @@ function bindDayBag(){
   document.querySelectorAll('[data-bag-key]').forEach(input=>input.onchange=()=>{
     const section=input.closest('[data-bag-date]'),date=section.dataset.bagDate;
     if(!bagMemory[date])bagMemory[date]={};bagMemory[date][input.dataset.bagKey]=input.checked;
-    try{localStorage.setItem('montenegro-day-bags-v1',JSON.stringify(bagMemory));section.querySelector('.bag-status').textContent='נשמר ליום הזה במכשיר';}catch(e){section.querySelector('.bag-status').textContent='השמירה במכשיר חסומה; הסימון זמני';}
+    try{tripStorage.setItem('montenegro-day-bags-v1',JSON.stringify(bagMemory));section.querySelector('.bag-status').textContent='נשמר ליום הזה במכשיר';}catch(e){section.querySelector('.bag-status').textContent='השמירה במכשיר חסומה; הסימון זמני';}
   });
 }
 function renderBagPreview(byLoc){
@@ -1560,6 +1587,54 @@ function jumpToDay(date){
   selectedMapDay=itinerary.findIndex(d=>d.date===date);selectedMapStop=0;updateMap();
   const btn=card.querySelector('.day-toggle');if(btn.getAttribute('aria-expanded')!=='true')btn.click();
   btn.focus({preventScroll:true});card.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+}
+
+function setupPreview(){
+  if(!PREVIEW_MODE)return;
+  const panel=document.getElementById('previewControls');panel.hidden=false;
+  const date=document.getElementById('previewDate'),time=document.getElementById('previewTime');
+  date.innerHTML=PREVIEW_DATES.map(value=>`<option value="${value}">${value.slice(8)}.${value.slice(5,7)} · ${value<'2026-09-23'?'לפני הטיסה':value>'2026-09-30'?'אחרי הטיול':value==='2026-09-23'?'יום הטיסה':value==='2026-09-30'?'טיסת החזור':'יום בטיול'}</option>`).join('');date.value=previewDate;time.value=previewTime;
+  const exit=new URL(location.href);['preview','date','time'].forEach(key=>exit.searchParams.delete(key));document.getElementById('exitPreview').href=exit.href;
+  const update=()=>{
+    if(!PREVIEW_DATES.includes(date.value)||!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time.value))return;
+    previewDate=date.value;previewTime=time.value;
+    const url=new URL(location.href);url.searchParams.set('date',previewDate);url.searchParams.set('time',previewTime);url.hash='today';history.replaceState(null,'',url);
+    showView('today');renderSkeleton();loadWeather();renderNow(latestGearWeather);countdown();
+    selectedMapDay=Math.max(0,itinerary.findIndex(d=>d.date===previewDate));selectedMapStop=0;updateMap();
+  };
+  date.addEventListener('change',update);time.addEventListener('change',update);
+}
+const PARKING_KEY='montenegro-parking-v1';
+let parkingSpot=null;
+function validParking(p){return p&&Number.isFinite(p.lat)&&Math.abs(p.lat)<=90&&Number.isFinite(p.lon)&&Math.abs(p.lon)<=180&&Number.isFinite(p.at);}
+function renderParking(){
+  const details=document.getElementById('parkingDetails'),nav=document.getElementById('parkingNavigate');
+  nav.hidden=!parkingSpot;document.getElementById('deleteParking').hidden=!parkingSpot;
+  document.getElementById('saveParking').textContent=parkingSpot?'שמירת חניה חדשה':'שמירת מקום החניה';
+  details.textContent=parkingSpot?`נשמר ב־${new Intl.DateTimeFormat('he-IL',{timeZone:'Europe/Podgorica',dateStyle:'short',timeStyle:'short'}).format(new Date(parkingSpot.at))} (שעון מונטנגרו) · דיוק משוער: ${Math.round(parkingSpot.accuracy||0)} מטר`:'עדיין לא נשמר מקום חניה.';
+  if(parkingSpot)nav.href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(parkingSpot.lat+','+parkingSpot.lon)+'&travelmode=walking';
+}
+function setupParking(){
+  const button=document.getElementById('saveParking'),status=document.getElementById('parkingStatus');
+  if(PREVIEW_MODE){button.disabled=true;status.textContent='מצב בדיקה — שמירת מיקום כבויה. החניה האמיתית לא משתנה.';renderParking();return;}
+  try{const saved=JSON.parse(localStorage.getItem(PARKING_KEY)||'null');if(validParking(saved))parkingSpot=saved;}catch(e){}
+  renderParking();
+  button.addEventListener('click',()=>{
+    if(!navigator.geolocation){status.textContent='המכשיר אינו תומך בשיתוף מיקום.';return;}
+    if(parkingSpot&&!confirm('להחליף את מקום החניה השמור במיקום הנוכחי?'))return;
+    button.disabled=true;status.textContent='מאתר את המיקום…';
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const next={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:pos.coords.accuracy,at:Date.now()};
+      if(!validParking(next)){status.textContent='לא התקבל מיקום תקין. החניה הקודמת נשמרה.';button.disabled=false;return;}
+      parkingSpot=next;renderParking();
+      try{localStorage.setItem(PARKING_KEY,JSON.stringify(next));status.textContent=next.accuracy>100?'המיקום נשמר, אך הדיוק נמוך. כדאי לשמור שוב כשנמצאים בשטח פתוח.':'מקום החניה נשמר במכשיר ✓';}catch(e){status.textContent='המיקום זמין כעת, אך השמירה במכשיר חסומה והוא לא יישמר לאחר סגירה.';}
+      button.disabled=false;
+    },err=>{status.textContent=err.code===1?'לא ניתנה הרשאת מיקום. אפשר לאפשר אותה בהגדרות הדפדפן ולנסות שוב.':'לא הצלחנו לאתר מיקום. נסו שוב בשטח פתוח; החניה הקודמת לא השתנתה.';button.disabled=false;},{enableHighAccuracy:true,maximumAge:0,timeout:15000});
+  });
+  document.getElementById('deleteParking').addEventListener('click',()=>{
+    if(!confirm('למחוק את מקום החניה השמור?'))return;
+    try{localStorage.removeItem(PARKING_KEY);parkingSpot=null;renderParking();status.textContent='מקום החניה נמחק.';}catch(e){status.textContent='לא ניתן למחוק את השמירה במכשיר כרגע.';}
+  });
 }
 function setupTheme(){
   const root=document.documentElement,button=document.getElementById('themeBtn'),media=matchMedia('(prefers-color-scheme: dark)');
@@ -1596,7 +1671,7 @@ function renderNow(byLoc){
   }
 
   if(phase==="flight-day"){
-    const status=liveFlightData?.status || "ממתין לעדכון";
+    const status=PREVIEW_MODE?"תצוגה מקדימה":liveFlightData?.status || "ממתין לעדכון";
     const terminal=liveFlightData?.terminal || "—";
     const counters=liveFlightData?.counters || "—";
     const gate=liveFlightData?.gate || "טרם פורסם";
@@ -1604,7 +1679,7 @@ function renderNow(byLoc){
     root.innerHTML=`
       <div class="now-kicker">יום הטיסה • LY5467</div>
       <div class="now-title">✈️ תל״א → טיבת</div>
-      <div class="now-sub">המידע החי מתעדכן מלוח הטיסות של רשות שדות התעופה. זמן מתוכנן 11:50.</div>
+      <div class="now-sub">${PREVIEW_MODE?"מצב בדיקה — לא מוצג סטטוס טיסה חי.":"המידע החי מתעדכן מלוח הטיסות של רשות שדות התעופה."} זמן מתוכנן 11:50.</div>
       ${locationLabel?`<div class="context-row"><span class="context-chip current">${locationLabel}</span></div>`:""}
       <div class="flight-live-grid">
         <div class="now-stat"><div class="k">מצב</div><div class="v">${esc(status)}</div></div>
@@ -1619,13 +1694,23 @@ function renderNow(byLoc){
       <div class="now-actions">
         <a class="now-action" href="${flightStatusUrl(FLIGHT_CONTEXT.number)}" target="_blank" rel="noopener">✈️ סטטוס מלא ב־FlightRadar24</a>
         <a class="now-action secondary" href="https://www.iaa.gov.il/airports/ben-gurion/flight-board/" target="_blank" rel="noopener">לוח הטיסות נתב״ג</a>
-        ${!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 להתאים לפי המיקום</button>`:""}
+        ${!PREVIEW_MODE&&!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 להתאים לפי המיקום</button>`:""}
       </div>
       <div class="now-source-note">שער העלייה למטוס אינו תמיד נכלל במידע הפתוח של נתב״ג; אם אינו מופיע כאן, יש לבדוק במסכי השדה או בכרטיס העלייה למטוס.</div>`;
     bindContextLocationButton();
     return;
   }
 
+  if(phase==="return-flight"){
+    const d=itinerary[itinerary.length-1];
+    root.innerHTML=`<div class="now-kicker">30.9 · יום החזרה · LY5468</div><div class="now-title">✈️ טיבת → תל אביב</div><div class="now-sub">בוקר בבודווה, עזיבת המלון והגעה לשדה התעופה.</div>
+      <div class="now-grid"><div class="now-stat"><div class="k">הגעה מומלצת לשדה</div><div class="v">11:55 · מונטנגרו</div></div><div class="now-stat"><div class="k">המראה מתוכננת</div><div class="v">14:55 · מונטנגרו</div></div><div class="now-stat"><div class="k">נחיתה מתוכננת</div><div class="v">18:35 · ישראל</div></div></div>
+      <p class="now-sub">ההמלצה היא להגיע 3 שעות לפני ההמראה. שעת היציאה מהמלון תיקבע עם המדריך לפי ההסעה וזמן הנסיעה.</p>
+      ${renderHotel(d)}
+      <div class="now-actions"><a class="now-action" href="${flightStatusUrl('LY5468')}" target="_blank" rel="noopener noreferrer">בדיקת סטטוס טיסת החזור ↗</a><a class="now-action secondary" href="${mapsDirectionsUrl('Tivat Airport, Montenegro')}" target="_blank" rel="noopener noreferrer">ניווט לשדה בטיבת</a><a class="now-action secondary" href="#day-details-8" data-open-day="2026-09-30">כל פרטי היום</a></div>
+      <p class="now-source-note">${PREVIEW_MODE?'מצב בדיקה · ':''}אין כאן עדכון חי של שער או דלפקים בטיבת. בדקו במסכי השדה ובכרטיס העלייה למטוס.</p>`;
+    bindNowDayLinks();return;
+  }
   if(phase==="trip"){
     const idx=itinerary.findIndex(d=>d.date===today);
     const safeIdx=idx>=0?idx:0;
@@ -1658,7 +1743,7 @@ function renderNow(byLoc){
       <div class="now-actions">
         ${firstNav?`<a class="now-action" href="${mapsDirectionsUrl(firstNav.query)}" target="_blank" rel="noopener">🧭 נווט: ${firstNav.label}</a>`:""}
         <a class="now-action secondary" href="#day-details-${safeIdx+1}" data-open-day="${d.date}">כל פרטי היום</a>
-        ${!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 התאמה לפי המיקום</button>`:""}
+        ${!PREVIEW_MODE&&!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 התאמה לפי המיקום</button>`:""}
       </div>
       ${tomorrow?`<div class="now-tomorrow"><strong>${hour>=18?"מחר":"הצצה למחר"}:</strong> ${tomorrowText}</div>`:""}`;
     bindNowDayLinks();
@@ -1714,6 +1799,7 @@ document.getElementById("shareBtn").addEventListener("click",async()=>{
 
 let lastTrackedView = null;
 function trackTripEvent(name, params = {}){
+  if(PREVIEW_MODE)return;
   if(typeof window.gtag === 'function') window.gtag('event', name, params);
 }
 function showView(view){
@@ -1860,6 +1946,8 @@ document.getElementById('fxRefresh').addEventListener('click',()=>{loadFx(true);
 window.addEventListener('online',()=>{if(location.hash==='#info')loadFx(true);});
 updateInfoClocks();setInterval(updateInfoClocks,60000);
 
+setupPreview();
+setupParking();
 setupTheme();
 setupTravelTools();
 setupNavigation();
