@@ -1,0 +1,238 @@
+{
+  "version": 1,
+  "tripName": "מונטנגרו",
+  "startDate": "2026-09-23",
+  "endDate": "2026-09-30",
+  "timeZone": "Europe/Podgorica",
+  "siteUrl": "https://tomershko.github.io/montenegro-weather/",
+  "weather": {
+    "provider": "Open-Meteo",
+    "forecastDays": 16,
+    "refreshMinutes": 30
+  },
+  "locations": {
+    "zabljak": {
+      "name": "ז׳בליאק",
+      "lat": 43.1555,
+      "lon": 19.1226
+    },
+    "pljevlja": {
+      "name": "פלייבליה",
+      "lat": 43.3567,
+      "lon": 19.3584
+    },
+    "kolasin": {
+      "name": "קולאשין",
+      "lat": 42.8231,
+      "lon": 19.5225
+    },
+    "kotor": {
+      "name": "קוטור",
+      "lat": 42.4247,
+      "lon": 18.7712
+    },
+    "budva": {
+      "name": "בודווה",
+      "lat": 42.2911,
+      "lon": 18.8403
+    }
+  },
+  "days": [
+    {
+      "date": "2026-09-23",
+      "dayNumber": 1,
+      "dow": "ד׳",
+      "title": "הטיסה למונטנגרו – ז׳בליאק",
+      "subtitle": "נחיתה בטיבת, קבלת הג׳יפים ונסיעה לז׳בליאק",
+      "loc": "zabljak",
+      "stay": "Nordic Hotel • ז׳בליאק",
+      "flight": "LY5467 • תל״א → טיבת • 11:50–13:50",
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-1",
+      "nav": [
+        {
+          "label": "שדה התעופה טיבת",
+          "query": "Tivat Airport, Montenegro"
+        },
+        {
+          "label": "Nordic Hotel",
+          "query": "Nordic Hotel Zabljak Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-24",
+      "dayNumber": 2,
+      "dow": "ה׳",
+      "title": "שמורת דורמיטור והאגם השחור",
+      "subtitle": "הליכה סביב האגם, דורמיטור, פיווה ונופי הרים",
+      "loc": "zabljak",
+      "stay": "Nordic Hotel • ז׳בליאק",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-2",
+      "nav": [
+        {
+          "label": "האגם השחור",
+          "query": "Crno Jezero, Zabljak, Montenegro"
+        },
+        {
+          "label": "Trsa",
+          "query": "Trsa, Pluzine, Montenegro"
+        },
+        {
+          "label": "קניון פיווה",
+          "query": "Piva Canyon, Montenegro"
+        },
+        {
+          "label": "Nordic Hotel",
+          "query": "Nordic Hotel Zabljak Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-25",
+      "dayNumber": 3,
+      "dow": "ו׳",
+      "title": "רפטינג על גבול בוסניה",
+      "subtitle": "תצפיות, קניון טארה ורפטינג",
+      "loc": "zabljak",
+      "stay": "Nordic Hotel • ז׳בליאק",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-3",
+      "nav": [
+        {
+          "label": "קניון טארה",
+          "query": "Tara River Canyon, Montenegro"
+        },
+        {
+          "label": "Nordic Hotel",
+          "query": "Nordic Hotel Zabljak Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-26",
+      "dayNumber": 4,
+      "dow": "ש׳",
+      "title": "קניון טארה – אל עיירת הסקי קולאשין",
+      "subtitle": "נהר טארה, גשר טארה, אגם ביוגרד וקולאשין",
+      "loc": "kolasin",
+      "stay": "Bianca Resort • קולאשין",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-4",
+      "nav": [
+        {
+          "label": "גשר טארה",
+          "query": "Durdevica Tara Bridge, Montenegro"
+        },
+        {
+          "label": "אגם ביוגרד",
+          "query": "Biogradsko Jezero, Montenegro"
+        },
+        {
+          "label": "Bianca Resort",
+          "query": "Bianca Resort & Spa Kolasin Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-27",
+      "dayNumber": 5,
+      "dow": "א׳",
+      "title": "אגם אחד, רכס שני ומשפחה מיוחדת",
+      "subtitle": "רכס סיניאווינה, כפרי קיץ ומפגש מקומי",
+      "loc": "kolasin",
+      "stay": "Bianca Resort • קולאשין",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-5",
+      "nav": [
+        {
+          "label": "רכס סיניאווינה",
+          "query": "Sinjajevina Montenegro"
+        },
+        {
+          "label": "Bianca Resort",
+          "query": "Bianca Resort & Spa Kolasin Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-28",
+      "dayNumber": 6,
+      "dow": "ב׳",
+      "title": "ביילאשיצה או קומובי – מה יפה יותר?",
+      "subtitle": "אתר הסקי, ביילאשיצה, קומובי ותצפיות הרים",
+      "loc": "kolasin",
+      "stay": "Bianca Resort • קולאשין",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-6",
+      "nav": [
+        {
+          "label": "Kolašin 1600",
+          "query": "Kolasin 1600 Ski Center Montenegro"
+        },
+        {
+          "label": "רכס ביילאשיצה",
+          "query": "Bjelasica Montenegro"
+        },
+        {
+          "label": "רכס קומובי",
+          "query": "Komovi Montenegro"
+        },
+        {
+          "label": "Bianca Resort",
+          "query": "Bianca Resort & Spa Kolasin Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "dayNumber": 7,
+      "dow": "ג׳",
+      "title": "מפרץ קוטור – נופים בלתי נשכחים",
+      "subtitle": "פודגוריצה, אגם סקאדר, קוטור, שיט ובודווה",
+      "loc": "kotor",
+      "stay": "Avala Resort • בודווה",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-7",
+      "nav": [
+        {
+          "label": "אגם סקאדר",
+          "query": "Lake Skadar Montenegro"
+        },
+        {
+          "label": "העיר העתיקה קוטור",
+          "query": "Kotor Old Town Montenegro"
+        },
+        {
+          "label": "גברתנו שעל הסלעים",
+          "query": "Our Lady of the Rocks Perast Montenegro"
+        },
+        {
+          "label": "Avala Resort",
+          "query": "Avala Resort & Villas Budva Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-30",
+      "dayNumber": 8,
+      "dow": "ד׳",
+      "title": "בחזרה הביתה",
+      "subtitle": "בוקר בבודווה, שדה התעופה וטיסה לישראל",
+      "loc": "budva",
+      "stay": null,
+      "flight": "LY5468 • טיבת → תל״א • 14:55–18:35",
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-8",
+      "nav": [
+        {
+          "label": "העיר העתיקה בודווה",
+          "query": "Budva Old Town Montenegro"
+        },
+        {
+          "label": "שדה התעופה טיבת",
+          "query": "Tivat Airport, Montenegro"
+        }
+      ]
+    }
+  ]
+}
