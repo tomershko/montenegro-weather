@@ -1,0 +1,3 @@
+[functions.postcards]
+verify_jwt = false
+# The handler checks participant credentials for writes and unguessable capabilities for reads.

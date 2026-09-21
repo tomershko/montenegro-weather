@@ -1,0 +1,12 @@
+
+# Local credentials and Supabase state must never be committed.
+.env
+.env.*
+*.env
+*.env.*
+secrets/
+secrets.*
+*.pem
+*.key
+supabase/.temp/
+supabase/.branches/

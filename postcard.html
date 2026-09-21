@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d3b3a"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow,noarchive"><meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
+<title>דרישת שלום ממונטנגרו 💌</title>
+<meta property="og:title" content="קיבלתם גלויה ממונטנגרו 💌">
+<meta property="og:description" content="דרישת שלום קטנה מהטיול שלנו. הגלויה זמינה ל־24 שעות מרגע יצירתה.">
+<meta property="og:image" content="https://tomershko.github.io/montenegro-weather/assets/postcard-share.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="./assets/icon.svg"><link rel="stylesheet" href="./postcard.css?v=5">
+<script src="./postcard-config.js?v=5" defer></script><script src="./postcard.js?v=5" defer></script>
+</head>
+<body>
+<header><a href="./">← לטיול שלנו</a><span>מונטנגרו 2026</span></header>
+<main>
+<section id="creator">
+<p class="eyebrow">משהו קטן לשלוח הביתה</p><h1>דרישת שלום<br>ממונטנגרו.</h1>
+<p>תמונה אחת, סיפור קטן ומעטפה שנפתחת בלחיצה.</p>
+<p id="setup" class="notice" hidden>אפשר כבר לעצב ולנסות את הגלויה. השיתוף ייפתח לאחר חיבור האחסון.</p>
+<form id="createForm">
+<label class="photo-picker" for="photo"><span id="photoLabel">＋ בוחרים רגע מהטיול</span><small>תמונה מהמצלמה או מהאלבום</small><input id="photo" type="file" accept="image/*" required></label>
+<div class="fields"><label>תאריך<input id="date" type="date" required></label><label>איפה אנחנו?<input id="place" maxlength="80" placeholder="למשל: האגם השחור" required></label></div>
+<label>למי שולחים?<input id="recipient" maxlength="80" placeholder="למשפחה האהובה" required></label>
+<label>הקדשה <small>(לא חובה)</small><textarea id="message" maxlength="600" rows="3" placeholder="מה הצחיק אותנו, הפתיע אותנו, או הזכיר לנו אתכם…"></textarea></label>
+<label>ממי? <small>(לא חובה)</small><input id="sender" maxlength="80" placeholder="למשל: תומר"></label>
+<label id="codeLabel">קוד המשתתפים<input id="code" type="password" autocomplete="off" maxlength="160" placeholder="הקוד שקיבלתם ליצירת גלויות"></label>
+<p class="privacy">הגלויה זמינה לכל מי שמחזיק בקישור, למשך 24 שעות מרגע היצירה. לאחר מכן הגישה נסגרת והתוכן נמחק אוטומטית. אפשר לשמור צילום מסך לפני התפוגה.</p>
+<div class="actions"><button type="button" id="previewBtn" class="secondary">תצוגה מקדימה</button><button id="publishBtn" type="submit">יצירת קישור ל־24 שעות</button></div>
+</form>
+</section>
+<section id="viewer" hidden aria-label="הגלויה שלכם">
+<p id="previewLabel" class="notice" hidden>תצוגה מקדימה בלבד · התמונה עדיין במכשיר שלך</p>
+<div id="envelope"><p class="eyebrow">דואר ממונטנגרו</p><div class="mail-icon" aria-hidden="true">💌</div><h1>יש לכם גלויה.</h1><p id="envelopeTo"></p><button id="openBtn">פותחים את המעטפה</button></div>
+<div id="card" hidden><div id="front"><img id="cardPhoto" alt="גלויה מעוצבת מהטיול במונטנגרו"></div><div id="back" hidden><p id="cardTo" class="handwriting"></p><p id="cardMessage"></p><p id="cardSender" class="handwriting"></p></div><button id="flipBtn" class="secondary">להקדשה שבצד השני ↶</button></div>
+<p id="remaining" class="remaining"></p><div class="actions"><button id="editBtn" class="secondary" hidden>חזרה לעריכה</button><a id="replyBtn" class="button" href="https://wa.me/?text=%D7%90%D7%99%D7%96%D7%95%20%D7%92%D7%9C%D7%95%D7%99%D7%94%20%D7%99%D7%A4%D7%94!%20%D7%AA%D7%94%D7%A0%D7%95%20%D7%91%D7%98%D7%99%D7%95%D7%9C%20%E2%9D%A4%EF%B8%8F" target="_blank" rel="noopener noreferrer" hidden>תגובה בוואטסאפ</a></div>
+<p id="replyHint" class="remaining" hidden>בוואטסאפ בוחרים למי לשלוח את התגובה.</p>
+</section>
+<section id="published" hidden><h2>הגלויה מוכנה לשליחה 💌</h2><p id="expiryText"></p><div class="actions"><button id="shareBtn">שיתוף</button><a id="whatsappBtn" class="button secondary" target="_blank" rel="noopener noreferrer">וואטסאפ</a><button id="copyBtn" class="secondary">העתקת קישור</button></div><label>הקישור לגלויה<input id="shareUrl" readonly dir="ltr"></label><button id="deleteBtn" class="text-button">מחיקת הגלויה עכשיו</button></section>
+<section id="unavailable" hidden><div class="mail-icon" aria-hidden="true">💌</div><h1 id="unavailableTitle">הגלויה הזו כבר פגה.</h1><p id="unavailableText">הגלויות שלנו זמינות ל־24 שעות. ניפגש בדרישת השלום הבאה.</p><button id="retryBtn" hidden>ניסיון נוסף</button><a href="./" class="button secondary">לטיול שלנו</a></section>
+<p id="status" role="status" aria-live="polite"></p>
+</main><footer>רגע מהדרך. מחשבה על הבית.</footer>
+</body></html>
