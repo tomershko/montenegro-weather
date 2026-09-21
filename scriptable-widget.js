@@ -128,6 +128,100 @@ function buildErrorWidget(message, siteUrl) {
   return w;
 }
 
+function mapsSearchUrl(query) {
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query || "");
+}
+
+function addRouteRow(widget, stop, index) {
+  const row = widget.addStack();
+  row.layoutHorizontally();
+  row.centerAlignContent();
+  row.url = mapsSearchUrl(stop.query || stop.label);
+  row.addSpacer();
+  const t = row.addText((index + 1) + ". " + stop.label + "  ↗");
+  t.font = Font.semiboldSystemFont(13);
+  t.textColor = new Color("#FFFFFF");
+  t.lineLimit = 1;
+  t.minimumScaleFactor = 0.72;
+  t.rightAlignText();
+  return row;
+}
+
+async function buildRouteWidget() {
+  let data;
+  try {
+    data = await getJSON(DATA_URL);
+  } catch (e) {
+    return buildErrorWidget("לא הצלחתי לטעון את מסלול הטיול. לחיצה תפתח את האתר.", "https://tomershko.github.io/montenegro-weather/");
+  }
+
+  const today = todayKey(data.timeZone || "Europe/Podgorica");
+  const days = data.days || [];
+  const first = data.startDate;
+  const last = data.endDate;
+  let phase = "during";
+  if (today < first) phase = "before";
+  else if (today > last) phase = "after";
+
+  let index = days.findIndex(function (d) { return d.date === today; });
+  if (index < 0) {
+    index = days.findIndex(function (d) { return d.date > today; });
+    if (index < 0) index = Math.max(0, days.length - 1);
+  }
+  const day = days[index] || null;
+
+  const w = new ListWidget();
+  const g = new LinearGradient();
+  g.colors = [new Color("#173e3b"), new Color("#426b60")];
+  g.locations = [0, 1];
+  w.backgroundGradient = g;
+  w.setPadding(14, 16, 14, 16);
+  w.url = day && day.url ? day.url : data.siteUrl;
+  w.refreshAfterDate = new Date(Date.now() + ((data.weather && data.weather.refreshMinutes) || 30) * 60 * 1000);
+
+  addRight(w, "🧭 המסלול של היום", 16, true, 1, 1);
+  w.addSpacer(5);
+
+  if (!day || phase === "after") {
+    addRight(w, "✅ הטיול הסתיים", 20, true, 1, 1);
+    w.addSpacer(5);
+    addRight(w, "כל המסלול נשאר זמין באתר", 13, false, 0.82, 2);
+    return w;
+  }
+
+  if (phase === "before") {
+    const left = daysBetween(today, first);
+    addRight(w, "המסלול הראשון · בעוד " + left + (left === 1 ? " יום" : " ימים"), 11, false, 0.76, 1);
+  } else {
+    addRight(w, "יום " + (index + 1) + " מתוך " + days.length, 11, false, 0.76, 1);
+  }
+
+  w.addSpacer(3);
+  addRight(w, day.title, 16, true, 1, 2);
+  w.addSpacer(7);
+
+  const stops = day.nav || [];
+  const family = config.widgetFamily || "medium";
+  const maxStops = family === "large" ? 6 : family === "small" ? 2 : 4;
+  stops.slice(0, maxStops).forEach(function (stop, i) {
+    if (i > 0) w.addSpacer(5);
+    addRouteRow(w, stop, i);
+  });
+
+  if (stops.length > maxStops) {
+    w.addSpacer(5);
+    addRight(w, "+ עוד " + (stops.length - maxStops) + " במסלול", 10, false, 0.72, 1);
+  }
+
+  w.addSpacer();
+  if (day.stay) {
+    addRight(w, "🛏️ " + day.stay, 10, false, 0.72, 1);
+  } else {
+    addRight(w, "לחיצה על יעד פותחת Google Maps", 10, false, 0.72, 1);
+  }
+  return w;
+}
+
 async function buildWidget() {
   let data;
   try {
@@ -211,7 +305,9 @@ async function buildWidget() {
   return w;
 }
 
-const widget = await buildWidget();
+// Backward compatible: an empty/unknown parameter keeps the original widget.
+const widgetMode = String(args.widgetParameter || "").trim().toLowerCase();
+const widget = widgetMode === "route" ? await buildRouteWidget() : await buildWidget();
 if (config.runsInWidget) {
   Script.setWidget(widget);
 } else {
