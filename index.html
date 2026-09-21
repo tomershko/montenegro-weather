@@ -1441,6 +1441,17 @@ function buildGear(byLoc){
   return {
     forecast,
     gear:[
+      {key:"passport",icon:"🛂",name:"דרכון בתוקף",qty:"לכל נוסע",days:forecast,sources:["booklet"],note:"לפי חוברת Tripology: דרכון בתוקף של לפחות 3 חודשים."},
+      {key:"passport-copy",icon:"📄",name:"צילום דרכון / עותק דיגיטלי",qty:"לכל נוסע",days:forecast,sources:["booklet"],note:"החוברת מבקשת שכל אחד ישמור אצלו צילום של הדרכון; עדיף לשמור גם עותק נגיש ללא אינטרנט."},
+      {key:"flight-tickets",icon:"🎫",name:"כרטיסי טיסה / Boarding Pass",qty:"לכל נוסע",days:forecast.filter(d=>d.date==="2026-09-23" || d.date==="2026-09-30"),sources:["booklet"],note:"מופיע ברשימת המסמכים של Tripology. אפשר לשמור בנייד וגם עותק זמין אופליין."},
+      {key:"driving-licenses",icon:"🪪",name:"רישיון נהיגה ישראלי + רישיון בינלאומי",qty:"לכל נהג",days:dayRange(23,29),sources:["booklet"],note:"למי שנוהג בג׳יפים — לקחת את שני הרישיונות המקוריים. החוברת מציינת שהרישיון הישראלי הפלסטי לבדו אינו מספיק."},
+      {key:"travel-insurance",icon:"🩺",name:"ביטוח נסיעות + מספר מוקד חירום",qty:"לכל נוסע",days:forecast,sources:["booklet"],note:"Tripology מציינים ביטוח בריאות ומטען, כולל הטסה רפואית ונסיעה בדרכי עפר. לשמור את פרטי הפוליסה ומספר החירום גם אופליין."},
+      {key:"medications",icon:"💊",name:"תרופות קבועות + מרשם / אישור במידת הצורך",qty:"לפי צורך",days:forecast,sources:["booklet"],note:"החוברת מדגישה להביא תרופות אישיות בכמות מספקת לכל הטיול ועודף סביר; תרופות מרשם לפי הנחיית רופא."},
+      {key:"first-aid",icon:"🩹",name:"ערכת עזרה ראשונה בסיסית",qty:"1",days:forecast,sources:["booklet"],note:"בחוברת מצוינים פלסטרים, תרופות בסיסיות לקיבה/כאבים/חום וג׳ל להרגעת עקיצות. תרופות מרשם או אנטיביוטיקה — רק לפי הנחיית רופא."},
+      {key:"wallet-payment",icon:"💳",name:"כרטיס אשראי + מעט מזומן באירו",qty:"1 סט",days:forecast,sources:["booklet"],note:"החוברת מזכירה כסף לבזבוזים; כדאי לא להסתמך על אמצעי תשלום יחיד."},
+      {key:"soft-suitcase",icon:"🧳",name:"מזוודה לא קשיחה",qty:"1",days:forecast,sources:["booklet"],note:"Tripology ממליצים על מזוודה שאינה קשיחה, בנוסף לתיק יד / תרמיל קטן לימי הטיול."},
+      {key:"phone-powerbank",icon:"🔋",name:"טלפון + סוללה ניידת + כבלי טעינה",qty:"1 סט",days:forecast,sources:["route"],note:"שימושי במיוחד בימי ניווט ונסיעות ארוכות; לטעון בלילה."},
+      {key:"water-bottle",icon:"🚰",name:"בקבוק מים רב־פעמי",qty:"1",days:dayRange(23,29),sources:["route"],note:"לימי הנסיעה, ההליכה והשטח."},
       {key:"short-shirts",icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,sources:["booklet","weather"],note:"החוברת ממליצה על קצר וארוך; קצר משמש כשכבת בסיס לאורך הטיול."},
       {key:"long-shirt",icon:"👚",name:"חולצות ארוכות",qty:"1–2",days:union(match(wx=>wx.max<19 || wx.min<11),mountain),sources:["booklet","weather"],note:"מומלץ בחוברת ומתאים במיוחד לבקרים, לערבים ולימים הקרירים בהרים."},
       {key:"fleece",icon:"🧥",name:"פליז / שכבה חמה לערב",qty:"1",days:match(wx=>wx.max<=18 || wx.min<=10),sources:["booklet","weather"],note:"מופיע במפורש בחוברת כביגוד חם לערב; הימים מסומנים לפי התחזית."},
