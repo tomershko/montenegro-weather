@@ -71,9 +71,9 @@ function display(data,preview){
   $('creator').hidden=true; $('unavailable').hidden=true; $('viewer').hidden=false;
   $('previewLabel').hidden=!preview; $('editBtn').hidden=!preview; $('replyBtn').hidden=true; $('replyHint').hidden=true;
   $('envelope').hidden=false; $('card').hidden=true; $('front').hidden=false; $('back').hidden=true;
-  $('envelopeTo').textContent=`ל${data.recipient}, באהבה`;
+  $('envelopeTo').textContent=data.recipient;
   $('cardPhoto').src=photoUrl;
-  $('cardTo').textContent=`ל${data.recipient},`;
+  $('cardTo').textContent=data.recipient;
   $('cardMessage').textContent=data.message; $('cardSender').textContent=data.sender?`באהבה, ${data.sender}`:'';
   $('flipBtn').hidden=!data.message&&!data.sender;
   $('flipBtn').textContent='להקדשה שבצד השני ↶';
