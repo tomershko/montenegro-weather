@@ -80,6 +80,22 @@ test('message may be blank and preserves whitespace exactly',async()=>{
   assert.equal((await handler(request('create','POST',{'x-creation-code':secrets.CREATE},blank))).status,201);
 });
 
+test('sender may be blank and is optional',async()=>{
+  const expiresAt='2026-09-22T12:00:00Z';
+  let reservedDetails;
+  installMock((url,options)=>{
+    const auth=authReply(url);if(auth)return auth;
+    if(url.includes('/rpc/')){reservedDetails=JSON.parse(options.body).p_details;return reply(expiresAt);}
+    return reply({});
+  });
+  const form=new FormData();
+  form.set('details',JSON.stringify({...details,message:'',sender:''}));
+  form.set('photo',new Blob([new Uint8Array([255,216,255,217])],{type:'image/jpeg'}),'p.jpg');
+  const response=await handler(request('create','POST',{'x-creation-code':secrets.CREATE},form));
+  assert.equal(response.status,201);
+  assert.equal(reservedDetails.sender,'');
+});
+
 test('cleanup removes bytes through Storage API before row',async()=>{
   installMock((url,options)=>authReply(url)??(url.includes('expires_at=lte.')?reply([{token_hash:'b'.repeat(64)}]):reply({})));
   const response=await handler(request('cleanup','POST',{'x-cleanup-key':secrets.CLEANUP}));
