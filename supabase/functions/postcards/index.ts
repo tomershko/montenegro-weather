@@ -8,20 +8,19 @@ const maxBody = 2200000;
 const headers = {'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'content-type,x-creation-code,x-postcard-token,x-cleanup-key','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS','Cache-Control':'no-store, max-age=0','Pragma':'no-cache','Vary':'Origin','X-Content-Type-Options':'nosniff'};
 const json = (body,status=200) => new Response(JSON.stringify(body),{status,headers:{...headers,'Content-Type':'application/json'}});
 const hash = async text => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))),b=>b.toString(16).padStart(2,'0')).join('');
-async function authorized(provided,expected){
-  if(!provided||!expected||provided.length>160)return false;
-  const a=await hash(provided),b=await hash(expected);let mismatch=0;
-  for(let i=0;i<a.length;i++)mismatch|=a.charCodeAt(i)^b.charCodeAt(i);
-  return mismatch===0;
-}
 async function service(path,options={}){
   const response=await fetch(base+path,{...options,headers:{apikey:serviceKey,Authorization:'Bearer '+serviceKey,...options.headers}});
   if(!response.ok){const e=new Error('service_failure');e.status=response.status;e.quota=(await response.text()).includes('postcard_quota');throw e;}
   return response;
 }
 const db = (path,options={}) => service('/rest/v1/'+path,{...options,headers:{'Content-Type':'application/json',...options.headers}});
+async function authorized(provided,kind){
+  if(!provided||provided.length>160)return false;
+  const secretHash=await hash(provided);
+  const rows=await(await db('postcard_secrets?kind=eq.'+kind+'&secret_hash=eq.'+secretHash+'&select=kind&limit=1')).json();
+  return rows.length===1;
+}
 async function remove(row){
-  // Storage API deletes actual objects; SQL-only storage metadata deletion does not.
   await service('/storage/v1/object/postcards',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:[row.token_hash+'.jpg']})});
   await db('postcards?token_hash=eq.'+row.token_hash,{method:'DELETE'});
 }
@@ -44,12 +43,12 @@ export async function handler(req){
   const action=new URL(req.url).searchParams.get('action');
   try{
     if(action==='cleanup'&&req.method==='POST'){
-      if(!await authorized(req.headers.get('x-cleanup-key'),env('POSTCARD_CLEANUP_KEY')))return json({error:'unauthorized'},401);
+      if(!await authorized(req.headers.get('x-cleanup-key'),'cleanup'))return json({error:'unauthorized'},401);
       const rows=await(await db('postcards?expires_at=lte.'+encodeURIComponent(new Date().toISOString())+'&select=token_hash&limit=200')).json();
       let removed=0;for(const row of rows){await remove(row);removed++;}return json({removed});
     }
     if(action==='create'&&req.method==='POST'){
-      if(!await authorized(req.headers.get('x-creation-code'),env('POSTCARD_CREATION_CODE')))return json({error:'unauthorized'},401);
+      if(!await authorized(req.headers.get('x-creation-code'),'create'))return json({error:'unauthorized'},401);
       let form,details;
       try{form=await readLimited(req);details=validateDetails(JSON.parse(String(form.get('details'))));}catch(e){return json({error:'invalid_input'},e.status===413?413:400);}
       const photo=form.get('photo');
@@ -59,7 +58,6 @@ export async function handler(req){
       const token=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
       const tokenHash=await hash(token);
       const expiresAt=await(await db('rpc/reserve_postcard',{method:'POST',body:JSON.stringify({p_hash:tokenHash,p_details:details})})).json();
-      // Keep a row on any upload failure so cleanup can retry removal, including orphaned objects.
       await service(storagePath+tokenHash+'.jpg',{method:'POST',headers:{'Content-Type':'image/jpeg','Cache-Control':'no-store'},body:bytes});
       await db('postcards?token_hash=eq.'+tokenHash,{method:'PATCH',body:JSON.stringify({ready:true})});
       return json({token,expiresAt},201);
@@ -67,12 +65,11 @@ export async function handler(req){
     if(!['view','image','delete'].includes(action)||req.method!==(action==='delete'?'DELETE':'GET'))return json({error:'not_found'},404);
     const token=req.headers.get('x-postcard-token')||'';
     if(!/^[a-f0-9]{64}$/.test(token))return json({error:'not_found'},404);
-    if(action==='delete'&&!await authorized(req.headers.get('x-creation-code'),env('POSTCARD_CREATION_CODE')))return json({error:'unauthorized'},401);
+    if(action==='delete'&&!await authorized(req.headers.get('x-creation-code'),'create'))return json({error:'unauthorized'},401);
     const tokenHash=await hash(token);
     const rows=await(await db('postcards?token_hash=eq.'+tokenHash+'&select=token_hash,details,expires_at,ready')).json();
     const row=rows[0];if(!row)return json({error:'unavailable'},410);
     if(action==='delete'){
-      // Revoke immediately even if physical deletion later fails.
       await db('postcards?token_hash=eq.'+tokenHash,{method:'PATCH',body:JSON.stringify({expires_at:new Date().toISOString(),ready:false})});
       await remove(row);return json({deleted:true});
     }
