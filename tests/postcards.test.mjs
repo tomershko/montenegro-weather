@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-const secrets={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-only',POSTCARD_CREATION_CODE:'long-random-participant-code',POSTCARD_CLEANUP_KEY:'separate-cleanup-key'};
+// Ephemeral test-only credentials; never use production credentials in tests.
+const testCredential = () => crypto.randomUUID();
+const secrets={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:testCredential(),POSTCARD_CREATION_CODE:testCredential(),POSTCARD_CLEANUP_KEY:testCredential()};
 globalThis.Deno={serve:()=>{},env:{get:name=>secrets[name]}};
 const source=await readFile(new URL('../supabase/functions/postcards/index.ts',import.meta.url),'utf8');
 const {handler}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
@@ -50,4 +52,13 @@ test('manual deletion revokes access before removing the file',async()=>{
   installMock((url,options)=>options.method?reply({}):reply([{token_hash:'b'.repeat(64),ready:true,details,expires_at:new Date(Date.now()+60000).toISOString()}]));
   const response=await handler(request('delete','DELETE',{'x-postcard-token':token,'x-creation-code':secrets.POSTCARD_CREATION_CODE}));
   assert.equal(response.status,200);assert.equal(calls[1].options.method,'PATCH');assert.equal(JSON.parse(calls[1].options.body).ready,false);
+});
+
+test('upstream failures never expose credentials in API errors',async()=>{
+  installMock(()=>reply({error:Object.values(secrets).join(' ')},500));
+  const response=await handler(request('view','GET',{'x-postcard-token':token}));
+  assert.equal(response.status,503);
+  const body=await response.text();
+  for(const secret of Object.values(secrets))assert.ok(!body.includes(secret));
+  assert.ok(!body.includes(token));
 });
