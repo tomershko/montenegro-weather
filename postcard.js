@@ -74,8 +74,8 @@ function display(data,preview){
   $('envelopeTo').textContent=`ל${data.recipient}, באהבה`;
   $('cardPhoto').src=photoUrl;
   $('cardTo').textContent=`ל${data.recipient},`;
-  $('cardMessage').textContent=data.message; $('cardSender').textContent=`באהבה, ${data.sender}`;
-  $('flipBtn').hidden=!data.message;
+  $('cardMessage').textContent=data.message; $('cardSender').textContent=data.sender?`באהבה, ${data.sender}`:'';
+  $('flipBtn').hidden=!data.message&&!data.sender;
   $('flipBtn').textContent='להקדשה שבצד השני ↶';
   $('remaining').textContent=preview?'לאחר היצירה הגלויה תהיה זמינה ל־24 שעות.':'';
   window.scrollTo({top:0,behavior:'instant'});
