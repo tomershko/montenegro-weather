@@ -37,10 +37,11 @@ async function readLimited(req){
   return await new Response(new Blob(chunks),{headers:{'Content-Type':req.headers.get('content-type')||''}}).formData();
 }
 function validateDetails(data){
-  const required={recipient:80,place:80,date:10,sender:80};const clean={};
+  const required={recipient:80,place:80,date:10};const clean={};
   for(const [key,limit]of Object.entries(required)){if(typeof data?.[key]!=='string'||!data[key].trim()||data[key].length>limit)throw new Error('details');clean[key]=data[key].trim();}
   if(typeof data?.message!=='string'||data.message.length>600)throw new Error('details');
-  clean.message=data.message;
+  if(typeof data?.sender!=='string'||data.sender.length>80)throw new Error('details');
+  clean.message=data.message;clean.sender=data.sender.trim();
   if(!/^\d{4}-\d{2}-\d{2}$/.test(clean.date)||Number.isNaN(Date.parse(clean.date+'T12:00:00Z')))throw new Error('date');
   return clean;
 }
