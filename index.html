@@ -1450,6 +1450,9 @@ function buildGear(byLoc){
       {key:"first-aid",icon:"🩹",name:"ערכת עזרה ראשונה בסיסית",qty:"1",days:forecast,sources:["booklet"],note:"בחוברת מצוינים פלסטרים, תרופות בסיסיות לקיבה/כאבים/חום וג׳ל להרגעת עקיצות. תרופות מרשם או אנטיביוטיקה — רק לפי הנחיית רופא."},
       {key:"wallet-payment",icon:"💳",name:"כרטיס אשראי + מעט מזומן באירו",qty:"1 סט",days:forecast,sources:["booklet"],note:"החוברת מזכירה כסף לבזבוזים; כדאי לא להסתמך על אמצעי תשלום יחיד."},
       {key:"soft-suitcase",icon:"🧳",name:"מזוודה לא קשיחה",qty:"1",days:forecast,sources:["booklet"],note:"Tripology ממליצים על מזוודה שאינה קשיחה, בנוסף לתיק יד / תרמיל קטן לימי הטיול."},
+      {key:"tripology-tags",icon:"🏷️",name:"תגי שם של Tripology לתיקים",qty:"לכל תיק / מזוודה",days:forecast,sources:["route"],note:"לשים על כל תיק או מזוודה לפני היציאה כדי לזהות בקלות את הציוד בקבוצה ובמעברים."},
+      {key:"wet-bag",icon:"🛍️",name:"שקית / כיסוי לבגדים רטובים",qty:"1",days:rafting,sources:["route"],note:"שימושי במיוחד אחרי הרפטינג לבגדים ובגד ים רטובים."},
+      {key:"waterproof-pouch",icon:"📱",name:"נרתיק אטום למים לטלפון / מסמכים",qty:"1",days:rafting,sources:["route"],note:"מומלץ ליום הרפטינג ולשמירה על טלפון, כסף ומסמכים מפני מים."},
       {key:"phone-powerbank",icon:"🔋",name:"טלפון + סוללה ניידת + כבלי טעינה",qty:"1 סט",days:forecast,sources:["route"],note:"שימושי במיוחד בימי ניווט ונסיעות ארוכות; לטעון בלילה."},
       {key:"water-bottle",icon:"🚰",name:"בקבוק מים רב־פעמי",qty:"1",days:dayRange(23,29),sources:["route"],note:"לימי הנסיעה, ההליכה והשטח."},
       {key:"short-shirts",icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,sources:["booklet","weather"],note:"החוברת ממליצה על קצר וארוך; קצר משמש כשכבת בסיס לאורך הטיול."},
@@ -1564,7 +1567,7 @@ function applyPackingFilter(){
   cards.forEach(card=>card.hidden=only&&card.classList.contains('packed'));
   document.getElementById('packingEmpty').hidden=!only||cards.some(card=>!card.hidden);
 }
-const DAY_BAG_KEYS=new Set(['daypack','fleece','puffer','rain-jacket','beanie-buff','gloves','swimsuit','sun','repellent']);
+const DAY_BAG_KEYS=new Set(['daypack','fleece','puffer','rain-jacket','beanie-buff','gloves','swimsuit','sun','repellent','wet-bag','waterproof-pouch']);
 let bagMemory={};
 try{bagMemory=JSON.parse(tripStorage.getItem('montenegro-day-bags-v1')||'{}')||{};}catch(e){}
 function renderDayBag(d,byLoc){
