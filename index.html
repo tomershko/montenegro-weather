@@ -1441,6 +1441,13 @@ function buildGear(byLoc){
   return {
     forecast,
     gear:[
+      {key:"passport",icon:"🛂",name:"דרכון בתוקף",qty:"לכל נוסע",days:forecast,sources:["route"],note:"פריט חובה לטיסה. מומלץ לשמור גם צילום או עותק דיגיטלי נגיש בנפרד."},
+      {key:"driving-licenses",icon:"🪪",name:"רישיון נהיגה ישראלי + רישיון בינלאומי",qty:"לכל נהג",days:dayRange(23,29),sources:["route"],note:"למי שנוהג בג׳יפים — לקחת את שני הרישיונות המקוריים."},
+      {key:"travel-insurance",icon:"🩺",name:"ביטוח נסיעות + מספר מוקד חירום",qty:"לכל נוסע",days:forecast,sources:["route"],note:"לשמור את פרטי הפוליסה ומספר החירום גם בטלפון וגם במקום נגיש ללא אינטרנט."},
+      {key:"medications",icon:"💊",name:"תרופות קבועות + מרשם / אישור במידת הצורך",qty:"לפי צורך",days:forecast,sources:["route"],note:"עדיף בתיק היד ובכמות שמספיקה לכל הטיול ועוד מרווח קטן."},
+      {key:"wallet-payment",icon:"💳",name:"כרטיס אשראי + מעט מזומן באירו",qty:"1 סט",days:forecast,sources:["route"],note:"כדאי לא להסתמך על אמצעי תשלום יחיד."},
+      {key:"phone-powerbank",icon:"🔋",name:"טלפון + סוללה ניידת + כבלי טעינה",qty:"1 סט",days:forecast,sources:["route"],note:"שימושי במיוחד בימי ניווט ונסיעות ארוכות; לטעון בלילה."},
+      {key:"water-bottle",icon:"🚰",name:"בקבוק מים רב־פעמי",qty:"1",days:dayRange(23,29),sources:["route"],note:"לימי הנסיעה, ההליכה והשטח."},
       {key:"short-shirts",icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,sources:["booklet","weather"],note:"החוברת ממליצה על קצר וארוך; קצר משמש כשכבת בסיס לאורך הטיול."},
       {key:"long-shirt",icon:"👚",name:"חולצות ארוכות",qty:"1–2",days:union(match(wx=>wx.max<19 || wx.min<11),mountain),sources:["booklet","weather"],note:"מומלץ בחוברת ומתאים במיוחד לבקרים, לערבים ולימים הקרירים בהרים."},
       {key:"fleece",icon:"🧥",name:"פליז / שכבה חמה לערב",qty:"1",days:match(wx=>wx.max<=18 || wx.min<=10),sources:["booklet","weather"],note:"מופיע במפורש בחוברת כביגוד חם לערב; הימים מסומנים לפי התחזית."},
