@@ -1035,14 +1035,14 @@ async function loadLiveFlightStatus(force=false){
   try{
     const u=new URL("https://data.gov.il/api/3/action/datastore_search");
     u.searchParams.set("resource_id","e83f763b-b7d7-479e-b172-ae981ddc6de5");
-    u.searchParams.set("q",FLIGHT_CONTEXT.number);
+    // CKAN searches field values; the airline code and flight number are separate fields.
+    u.searchParams.set("q","5467");
     u.searchParams.set("limit","30");
     const r=await fetch(u,{signal:AbortSignal.timeout(10000)});
     if(!r.ok) throw new Error("flight status unavailable");
     const j=await r.json();
     const rows=j?.result?.records||[];
-    const row=rows.find(x=>String(x.CHOPER||"").trim()==="LY" && String(x.CHFLTN||"").trim()==="5467" && String(x.CHAORD||"").trim()==="D" && String(x.CHSTOL||"").startsWith("2026-09-23"))
-      || rows.find(x=>String(x.CHOPER||"").trim()==="LY" && String(x.CHFLTN||"").trim()==="5467" && String(x.CHAORD||"").trim()==="D");
+    const row=rows.find(x=>String(x.CHOPER||"").trim()==="LY" && String(x.CHFLTN||"").trim()==="5467" && String(x.CHAORD||"").trim()==="D" && String(x.CHSTOL||"").startsWith("2026-09-23"));
     if(!row) return;
     liveFlightData={
       status:row.CHRMINH||row.CHRMINE||"טרם פורסם",
@@ -1690,7 +1690,8 @@ function renderNow(byLoc){
     const terminal=liveFlightData?.terminal || "—";
     const counters=liveFlightData?.counters || "—";
     const gate=liveFlightData?.gate || "טרם פורסם";
-    const estimated=liveFlightData?.estimated ? new Date(liveFlightData.estimated).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"}) : "11:50";
+    // The airport feed gives local Israel time without a timezone suffix.
+    const estimated=liveFlightData?.estimated ? liveFlightData.estimated.slice(11,16) : "11:50";
     root.innerHTML=`
       <div class="now-kicker">יום הטיסה • LY5467</div>
       <div class="now-title">✈️ תל״א → טיבת</div>
@@ -1798,6 +1799,7 @@ function bindNowDayLinks(){
 document.getElementById("refreshBtn").addEventListener("click",()=>{
   document.getElementById("updated").textContent="מרענן תחזית…";
   loadWeather(true);
+  loadLiveFlightStatus(true);
 });
 
 document.getElementById("shareBtn").addEventListener("click",async()=>{
@@ -1979,6 +1981,9 @@ loadLiveFlightStatus();
 setInterval(()=>loadWeather(),30*60*1000);
 setInterval(countdown,1000);
 setInterval(()=>loadLiveFlightStatus(),5*60*1000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden){countdown();renderNow(latestGearWeather);loadLiveFlightStatus();}
+});
 </script>
 </body>
 </html>
