@@ -782,28 +782,10 @@ const itinerary = [
     "date": "2026-09-25",
     "dow": "ו׳",
     "num": "25",
-    "title": "רפטינג על גבול בוסניה",
-    "subtitle": "תצפיות, קניון טארה ורפטינג",
-    "loc": "zabljak",
-    "stay": "Nordic Hotel • ז׳בליאק",
-    "nav": [{"label":"קניון טארה","query":"Tara River Canyon, Montenegro"},{"label":"Nordic Hotel","query":"Nordic Hotel Zabljak Montenegro"}],
-    "details": [
-      "יציאה לאחת התצפיות היפות באזור.",
-      "חציית הרכס וירידה אל קניון טארה.",
-      "החלפת בגדים וכניסה למים.",
-      "רפטינג בין קירות קניון טארה.",
-      "ארוחת צהריים בקרבת הנהר.",
-      "חזרה לז׳בליאק ללילה נוסף."
-    ]
-  },
-  {
-    "date": "2026-09-26",
-    "dow": "ש׳",
-    "num": "26",
     "title": "קניון טארה – אל עיירת הסקי קולאשין",
     "subtitle": "נהר טארה, גשר טארה, אגם ביוגרד וקולאשין",
     "loc": "kolasin",
-    "stay": "Bianca Resort • קולאשין",
+    "stay": "Nordic Hotel • ז׳בליאק",
     "nav": [{"label":"גשר טארה","query":"Durdevica Tara Bridge, Montenegro"},{"label":"אגם ביוגרד","query":"Biogradsko Jezero, Montenegro"},{"label":"Bianca Resort","query":"Bianca Resort & Spa Kolasin Montenegro"}],
     "details": [
       "פרידה מצפון מונטנגרו ויציאה דרומה.",
@@ -813,6 +795,24 @@ const itinerary = [
       "הליכה סביב האגם בתוך שמורת הטבע והיער העתיק.",
       "פיקניק על גדת האגם.",
       "המשך לעיירת הסקי קולאשין, התמקמות במלון וארוחת ערב."
+    ]
+  },
+  {
+    "date": "2026-09-26",
+    "dow": "ש׳",
+    "num": "26",
+    "title": "רפטינג על גבול בוסניה",
+    "subtitle": "תצפיות, קניון טארה ורפטינג",
+    "loc": "zabljak",
+    "stay": "Bianca Resort • קולאשין",
+    "nav": [{"label":"קניון טארה","query":"Tara River Canyon, Montenegro"},{"label":"Nordic Hotel","query":"Nordic Hotel Zabljak Montenegro"}],
+    "details": [
+      "יציאה לאחת התצפיות היפות באזור.",
+      "חציית הרכס וירידה אל קניון טארה.",
+      "החלפת בגדים וכניסה למים.",
+      "רפטינג בין קירות קניון טארה.",
+      "ארוחת צהריים בקרבת הנהר.",
+      "חזרה לז׳בליאק ללילה נוסף."
     ]
   },
   {
@@ -1429,7 +1429,7 @@ function buildGear(byLoc){
   const forecast=itinerary.map(d=>({...d, wx:byLoc[d.loc]?.[d.date] || null}));
   const mountain=forecast.filter(d=>Number(d.num)<=28);
   const coast=forecast.filter(d=>Number(d.num)>=29);
-  const rafting=forecast.filter(d=>d.date==="2026-09-25");
+  const rafting=forecast.filter(d=>d.date==="2026-09-26");
   const match=fn=>forecast.filter(d=>d.wx && fn(d.wx,d));
   const mountainMatch=fn=>mountain.filter(d=>d.wx && fn(d.wx,d));
   const coastMatch=fn=>coast.filter(d=>d.wx && fn(d.wx,d));
