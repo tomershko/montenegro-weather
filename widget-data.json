@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "tripName": "מונטנגרו",
   "startDate": "2026-09-23",
   "endDate": "2026-09-30",
@@ -92,33 +92,12 @@
       "date": "2026-09-25",
       "dayNumber": 3,
       "dow": "ו׳",
-      "title": "רפטינג על גבול בוסניה",
-      "subtitle": "תצפיות, קניון טארה ורפטינג",
-      "loc": "zabljak",
-      "stay": "Nordic Hotel • ז׳בליאק",
-      "flight": null,
-      "url": "https://tomershko.github.io/montenegro-weather/#day-details-3",
-      "nav": [
-        {
-          "label": "קניון טארה",
-          "query": "Tara River Canyon, Montenegro"
-        },
-        {
-          "label": "Nordic Hotel",
-          "query": "Nordic Hotel Zabljak Montenegro"
-        }
-      ]
-    },
-    {
-      "date": "2026-09-26",
-      "dayNumber": 4,
-      "dow": "ש׳",
       "title": "קניון טארה – אל עיירת הסקי קולאשין",
       "subtitle": "נהר טארה, גשר טארה, אגם ביוגרד וקולאשין",
       "loc": "kolasin",
-      "stay": "Bianca Resort • קולאשין",
+      "stay": "Nordic Hotel • ז׳בליאק",
       "flight": null,
-      "url": "https://tomershko.github.io/montenegro-weather/#day-details-4",
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-3",
       "nav": [
         {
           "label": "גשר טארה",
@@ -131,6 +110,27 @@
         {
           "label": "Bianca Resort",
           "query": "Bianca Resort & Spa Kolasin Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-26",
+      "dayNumber": 4,
+      "dow": "ש׳",
+      "title": "רפטינג על גבול בוסניה",
+      "subtitle": "תצפיות, קניון טארה ורפטינג",
+      "loc": "zabljak",
+      "stay": "Bianca Resort • קולאשין",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-4",
+      "nav": [
+        {
+          "label": "קניון טארה",
+          "query": "Tara River Canyon, Montenegro"
+        },
+        {
+          "label": "Nordic Hotel",
+          "query": "Nordic Hotel Zabljak Montenegro"
         }
       ]
     },
