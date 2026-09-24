@@ -545,6 +545,8 @@
     .day.past:not(.open) .detail-hint,
     .day.past:not(.open) > .hotel-panel,
     .day.past:not(.open) > .holiday-note{display:none}
+    .today-postcards{margin-bottom:16px}
+    .today-postcards .now-action{flex:1}
     .today-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
     .today-section h3{font-size:17px;margin:0 0 12px}
     .today-plan{margin:0;padding-inline-start:24px;font-size:14px;line-height:1.75}
@@ -610,6 +612,11 @@
   </section>
 
   <div id="error" class="error"></div>
+
+  <nav class="now-actions today-postcards" aria-label="גלויות מהטיול">
+    <a class="now-action secondary" href="./postcard.html">💌 יוצרים גלויה</a>
+    <a class="now-action secondary" href="./postcard.html#history">הגלויות שיצרתי</a>
+  </nav>
 
 
 
