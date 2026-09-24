@@ -3,12 +3,13 @@ const $ = id => document.getElementById(id);
 const endpoint = window.POSTCARD_CONFIG?.endpoint || '';
 const token = new URLSearchParams(location.hash.slice(1)).get('card');
 let sourceBlob, postcardBlob, photoUrl, current, expiryTimer, deadline = 0, wallDeadline = 0, publishedToken = '', creationCode = '';
+let exportBlob=null, exportVersion=0;
 const say = text => { $('status').textContent = text; };
 const value = id => $(id).value.trim();
 const dateLabel = date => new Intl.DateTimeFormat('he-IL', { day:'numeric',month:'numeric',year:'numeric',timeZone:'Europe/Podgorica' }).format(new Date(date.length === 10 ? date + 'T12:00:00Z' : date));
 function revokePhoto(){ if(photoUrl) URL.revokeObjectURL(photoUrl); photoUrl = ''; }
 function unavailable(expired=true){
-  clearInterval(expiryTimer); deadline=0; revokePhoto(); current=null; sourceBlob=null; postcardBlob=null;
+  clearInterval(expiryTimer); deadline=0; exportBlob=null; exportVersion++; $('exportBtn').disabled=true; revokePhoto(); current=null; sourceBlob=null; postcardBlob=null;
   $('cardPhoto').removeAttribute('src');
   for(const id of ['cardTo','cardMessage','cardSender','envelopeTo']) $(id).textContent='';
   for(const id of ['creator','viewer','published']) $(id).hidden=true;
@@ -68,6 +69,8 @@ async function renderPostcard(data){
 }
 function display(data,preview){
   current=data;
+  prepareExport(data);
+  $('history').hidden=true;
   $('creator').hidden=true; $('unavailable').hidden=true; $('viewer').hidden=false;
   $('previewLabel').hidden=!preview; $('editBtn').hidden=!preview; $('replyBtn').hidden=true; $('replyHint').hidden=true;
   $('envelope').hidden=false; $('card').hidden=true; $('front').hidden=false; $('back').hidden=true;
@@ -82,7 +85,7 @@ function display(data,preview){
 }
 $('openBtn').onclick=()=>{ $('envelope').hidden=true; $('card').hidden=false; if(!$('flipBtn').hidden)$('flipBtn').focus(); $('replyBtn').hidden=$('previewLabel').hidden===false; $('replyHint').hidden=$('replyBtn').hidden; };
 $('flipBtn').onclick=()=>{const back=$('back').hidden; $('back').hidden=!back; $('front').hidden=back; $('flipBtn').textContent=back?'חזרה לתמונה ↶':'להקדשה שבצד השני ↶';};
-$('editBtn').onclick=()=>{ $('creator').hidden=false; $('viewer').hidden=true; $('previewBtn').focus(); };
+$('editBtn').onclick=()=>{ $('creator').hidden=false; $('viewer').hidden=true; $('history').hidden=false; renderHistory(); $('previewBtn').focus(); };
 $('photo').onchange=async()=>{
   $('photo').disabled=true; say(''); sourceBlob=null; postcardBlob=null; revokePhoto(); $('photoLabel').textContent='מעבדים את התמונה…'; $('previewBtn').disabled=true; $('publishBtn').disabled=true;
   try{
@@ -120,9 +123,12 @@ $('createForm').onsubmit=async event=>{
     publishedToken=result.token;
     const link=new URL('postcard.html',location.href);link.hash=new URLSearchParams({card:result.token}).toString();
     $('shareUrl').value=link.href;
+    $('publishedOpen').href=link.href;
+    const saved=saveHistory({token:result.token,createdAt:new Date().toISOString(),expiresAt:result.expiresAt});
+    $('history').hidden=false; renderHistory();
     $('whatsappBtn').href='https://wa.me/?text='+encodeURIComponent('שלחנו לכם גלויה ממונטנגרו 💌\nזמינה ל־24 שעות\n'+link.href);
     $('expiryText').textContent='הקישור זמין עד '+new Date(result.expiresAt).toLocaleString('he-IL');
-    $('creator').hidden=true; $('published').hidden=false; $('viewer').hidden=true; say('');
+    $('creator').hidden=true; $('published').hidden=false; $('viewer').hidden=true; say(saved?'':'הקישור נוצר, אבל לא הצלחנו לשמור היסטוריה במכשיר הזה. העתיקו את הקישור.');
     $('shareBtn').focus();
   }catch(e){say(e.message);}finally{$('publishBtn').disabled=!endpoint;$('previewBtn').disabled=false;}
 };
@@ -142,7 +148,7 @@ $('shareBtn').onclick=async()=>{
 $('deleteBtn').onclick=async()=>{
   if(!confirm('למחוק את הגלויה ולסגור את הקישור?'))return;
   $('deleteBtn').disabled=true;
-  try{await api('delete',{method:'DELETE',headers:{'x-creation-code':creationCode,'x-postcard-token':publishedToken}});publishedToken='';creationCode='';unavailable();say('הגלויה נמחקה.');}catch(e){say(e.message);}finally{$('deleteBtn').disabled=false;}
+  try{await api('delete',{method:'DELETE',headers:{'x-creation-code':creationCode,'x-postcard-token':publishedToken}});markDeleted(publishedToken);publishedToken='';creationCode='';unavailable();renderHistory();say('הגלויה נמחקה.');}catch(e){say(e.message);}finally{$('deleteBtn').disabled=false;}
 };
 async function load(){
   if(!endpoint){unavailable(false);$('unavailableText').textContent='שירות הגלויות עדיין לא מחובר. נסו שוב בהמשך.';return;}
@@ -158,12 +164,106 @@ async function load(){
     postcardBlob=blob;revokePhoto();photoUrl=URL.createObjectURL(blob);display(data,false);say('');tick();expiryTimer=setInterval(tick,1000);
   }catch(e){say('');unavailable(e.status===404||e.status===410);}
 }
+const HISTORY_KEY='montenegro-postcard-history-v1';
+function readHistory(){
+  try{
+    const rows=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+    return Array.isArray(rows)?rows.filter(row=>row&&/^[a-f0-9]{64}$/.test(row.token)&&Number.isFinite(Date.parse(row.createdAt))&&Number.isFinite(Date.parse(row.expiresAt))).slice(0,200):[];
+  }catch{return [];}
+}
+function saveHistory(entry){
+  try{localStorage.setItem(HISTORY_KEY,JSON.stringify([entry,...readHistory().filter(row=>row.token!==entry.token)].slice(0,200)));return true;}catch{return false;}
+}
+function markDeleted(cardToken){
+  const row=readHistory().find(row=>row.token===cardToken);
+  if(row)saveHistory({...row,deleted:true});
+}
+function renderHistory(){
+  const rows=readHistory().sort((a,b)=>Date.parse(b.createdAt)-Date.parse(a.createdAt));
+  $('historyNotice').textContent=rows.length?'נשמרים עד 200 קישורים. ניקוי נתוני הדפדפן ימחק את ההיסטוריה.':'עדיין אין גלויות בהיסטוריה.';
+  $('historyList').replaceChildren();
+  for(const row of rows){
+    const li=document.createElement('li');
+    const expired=Date.parse(row.expiresAt)<=Date.now();
+    for(const text of [row.deleted?'נמחקה':expired?'פג תוקף':'פעילה', 'נוצרה: '+new Date(row.createdAt).toLocaleString('he-IL'), 'תפוגה: '+new Date(row.expiresAt).toLocaleString('he-IL')]){
+      const line=document.createElement('p');line.textContent=text;li.append(line);
+    }
+    if(!expired&&!row.deleted){
+      const link=document.createElement('a');const url=new URL('postcard.html',location.href);url.hash=new URLSearchParams({card:row.token});
+      link.href=url.href;link.className='button secondary';link.textContent='פתיחה ושמירה כתמונה';li.append(link);
+    }
+    $('historyList').append(li);
+  }
+}
+function wrapExportText(ctx,text,width){
+  const lines=[];
+  for(const paragraph of text.split('\n')){
+    let line='';
+    const words=paragraph.match(/\S+\s*|\s+/gu)||[''];
+    for(const word of words){
+      if(ctx.measureText(line+word).width<=width){line+=word;continue;}
+      if(line){lines.push(line.trimEnd());line='';}
+      // Split exceptionally long words without breaking emoji or combining marks.
+      const parts=typeof Intl.Segmenter==='function'?Array.from(new Intl.Segmenter('he',{granularity:'grapheme'}).segment(word),part=>part.segment):Array.from(word);
+      for(const part of parts){
+        if(line&&ctx.measureText(line+part).width>width){lines.push(line.trimEnd());line='';}
+        line+=part;
+      }
+    }
+    lines.push(line.trimEnd());
+  }
+  return lines;
+}
+async function makeLongImage(blob,data){
+  const img=await decodeBlob(blob), canvas=document.createElement('canvas');
+  canvas.width=1200;
+  const ctx=canvas.getContext('2d'), blocks=[];
+  for(const [text,bold] of [[data.recipient,true],[data.message,false],[data.sender?`באהבה, ${data.sender}`:'',true]]){
+    if(!text)continue;
+    ctx.font=`${bold?700:400} 38px system-ui,-apple-system,sans-serif`;
+    blocks.push({bold,lines:wrapExportText(ctx,text,1040)});
+  }
+  const photoHeight=Math.round(1200*img.naturalHeight/img.naturalWidth);
+  const logicalHeight=photoHeight+80+blocks.reduce((sum,block)=>sum+block.lines.length*60+32,0);
+  const scale=Math.min(1,8000/logicalHeight);
+  canvas.width=Math.round(1200*scale);canvas.height=Math.ceil(logicalHeight*scale);ctx.scale(scale,scale);
+  ctx.fillStyle='#fffdf6';ctx.fillRect(0,0,1200,logicalHeight);ctx.drawImage(img,0,0,1200,photoHeight);
+  ctx.direction='rtl';ctx.textAlign='right';ctx.textBaseline='top';ctx.fillStyle='#123e3a';
+  let y=photoHeight+40;
+  for(const block of blocks){
+    ctx.font=`${block.bold?700:400} 38px system-ui,-apple-system,sans-serif`;
+    for(const line of block.lines){ctx.fillText(line,1120,y);y+=60;}y+=32;
+  }
+  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('לא הצלחנו להכין את התמונה.')),'image/jpeg',.92));
+}
+async function prepareExport(data){
+  const version=++exportVersion;exportBlob=null;$('exportBtn').disabled=true;
+  try{
+    const blob=await makeLongImage(postcardBlob,data);
+    if(version!==exportVersion)return;
+    exportBlob=blob;$('exportBtn').disabled=false;
+  }catch{if(version===exportVersion)say('לא הצלחנו להכין תמונה לשמירה. נסו לפתוח שוב את הגלויה.');}
+}
+$('exportBtn').onclick=async()=>{
+  if(deadline&&Math.min(deadline-performance.now(),wallDeadline-Date.now())<=0){unavailable();return;}
+  if(!exportBlob)return;
+  const file=new File([exportBlob],'montenegro-postcard-long.jpg',{type:'image/jpeg'});
+  if(navigator.canShare?.({files:[file]})&&navigator.share){
+    try{await navigator.share({files:[file],title:'גלויה ממונטנגרו'});return;}catch(e){if(e.name==='AbortError')return;}
+  }
+  const url=URL.createObjectURL(exportBlob),link=document.createElement('a');
+  link.href=url;link.download=file.name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+};
 $('retryBtn').onclick=load;
-document.addEventListener('visibilitychange',()=>{if(deadline&&!document.hidden)tick();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(deadline)tick();renderHistory();}});
+window.addEventListener('storage',renderHistory);
+window.addEventListener('hashchange',()=>{if(new URLSearchParams(location.hash.slice(1)).get('card')!==token)location.reload();});
+setInterval(()=>{if(!document.hidden&&!$('history').hidden)renderHistory();},30000);
 window.addEventListener('pagehide',()=>{if(token){clearInterval(expiryTimer);revokePhoto();}});
 window.addEventListener('pageshow',event=>{if(token&&event.persisted)load();});
-if(token){$('creator').hidden=true; if(/^[a-f0-9]{64}$/.test(token))load();else unavailable();}
+if(token){$('creator').hidden=true; $('history').hidden=true; if(/^[a-f0-9]{64}$/.test(token))load();else unavailable();}
 else{
+  renderHistory();
   $('setup').hidden=!!endpoint; $('publishBtn').disabled=!endpoint; $('codeLabel').hidden=!endpoint;
   const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Podgorica',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());$('date').value=today;
   let places={};fetch('./widget-data.json').then(r=>r.json()).then(data=>{places=Object.fromEntries(data.days.map(day=>[day.date,day.title]));if(!value('place'))$('place').value=places[today]||'מונטנגרו';}).catch(()=>{$('place').value='מונטנגרו';});
