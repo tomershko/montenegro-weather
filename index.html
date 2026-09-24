@@ -1853,6 +1853,7 @@ document.getElementById("refreshBtn").addEventListener("click",()=>{
   document.getElementById("updated").textContent="מרענן תחזית…";
   loadWeather(true);
   loadLiveFlightStatus(true);
+  if(navigator.onLine) location.reload();
 });
 
 document.getElementById("shareBtn").addEventListener("click",async()=>{
@@ -1926,7 +1927,22 @@ async function setupOffline(){
   if(!('serviceWorker' in navigator)){status.textContent='שמירה ללא קליטה אינה נתמכת בדפדפן הזה';return;}
   const indicate=()=>{status.textContent=navigator.onLine?'האתר מוכן לפתיחה ללא קליטה ✓':'מצב ללא קליטה · המסלול והציוד זמינים';};
   try{
-    await navigator.serviceWorker.register('./sw.js');
+    let reloading=false;
+    const hadController=!!navigator.serviceWorker.controller;
+    const reloadOnce=()=>{if(!reloading){reloading=true;location.reload();}};
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController)reloadOnce();});
+    navigator.serviceWorker.addEventListener('message',event=>{
+      if(event.data?.type==='APP_UPDATED')reloadOnce();
+    });
+    const registration=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
+    const checkUpdate=()=>{
+      if(!navigator.onLine||document.hidden)return;
+      registration.update().catch(()=>{});
+      navigator.serviceWorker.controller?.postMessage({type:'CHECK_APP_UPDATE'});
+    };
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkUpdate();});
+    window.addEventListener('pageshow',event=>{if(event.persisted)checkUpdate();});
+    window.addEventListener('online',checkUpdate);
     await navigator.serviceWorker.ready;
     indicate();window.addEventListener('online',indicate);window.addEventListener('offline',indicate);
   }catch(e){status.textContent='לא ניתן לשמור לפתיחה ללא קליטה כרגע';}
