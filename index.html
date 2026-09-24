@@ -528,6 +528,37 @@
     .preview-controls{border:2px dashed var(--brand2)}.preview-controls p,.parking-card p,#parkingDetails{font-size:14px;line-height:1.6;color:var(--muted)}.parking-card h2{font-size:21px;margin:0 0 8px}
     .preview-fields{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.preview-fields label{flex:1;min-width:140px}.preview-fields input,.preview-fields select{display:block;width:100%;min-height:44px;margin-top:6px;padding:10px;font:inherit;font-size:16px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px}
     button:disabled{opacity:.65;cursor:not-allowed}
+
+    /* Keep completed days readable while giving the current itinerary priority. */
+    .day.past{opacity:1}
+    .day.past:not(.open){border-radius:14px;box-shadow:none}
+    .day.past:not(.open) .day-toggle{padding:9px 12px;min-height:48px}
+    .day.past:not(.open) .day-head{grid-template-columns:54px minmax(0,1fr) 24px;gap:9px;align-items:center}
+    .day.past:not(.open) .datebox{min-height:0;padding:0;background:transparent;flex-direction:row;gap:5px;align-items:baseline}
+    .day.past:not(.open) .datebox .num{font-size:16px;margin:0}
+    .day.past:not(.open) .route{padding:0}
+    .day.past:not(.open) .route h3{font-size:13px;line-height:1.4;margin:0;color:var(--muted)}
+    .day.past:not(.open) .day-chevron{width:24px;height:24px;border-radius:8px}
+    .day.past:not(.open) .route p,
+    .day.past:not(.open) .weather-summary,
+    .day.past:not(.open) .advice-summary,
+    .day.past:not(.open) .detail-hint,
+    .day.past:not(.open) > .hotel-panel,
+    .day.past:not(.open) > .holiday-note{display:none}
+    .today-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+    .today-section h3{font-size:17px;margin:0 0 12px}
+    .today-plan{margin:0;padding-inline-start:24px;font-size:14px;line-height:1.75}
+    .today-plan li+li{margin-top:8px}
+    .today-weather .expanded-weather{margin-bottom:10px}
+    .today-weather p{font-size:13px;line-height:1.6;color:var(--muted);margin:8px 0}
+    #now .now-stat .v{white-space:normal;overflow:visible}
+    #now .nav-btn{min-height:44px;font-size:13px;align-items:center}
+    .hero.trip-compact{padding:11px 14px;margin:10px 0 12px;border-radius:16px;box-shadow:none}
+    .hero.trip-compact .countdown{font-size:17px;line-height:1.4}
+    .hero.trip-compact .countdown small{font-size:13px}
+    .hero.trip-compact .hero-note,.hero.trip-compact .live{display:none}
+    .hero.trip-compact .updated{font-size:11px;line-height:1.4;margin-top:4px}
+    .hero.trip-compact:after{display:none}
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKF0TX340Z"></script>
@@ -1176,8 +1207,8 @@ function renderSkeleton(){
 function markToday(){
   const today=dateKeyInMontenegro();
   document.querySelectorAll(".day").forEach(el=>{
-    if(el.dataset.date===today) el.classList.add("today");
-    if(el.dataset.date<today) el.classList.add("past");
+    el.classList.toggle("today",el.dataset.date===today);
+    el.classList.toggle("past",el.dataset.date<today);
   });
 }
 
@@ -1193,6 +1224,7 @@ function countdown(){
   const el=document.getElementById("countdown");
   const note=document.getElementById("heroNote");
   const phase=contextualPhase(now);
+  document.querySelector(".hero").classList.toggle("trip-compact",phase==="trip");
   const liveBadge=document.getElementById("liveBadge");
   if(liveBadge){
     liveBadge.style.display=phase==="before-flight"?"none":"flex";
@@ -1239,7 +1271,7 @@ function countdown(){
     const today=dateKeyInMontenegro();
     const tripDay=Math.max(1,itinerary.findIndex(d=>d.date===today)+1);
     el.innerHTML=`אנחנו בטיול 🇲🇪 <small>יום ${tripDay} מתוך 8</small>`;
-    note.textContent="עכשיו מוצגים קודם פרטי היום, היעדים המרכזיים, ניווט, מזג האוויר והציוד הרלוונטי.";
+    note.textContent="";
   } else {
     el.innerHTML=`המסע הסתיים 🇲🇪 <small>23–30.9.2026</small>`;
     note.textContent="המסלול, התחזיות שנשמרו ורשימת הציוד עדיין זמינים לעיון.";
@@ -1656,6 +1688,24 @@ function setupTheme(){
   function apply(){const mode=root.dataset.themeMode;root.dataset.theme=mode==='auto'?(media.matches?'dark':'light'):mode;const label={auto:'לפי המכשיר',light:'בהיר',dark:'לילה'}[mode];button.textContent={auto:'◐ אוטומטי',light:'☀️ בהיר',dark:'🌙 לילה'}[mode];button.setAttribute('aria-label','ערכת צבעים: '+label+'; לחצו להחלפה');button.title='ערכת צבעים: '+label;document.querySelector('meta[name="theme-color"]').content=root.dataset.theme==='dark'?'#101e26':'#19574e';}
   button.addEventListener('click',()=>{const modes=['auto','light','dark'];root.dataset.themeMode=modes[(modes.indexOf(root.dataset.themeMode)+1)%3];try{localStorage.setItem('montenegro-theme',root.dataset.themeMode);}catch(e){}apply();});media.addEventListener('change',apply);apply();
 }
+
+function renderTodayDetails(d,byLoc){
+  const wx=byLoc[d.loc]?.[d.date];
+  const metrics=wx?[
+    ['מרגיש כמו',fmtTempRange(wx.feelsMin,wx.feelsMax)],
+    ['משקעים צפויים',`${Number.isFinite(wx.precip)?wx.precip.toFixed(1):'–'} מ״מ`],
+    ['מצב',esc(weatherText(wx.code)[1])],
+    ['משבי רוח',`עד ${fmt(wx.gust)} קמ״ש`]
+  ]:[];
+  return `<section class="today-section"><h3>מה עושים היום?</h3>
+    <ol class="today-plan">${d.details.map(item=>`<li>${esc(item)}</li>`).join('')}</ol>
+    ${renderNav(d)}</section>
+    <section class="today-section today-weather"><h3>מזג האוויר והלבוש היום</h3>
+    <p>תחזית לאזור ${esc(locations[d.loc].name)}${wx?` · ${fmtTempRange(wx.min,wx.max)} · סיכוי לגשם ${fmt(wx.rain)}%`:''}</p>
+    ${metrics.length?`<div class="expanded-weather">${metrics.map(([label,value])=>`<div class="expanded-weather-item"><span class="k">${label}</span><span class="v">${value}</span></div>`).join('')}</div>`:''}
+    <p>${adviceFor(wx)}</p></section>`;
+}
+
 function renderNow(byLoc){
   renderBagPreview(byLoc);
   const root=document.getElementById("now");
@@ -1712,7 +1762,11 @@ function renderNow(byLoc){
         <a class="now-action secondary" href="https://www.iaa.gov.il/airports/ben-gurion/flight-board/" target="_blank" rel="noopener">לוח הטיסות נתב״ג</a>
         ${!PREVIEW_MODE&&!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 להתאים לפי המיקום</button>`:""}
       </div>
-      <div class="now-source-note">שער העלייה למטוס אינו תמיד נכלל במידע הפתוח של נתב״ג; אם אינו מופיע כאן, יש לבדוק במסכי השדה או בכרטיס העלייה למטוס.</div>`;
+      <div class="now-source-note">שער העלייה למטוס אינו תמיד נכלל במידע הפתוח של נתב״ג; אם אינו מופיע כאן, יש לבדוק במסכי השדה או בכרטיס העלייה למטוס.</div>
+      ${renderHotel(itinerary[0])}
+      ${renderTodayDetails(itinerary[0],byLoc)}
+      ${renderDayBag(itinerary[0],byLoc)}`;
+    bindDayBag();
     bindContextLocationButton();
     return;
   }
@@ -1723,9 +1777,11 @@ function renderNow(byLoc){
       <div class="now-grid"><div class="now-stat"><div class="k">הגעה מומלצת לשדה</div><div class="v">11:55 · מונטנגרו</div></div><div class="now-stat"><div class="k">המראה מתוכננת</div><div class="v">14:55 · מונטנגרו</div></div><div class="now-stat"><div class="k">נחיתה מתוכננת</div><div class="v">18:35 · ישראל</div></div></div>
       <p class="now-sub">ההמלצה היא להגיע 3 שעות לפני ההמראה. שעת היציאה מהמלון תיקבע עם המדריך לפי ההסעה וזמן הנסיעה.</p>
       ${renderHotel(d)}
-      <div class="now-actions"><a class="now-action" href="${flightStatusUrl('LY5468')}" target="_blank" rel="noopener noreferrer">בדיקת סטטוס טיסת החזור ↗</a><a class="now-action secondary" href="${mapsDirectionsUrl('Tivat Airport, Montenegro')}" target="_blank" rel="noopener noreferrer">ניווט לשדה בטיבת</a><a class="now-action secondary" href="#day-details-8" data-open-day="2026-09-30">כל פרטי היום</a></div>
+      ${renderTodayDetails(d,byLoc)}
+      ${renderDayBag(d,byLoc)}
+      <div class="now-actions"><a class="now-action" href="${flightStatusUrl('LY5468')}" target="_blank" rel="noopener noreferrer">בדיקת סטטוס טיסת החזור ↗</a><a class="now-action secondary" href="${mapsDirectionsUrl('Tivat Airport, Montenegro')}" target="_blank" rel="noopener noreferrer">ניווט לשדה בטיבת</a></div>
       <p class="now-source-note">${PREVIEW_MODE?'מצב בדיקה · ':''}אין כאן עדכון חי של שער או דלפקים בטיבת. בדקו במסכי השדה ובכרטיס העלייה למטוס.</p>`;
-    bindNowDayLinks();return;
+    bindDayBag();return;
   }
   if(phase==="trip"){
     const idx=itinerary.findIndex(d=>d.date===today);
@@ -1733,15 +1789,13 @@ function renderNow(byLoc){
     const d=itinerary[safeIdx];
     const wx=byLoc[d.loc]?.[d.date] || null;
     const [emoji,label]=wx ? weatherText(wx.code) : ["🕒","תחזית עדיין לא זמינה"];
-    const firstNav=d.nav?.[0];
-    const todayGear=built.gear.filter(g=>g.days.some(x=>x.date===d.date)).slice(0,5);
     const tomorrow=itinerary[safeIdx+1];
     const tomorrowWx=tomorrow ? byLoc[tomorrow.loc]?.[tomorrow.date] : null;
     const tomorrowText=tomorrow ? `${tomorrow.num}.9 · ${tomorrow.title}${tomorrowWx?` · ${weatherText(tomorrowWx.code)[0]} ${fmt(tomorrowWx.max)}°/${fmt(tomorrowWx.min)}°`:""}` : "";
     const hour=timeInZone();
     const part=hour<12?"בוקר טוב":hour<18?"היום":"ערב טוב";
     root.innerHTML=`
-      <div class="now-kicker">${part} • יום ${safeIdx+1} מתוך 8</div>
+      <div class="now-kicker">${part} • ${d.num}.9 • יום ${safeIdx+1} מתוך 8</div>
       <div class="now-title">${d.title}</div>
       <div class="now-sub">${d.subtitle}</div>
       <div class="context-row">
@@ -1750,15 +1804,14 @@ function renderNow(byLoc){
       </div>
       <div class="now-grid">
         <div class="now-stat"><div class="k">אזור היום</div><div class="v">${locations[d.loc].name}</div></div>
-        <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${emoji} ${wx?`${fmt(wx.max)}° / ${fmt(wx.min)}°`:label}</div></div>
+        <div class="now-stat"><div class="k">מזג אוויר</div><div class="v">${emoji} ${wx?fmtTempRange(wx.min,wx.max):label}</div></div>
         <div class="now-stat"><div class="k">גשם</div><div class="v">${wx?`${fmt(wx.rain)}%`:"–"}</div></div>
       </div>
       ${renderHoliday(d)}
       ${renderHotel(d)}
+      ${renderTodayDetails(d,byLoc)}
       ${renderDayBag(d,byLoc)}
       <div class="now-actions">
-        ${firstNav?`<a class="now-action" href="${mapsDirectionsUrl(firstNav.query)}" target="_blank" rel="noopener">🧭 נווט: ${firstNav.label}</a>`:""}
-        <a class="now-action secondary" href="#day-details-${safeIdx+1}" data-open-day="${d.date}">כל פרטי היום</a>
         ${!PREVIEW_MODE&&!contextPosition?`<button class="now-action secondary" type="button" data-context-location>📍 התאמה לפי המיקום</button>`:""}
       </div>
       ${tomorrow?`<div class="now-tomorrow"><strong>${hour>=18?"מחר":"הצצה למחר"}:</strong> ${tomorrowText}</div>`:""}`;
@@ -1982,7 +2035,7 @@ setInterval(()=>loadWeather(),30*60*1000);
 setInterval(countdown,1000);
 setInterval(()=>loadLiveFlightStatus(),5*60*1000);
 document.addEventListener('visibilitychange',()=>{
-  if(!document.hidden){countdown();renderNow(latestGearWeather);loadLiveFlightStatus();}
+  if(!document.hidden){markToday();countdown();renderNow(latestGearWeather);loadLiveFlightStatus();}
 });
 </script>
 </body>
