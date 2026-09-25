@@ -839,18 +839,30 @@ const itinerary = [
     "date": "2026-09-26",
     "dow": "ש׳",
     "num": "26",
-    "title": "רפטינג על גבול בוסניה",
-    "subtitle": "תצפיות, קניון טארה ורפטינג",
+    "title": "נסיעת שטח הררית ואגם ביוגראד",
+    "subtitle": "הרפטינג בוטל · במקומו נסיעת שטח הררית והליכה ביער סביב אגם ביוגראד",
     "loc": "kolasin",
     "stay": "Bianca Resort • קולאשין",
-    "nav": [{"label":"קניון טארה","query":"Tara River Canyon, Montenegro"},{"label":"Bianca Resort","query":"Bianca Resort & Spa Kolasin Montenegro"}],
+    "nav": [
+      {
+        "label": "אגם ביוגראד",
+        "query": "Biogradsko Jezero, Montenegro"
+      },
+      {
+        "label": "Bianca Resort",
+        "query": "Bianca Resort & Spa Kolasin Montenegro"
+      }
+    ],
     "details": [
-      "יציאה לאחת התצפיות היפות באזור.",
-      "חציית הרכס וירידה אל קניון טארה.",
-      "החלפת בגדים וכניסה למים.",
-      "רפטינג בין קירות קניון טארה.",
-      "ארוחת צהריים בקרבת הנהר.",
-      "לאחר הרפטינג המשך לקולאשין ולינה ב-Bianca Resort."
+      "יקיצה טבעית.",
+      "08:00 — ארוחת בוקר (פתוח מ־07:30).",
+      "09:00 — צ׳ק אאוט והעמסה.",
+      "09:15 — יציאה.",
+      "נסיעת שטח הררית, מאתגרת בחלקה, באזורים הנידחים של מונטנגרו.",
+      "לאחר ארוחת הצהריים: הליכה ביער סביב אגם ביוגראד, כ־4 ק״מ.",
+      "תחזית המדריך: 4–10 מעלות, אפשרות לטפטופים.",
+      "להצטייד בנעליים נוחות, ביגוד חם בשכבות ועזרי הליכה.",
+      "המשך לקולאשין ולינה ב-Bianca Resort."
     ]
   },
   {
@@ -1468,7 +1480,6 @@ function buildGear(byLoc){
   const forecast=itinerary.map(d=>({...d, wx:byLoc[d.loc]?.[d.date] || null}));
   const mountain=forecast.filter(d=>Number(d.num)<=28);
   const coast=forecast.filter(d=>Number(d.num)>=29);
-  const rafting=forecast.filter(d=>d.date==="2026-09-26");
   const match=fn=>forecast.filter(d=>d.wx && fn(d.wx,d));
   const mountainMatch=fn=>mountain.filter(d=>d.wx && fn(d.wx,d));
   const coastMatch=fn=>coast.filter(d=>d.wx && fn(d.wx,d));
@@ -1490,8 +1501,6 @@ function buildGear(byLoc){
       {key:"wallet-payment",icon:"💳",name:"כרטיס אשראי + מעט מזומן באירו",qty:"1 סט",days:forecast,sources:["booklet"],note:"החוברת מזכירה כסף לבזבוזים; כדאי לא להסתמך על אמצעי תשלום יחיד."},
       {key:"soft-suitcase",icon:"🧳",name:"מזוודה לא קשיחה",qty:"1",days:forecast,sources:["booklet"],note:"Tripology ממליצים על מזוודה שאינה קשיחה, בנוסף לתיק יד / תרמיל קטן לימי הטיול."},
       {key:"tripology-tags",icon:"🏷️",name:"תגי שם של Tripology לתיקים",qty:"לכל תיק / מזוודה",days:forecast,sources:["route"],note:"לשים על כל תיק או מזוודה לפני היציאה כדי לזהות בקלות את הציוד בקבוצה ובמעברים."},
-      {key:"wet-bag",icon:"🛍️",name:"שקית / כיסוי לבגדים רטובים",qty:"1",days:rafting,sources:["route"],note:"שימושי במיוחד אחרי הרפטינג לבגדים ובגד ים רטובים."},
-      {key:"waterproof-pouch",icon:"📱",name:"נרתיק אטום למים לטלפון / מסמכים",qty:"1",days:rafting,sources:["route"],note:"מומלץ ליום הרפטינג ולשמירה על טלפון, כסף ומסמכים מפני מים."},
       {key:"phone-powerbank",icon:"🔋",name:"טלפון + סוללה ניידת + כבלי טעינה",qty:"1 סט",days:forecast,sources:["route"],note:"שימושי במיוחד בימי ניווט ונסיעות ארוכות; לטעון בלילה."},
       {key:"water-bottle",icon:"🚰",name:"בקבוק מים רב־פעמי",qty:"1",days:dayRange(23,29),sources:["route"],note:"לימי הנסיעה, ההליכה והשטח."},
       {key:"short-shirts",icon:"👕",name:"חולצות קצרות / מנדפות",qty:"4–5",days:forecast,sources:["booklet","weather"],note:"החוברת ממליצה על קצר וארוך; קצר משמש כשכבת בסיס לאורך הטיול."},
@@ -1506,7 +1515,7 @@ function buildGear(byLoc){
       {key:"socks",icon:"🧦",name:"גרבי טיולים",qty:"6–7 זוגות",days:mountain,sources:["route"],note:"לימי ההליכה והשטח הארוכים."},
       {key:"beanie-buff",icon:"🧢",name:"כובע צמר / Buff",qty:"1",days:union(match(wx=>wx.min<=9),mountain),sources:["booklet","weather"],note:"כובע צמר מופיע בהמלצות החוברת; שימושי במיוחד בבקרים, בערבים וברוח."},
       {key:"gloves",icon:"🧤",name:"כפפות דקות",qty:"אופציונלי",days:match(wx=>wx.min<=4),sources:["weather"],note:"רק אם התחזית בהרים נשארת סביב 4° ומטה."},
-      {key:"swimsuit",icon:"🏊",name:"בגד ים",qty:"1",days:union(rafting,coast),sources:["booklet","route"],note:"מופיע בחוברת; שימושי לרפטינג ולימי החוף/מלון."},
+      {key:"swimsuit",icon:"🏊",name:"בגד ים",qty:"1",days:coast,sources:["booklet","route"],note:"מופיע בחוברת; שימושי לימי החוף/מלון."},
       {key:"sun",icon:"🕶️",name:"כובע רחב שוליים + משקפי שמש + SPF",qty:"1 סט",days:forecast,sources:["booklet","weather"],note:"שלושתם מופיעים בהמלצות החוברת; רלוונטי גם בגובה."},
       {key:"spare-glasses",icon:"👓",name:"משקפי ראייה ספייר",qty:"1",days:forecast,sources:["booklet"],note:"החוברת ממליצה במפורש על זוג משקפי ראייה ספייר."},
       {key:"repellent",icon:"🦟",name:"אלתוש",qty:"1",days:dayRange(24,29),sources:["booklet","route"],note:"מופיע בחוברת; בעיקר ליד אגמים, נהרות ובשעות הערב."},
