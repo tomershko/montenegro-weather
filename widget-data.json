@@ -117,16 +117,16 @@
       "date": "2026-09-26",
       "dayNumber": 4,
       "dow": "ש׳",
-      "title": "רפטינג על גבול בוסניה",
-      "subtitle": "תצפיות, קניון טארה ורפטינג",
+      "title": "נסיעת שטח הררית ואגם ביוגראד",
+      "subtitle": "הרפטינג בוטל · במקומו נסיעת שטח הררית והליכה ביער סביב אגם ביוגראד",
       "loc": "kolasin",
       "stay": "Bianca Resort • קולאשין",
       "flight": null,
       "url": "https://tomershko.github.io/montenegro-weather/#day-details-4",
       "nav": [
         {
-          "label": "קניון טארה",
-          "query": "Tara River Canyon, Montenegro"
+          "label": "אגם ביוגראד",
+          "query": "Biogradsko Jezero, Montenegro"
         },
         {
           "label": "Bianca Resort",
