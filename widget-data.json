@@ -138,33 +138,12 @@
       "date": "2026-09-27",
       "dayNumber": 5,
       "dow": "א׳",
-      "title": "אגם אחד, רכס שני ומשפחה מיוחדת",
-      "subtitle": "רכס סיניאווינה, כפרי קיץ ומפגש מקומי",
-      "loc": "kolasin",
-      "stay": "Bianca Resort • קולאשין",
-      "flight": null,
-      "url": "https://tomershko.github.io/montenegro-weather/#day-details-5",
-      "nav": [
-        {
-          "label": "רכס סיניאווינה",
-          "query": "Sinjajevina Montenegro"
-        },
-        {
-          "label": "Bianca Resort",
-          "query": "Bianca Resort & Spa Kolasin Montenegro"
-        }
-      ]
-    },
-    {
-      "date": "2026-09-28",
-      "dayNumber": 6,
-      "dow": "ב׳",
       "title": "ביילאשיצה או קומובי – מה יפה יותר?",
       "subtitle": "אתר הסקי, ביילאשיצה, קומובי ותצפיות הרים",
       "loc": "kolasin",
       "stay": "Bianca Resort • קולאשין",
       "flight": null,
-      "url": "https://tomershko.github.io/montenegro-weather/#day-details-6",
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-5",
       "nav": [
         {
           "label": "Kolašin 1600",
@@ -177,6 +156,27 @@
         {
           "label": "רכס קומובי",
           "query": "Komovi Montenegro"
+        },
+        {
+          "label": "Bianca Resort",
+          "query": "Bianca Resort & Spa Kolasin Montenegro"
+        }
+      ]
+    },
+    {
+      "date": "2026-09-28",
+      "dayNumber": 6,
+      "dow": "ב׳",
+      "title": "אגם אחד, רכס שני ומשפחה מיוחדת",
+      "subtitle": "רכס סיניאווינה, כפרי קיץ ומפגש מקומי",
+      "loc": "kolasin",
+      "stay": "Bianca Resort • קולאשין",
+      "flight": null,
+      "url": "https://tomershko.github.io/montenegro-weather/#day-details-6",
+      "nav": [
+        {
+          "label": "רכס סיניאווינה",
+          "query": "Sinjajevina Montenegro"
         },
         {
           "label": "Bianca Resort",
